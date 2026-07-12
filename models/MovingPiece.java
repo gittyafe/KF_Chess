@@ -1,15 +1,23 @@
 package models;
 
 public class MovingPiece {
-    int timeLeft;
-    Piece piece;
-    Position destination;
+    private int timeLeft;
+    private Piece piece;
+    private Position destination;
+    private boolean isJump;
 
-    public MovingPiece(Piece piece, Position destination, int timeLeft) {
+
+    public MovingPiece(Piece piece, Position destination, int timeLeft, boolean isJump) {
         this.piece = piece;
         this.destination = destination;
         this.timeLeft = timeLeft;
+        this.isJump = isJump;
     }
+
+    public boolean isJump() {
+        return isJump;
+    }
+
     public Piece getPiece() {
         return piece;
     }

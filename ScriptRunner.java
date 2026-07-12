@@ -11,16 +11,16 @@ public class ScriptRunner {
     private Controller controller;
     private RealTimeEngine rta;
 
-     public void handleInputLine(String line) {
+    public void handleInputLine(String line) {
         if (line.equalsIgnoreCase("Board:")) {
             readingBoard = true;
             return;
         }
         if (line.startsWith("Commands")) {
-            this.board = BoardParser.parse(boardString);  
+            this.board = BoardParser.parse(boardString);
             rta = new RealTimeEngine();
             gameEngine = new GameEngine(board, rta);
-            controller = new Controller(gameEngine);  
+            controller = new Controller(gameEngine);
             readingBoard = false;
             return;
         }
@@ -33,9 +33,8 @@ public class ScriptRunner {
     }
 
     private void parseAndAddRow(String line) {
-        boardString += (line+"\n");
+        boardString += (line + "\n");
     }
-
 
     private void processCommand(String line) {
         String[] cmdTokens = line.split("\\s+");
@@ -53,7 +52,6 @@ public class ScriptRunner {
     }
 
     private void handleClickCommand(String[] cmdTokens) {
-
         try {
             int x = Integer.parseInt(cmdTokens[1]);
             int y = Integer.parseInt(cmdTokens[2]);
@@ -67,12 +65,12 @@ public class ScriptRunner {
     }
 
     private void handleJumpCommandParsed(String[] cmdTokens) {
-
         try {
             int x = Integer.parseInt(cmdTokens[1]);
             int y = Integer.parseInt(cmdTokens[2]);
             controller.jump(x, y);
         } catch (NumberFormatException e) {
+            System.err.println("Invalid coordinate format in command: " + String.join(" ", cmdTokens));
         }
     }
 

@@ -64,8 +64,8 @@ public class Board {
 
         for (Piece piece : pieces) {
             Position piecePosition = piece.getSquare();
-            if (piecePosition != null && piecePosition.getRow() == position.getRow()
-                    && piecePosition.getColumn() == position.getColumn()) {
+            if (piecePosition != null && piecePosition.equals(position)
+                    && (piece.getState() != STATE.CUPTURED)) {
                 return piece;
             }
         }
@@ -77,7 +77,7 @@ public class Board {
     }
 
     public boolean movePiece(Piece piece, Position destination) {
-       //????
+        // ????
         if (piece == null || destination == null || !isInsideBounds(destination)) {
             return false;
         }
@@ -87,15 +87,15 @@ public class Board {
         }
 
         Position currentPosition = piece.getSquare();
-        if (currentPosition != null &&  currentPosition.equals(destination)){
+        if (currentPosition != null && currentPosition.equals(destination)) {
             return true;
         }
 
         if (queryPieceAt(destination) != null && queryPieceAt(destination) != piece) {
             return false;
         }
-        ////????
-        
+        //// ????
+
         piece.setSquare(destination);
         return true;
     }
@@ -108,12 +108,11 @@ public class Board {
                 && position.getColumn() >= 0 && position.getColumn() < width;
     }
 
-
     public boolean isEmpty() {
         return pieces.isEmpty();
     }
 
-     public void setWidth(int width) {
+    public void setWidth(int width) {
         this.width = width;
     }
 

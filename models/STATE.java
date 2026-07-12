@@ -1,4 +1,4 @@
 package models;
 public enum STATE{
-    CUPTURED, IDLE, MOVING
+    CUPTURED, IDLE, MOVING, JUMPING
 }

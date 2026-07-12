@@ -10,7 +10,6 @@ import models.Position;
 import models.STATE;
 import rules.RuleEngine;
 
-
 /**
  * Main game engine that orchestrates board state and game flow
  */
@@ -19,16 +18,14 @@ public class GameEngine {
     private boolean isGameOver = false;
     private RealTimeEngine rta;
 
-
     public GameEngine(Board board, RealTimeEngine rta) {
         this.board = board;
         this.rta = rta;
     }
-    
+
     public boolean isGameOver() {
         return isGameOver;
     }
-
 
     public Piece getPieceAt(Position position) {
         return board.queryPieceAt(position);
@@ -38,7 +35,7 @@ public class GameEngine {
         Piece piece = board.queryPieceAt(from);
 
         MoveRequest moveResult = validateMove(piece, from, to);
-        if(moveResult.isValid()) {
+        if (moveResult.isValid()) {
             movePiece(piece, from, to);
         }
         return moveResult;
@@ -49,7 +46,8 @@ public class GameEngine {
             return;
         }
         piece.setState(STATE.MOVING);
-        int distanceCells = Math.max(Math.abs(to.getRow() - from.getRow()), Math.abs(to.getColumn() - from.getColumn()));
+        int distanceCells = Math.max(Math.abs(to.getRow() - from.getRow()),
+                Math.abs(to.getColumn() - from.getColumn()));
         rta.setActiveMotion(distanceCells, piece, to);
     }
 
@@ -58,27 +56,29 @@ public class GameEngine {
             return new MoveRequest(MoveStatus.GAME_OVER, false);
         }
 
-        if(rta.hasActiveMotion()) {
+        if (rta.hasActiveMotion()) {
             return new MoveRequest(MoveStatus.PIECE_IN_MOTION, false);
         }
 
-         // Check if the target position is within the board bounds
-        if (to!=null && (to.getRow() < 0 || to.getColumn() < 0 || to.getRow() >= board.getHeight() || to.getColumn() >= board.getWidth())){
+        // Check if the target position is within the board bounds
+        if (to != null && (to.getRow() < 0 || to.getColumn() < 0 || to.getRow() >= board.getHeight()
+                || to.getColumn() >= board.getWidth())) {
             return new MoveRequest(MoveStatus.OUT_OF_BOUNDS, false);
         }
 
         // Check if the source position is within the board bounds
-        if (from!=null && (from.getRow() < 0 || from.getColumn() < 0 || from.getRow() >= board.getHeight() || from.getColumn() >= board.getWidth())) {
+        if (from != null && (from.getRow() < 0 || from.getColumn() < 0 || from.getRow() >= board.getHeight()
+                || from.getColumn() >= board.getWidth())) {
             return new MoveRequest(MoveStatus.OUT_OF_BOUNDS, false);
         }
 
         // Check if the target position is occupied by a piece of the same color
         Piece targetPiece = board.queryPieceAt(to);
-        if (targetPiece != null && !targetPiece.isEmpty() && targetPiece.getColor() == piece.getColor()) {
+        if (targetPiece != null && targetPiece.getColor() == piece.getColor()) {
             return new MoveRequest(MoveStatus.SAME_COLOR_OCCUPIED, false);
         }
 
-        if(!RuleEngine.isValidMove(piece, from, to, board)) {
+        if (!RuleEngine.isValidMove(piece, from, to, board)) {
             return new MoveRequest(MoveStatus.INVALID_MOVE, false);
         }
 
@@ -87,29 +87,42 @@ public class GameEngine {
 
     public void wait_(long ms) {
         List<MovingPiece> finishedThisTick = rta.updateTime(ms);
+        
         for (MovingPiece finished : finishedThisTick) {
-            arrivedPiece(finished.getPiece(), finished.getDestination());
-        }    
+            if (!finished.isJump()) {
+                arrivedPiece(finished);
+            }
+        }
+        for (MovingPiece finished : finishedThisTick) {
+            if (finished.isJump()) {
+                arrivedPiece(finished);
+            }
+        }
     }
 
-    public void arrivedPiece(Piece piece, Position destination) {
-        piece.setState(STATE.IDLE);
+    public void arrivedPiece(MovingPiece finished) {
+        Piece piece = finished.getPiece();
+        Position destination = finished.getDestination();
+
         Piece targetPiece = board.queryPieceAt(destination);
-        if (targetPiece != null) {
+        
+        if (targetPiece != null && targetPiece.getState()!=STATE.JUMPING) {
+            System.out.println(targetPiece.getState());
             board.removePiece(targetPiece);
             if (targetPiece.getType() == 'K') {
                 isGameOver = true;
             }
         }
+        piece.setState(STATE.IDLE);
         piece.setPosition(destination);
     }
 
-
     ////////////////////////////////////////////////////////////
-    //לסדר את זה שיחזיר את הסטטוס של המהלך במקום בוליאןJumpRequest
+    // לסדר את זה שיחזיר את הסטטוס של המהלך במקום בוליאןJumpRequest
     public void jumpRequest(Position destination) {
         Piece piece = board.queryPieceAt(destination);
-        if(piece != null && !isGameOver && !rta.hasActiveJump()) {
+        piece.setState(STATE.JUMPING);
+        if (piece != null && !isGameOver && !rta.hasActiveJump()) {
             rta.setActiveJump(piece);
         }
     }

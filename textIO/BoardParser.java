@@ -16,15 +16,18 @@ public class BoardParser {
             return board;
         }
 
-        String[] lines = boardString.split("\\n");
+        String[] lines = boardString.split("\\r?\\n");
         List<String[]> rows = new ArrayList<>();
         int width = 0;
 
         for (String line : lines) {
-            String[] tokens = line.split("\\s+");
+            if (line == null || line.trim().isEmpty()) {
+                continue;
+            }
+            String[] tokens = line.trim().split("\\s+");
             rows.add(tokens);
-            if(width != 0 && width != tokens.length)
-                throw new IllegalArgumentException("ERROR ROW_WIDTH_MISMATCH");     
+            if (width != 0 && width != tokens.length)
+                throw new IllegalArgumentException("ERROR ROW_WIDTH_MISMATCH");
             width = tokens.length;
         }
 
@@ -37,14 +40,13 @@ public class BoardParser {
                 String token = tokens[col];
                 if (token.equals(".")) {
                     continue;
-                }
-                else if (!isValidToken(token)) {
+                } else if (!isValidToken(token)) {
                     throw new IllegalArgumentException("ERROR UNKNOWN_TOKEN: " + token);
                 }
 
-                Piece piece = parsePieceToken(token, row,col);
+                Piece piece = parsePieceToken(token, row, col);
                 board.addPiece(piece);
-                 
+
             }
         }
 

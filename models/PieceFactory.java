@@ -18,7 +18,7 @@ public class PieceFactory {
             case 'R':
                 return new Piece(id++, color, 'R', position, rookRule);
             case 'K':
-                 return new Piece(id++, color, 'K', position, kingRule);
+                return new Piece(id++, color, 'K', position, kingRule);
             case 'P':
                 return new Piece(id++, color, 'P', position, pawnRule);
             case 'B':
@@ -27,8 +27,7 @@ public class PieceFactory {
                 return new Piece(id++, color, 'Q', position, queenRule);
             case 'N':
                 return new Piece(id++, color, 'N', position, knightRule);
-
-            
+                          
             default:
                 throw new IllegalArgumentException("Unknown piece type: " + type);
         }

@@ -16,12 +16,12 @@ public class RealTimeEngine {
 
     // הגדרת כלי בתנועה רגילה
     public void setActiveMotion(int distanceCells, Piece piece, Position destination) {
-        this.activeMotion = new MovingPiece(piece, destination, distanceCells * MS_PER_CELL);
+        this.activeMotion = new MovingPiece(piece, destination, distanceCells * MS_PER_CELL, false);
     }
 
     // הגדרת כלי בקפיצה מבוססת זמן
     public void setActiveJump(Piece piece) {
-        this.activeJump = new MovingPiece(piece, piece.getPosition(), MS_PER_CELL);
+        this.activeJump = new MovingPiece(piece, piece.getPosition(), MS_PER_CELL, true);
     }
 
     public boolean hasActiveMotion() {

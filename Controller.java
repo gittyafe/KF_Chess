@@ -21,7 +21,7 @@ public class Controller {
         int targetRow = BoardMapper.pixelToCell(y);
         int targetCol = BoardMapper.pixelToCell(x);
         Position targetPosition = new Position(targetRow, targetCol);
-
+        
         // אם זו לחיצה ראשונה (בחירת כלי)
         if (!isSelected) {
             // נשאל את המנוע אם יש שם כלי של השחקן הנוכחי שאפשר לבחור
@@ -34,7 +34,6 @@ public class Controller {
 
         // אם זו לחיצה שנייה (ניסיון תנועה)
         MoveRequest moveResult = gameEngine.requestMove(selectedPosition, targetPosition);
-
         switch (moveResult.getReason()) {
             case SUCCESS:
                 // המנוע כבר עדכן את ה-STATE של הכלי בפנים והפעיל את האנימציה!

@@ -15,6 +15,7 @@ public class PawnRule implements IPieceRule {
         int requiredRowDirection = (color == 'w') ? -1 : 1;
         int actualRowDirection = tr - sr;
         int deltaCol = Math.abs(tc - sc);
+        int startingRank = color == 'w' ? board.getHeight() - 2 : 1;
 
         // --- Forward movement ---
         if (sc == tc) {
@@ -29,9 +30,7 @@ public class PawnRule implements IPieceRule {
 
             // Double step from starting position
             if (actualRowDirection == 2 * requiredRowDirection) {
-                int allowedStartRow = color == 'w' ? board.getHeight() - 1 : 0;
-
-                if (sr == allowedStartRow) {
+                if (sr == startingRank) {
                     int middleRow = sr + requiredRowDirection;
                     return board.queryPieceAt(middleRow, sc) == null;
                 }
@@ -51,12 +50,13 @@ public class PawnRule implements IPieceRule {
     public Piece onReachEdge(Piece piece, int targetRow) {
         // // Pawn reaches opposite edge -> promotes to Queen
         // int lastRowForWhite = 0;
-        // int lastRowForBlack = board.getHeight() - 1; 
+        // int lastRowForBlack = board.getHeight() - 1;
 
         // if ((piece.getColor() == 'w' && targetRow == lastRowForWhite) ||
-        //         (piece.getColor() == 'b' && targetRow == lastRowForBlack)) { // Simple check for now
-        //     // Return pawn promoted to Queen
-        //     return PieceFactory.createPiece(piece.getColor(), 'Q', piece.getPosition());
+        // (piece.getColor() == 'b' && targetRow == lastRowForBlack)) { // Simple check
+        // for now
+        // // Return pawn promoted to Queen
+        // return PieceFactory.createPiece(piece.getColor(), 'Q', piece.getPosition());
         // }
         return piece;
     }

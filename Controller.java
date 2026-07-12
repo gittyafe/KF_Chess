@@ -21,7 +21,6 @@ public class Controller {
         int targetRow = BoardMapper.pixelToCell(y);
         int targetCol = BoardMapper.pixelToCell(x);
         Position targetPosition = new Position(targetRow, targetCol);
-        
         // אם זו לחיצה ראשונה (בחירת כלי)
         if (!isSelected) {
             // נשאל את המנוע אם יש שם כלי של השחקן הנוכחי שאפשר לבחור

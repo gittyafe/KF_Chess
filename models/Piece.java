@@ -80,4 +80,30 @@ public class Piece {
         this.square = position;
     }
 
+    public void promote(char newType) {
+        this.type = newType;
+        switch (Character.toUpperCase(newType)) {
+            case 'R':
+                this.rule = new rules.RookRule();
+                break;
+            case 'K':
+                this.rule = new rules.KingRule();
+                break;
+            case 'P':
+                this.rule = new rules.PawnRule();
+                break;
+            case 'B':
+                this.rule = new rules.BishopRule();
+                break;
+            case 'Q':
+                this.rule = new rules.QueenRule();
+                break;
+            case 'N':
+                this.rule = new rules.KnightRule();
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown piece type: " + newType);
+        }
+    }
+
 }

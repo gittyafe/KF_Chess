@@ -57,6 +57,7 @@ public class ScriptRunner {
             int y = Integer.parseInt(cmdTokens[2]);
             controller.click(x, y);
         } catch (NumberFormatException e) {
+            System.err.println("Invalid coordinate format in command: " + String.join(" ", cmdTokens));
         }
     }
 

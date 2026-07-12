@@ -118,6 +118,7 @@ public class GameEngine {
         }
         piece.setState(STATE.IDLE);
         piece.setPosition(destination);
+        promoteIfNeeded(piece);
     }
 
     ////////////////////////////////////////////////////////////
@@ -128,6 +129,20 @@ public class GameEngine {
         if (piece != null && !isGameOver && !rta.hasActiveJump() && piece.getState() == STATE.IDLE) {
             piece.setState(STATE.JUMPING);
             rta.setActiveJump(piece);
+        }
+    }
+
+    private void promoteIfNeeded(Piece piece) {
+        if (piece.getType() == 'P') {
+            int targetRow = piece.getPosition().getRow();
+
+            int lastRowForWhite = 0;
+            int lastRowForBlack = board.getHeight() - 1;
+
+            if ((piece.getColor() == 'w' && targetRow == lastRowForWhite) ||
+                    (piece.getColor() == 'b' && targetRow == lastRowForBlack)) { // Simple check
+                piece.promote('Q'); // Promote to Queen
+            }
         }
     }
 

@@ -1,6 +1,4 @@
 
-import textIO.BoardParser;
-
 import java.util.List;
 
 import models.Board;

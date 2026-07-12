@@ -1,6 +1,5 @@
 
 import models.MoveRequest;
-import models.Piece;
 import models.Position;
 
 

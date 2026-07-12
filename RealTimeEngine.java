@@ -16,17 +16,11 @@ public class RealTimeEngine {
 
     // הגדרת כלי בתנועה רגילה
     public void setActiveMotion(int distanceCells, Piece piece, Position destination) {
-        if (hasActiveMotion()) {
-            throw new IllegalStateException("A piece is already in motion!");
-        }
         this.activeMotion = new MovingPiece(piece, destination, distanceCells * MS_PER_CELL);
     }
 
     // הגדרת כלי בקפיצה מבוססת זמן
     public void setActiveJump(Piece piece) {
-        if (hasActiveJump()) {
-            throw new IllegalStateException("A piece is already jumping!");
-        }
         this.activeJump = new MovingPiece(piece, piece.getPosition(), MS_PER_CELL);
     }
 

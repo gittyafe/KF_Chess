@@ -15,11 +15,12 @@ public class Piece {
     private STATE state;
     private IPieceRule rule;
 
-    public Piece(char color, char type, Position square, IPieceRule rule) {
-        this(color, type, square, STATE.IDLE, rule);
+    public Piece(int id, char color, char type, Position square, IPieceRule rule) {
+        this(id, color, type, square, STATE.IDLE, rule);
     }
 
-    public Piece(char color, char type, Position square, STATE state, IPieceRule rule) {
+    public Piece(int id, char color, char type, Position square, STATE state, IPieceRule rule) {
+        this.id = id;
         this.color = color;
         this.type = type;
         this.square = square;
@@ -79,7 +80,4 @@ public class Piece {
         this.square = position;
     }
 
-    public boolean isEmpty() {
-        return color == ' ' && type == ' ';
-    }
 }

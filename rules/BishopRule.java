@@ -3,20 +3,24 @@ package rules;
 import models.Board;
 import models.Piece;
 
-public class RookRule implements IPieceRule {
-
+public class BishopRule implements IPieceRule {
     @Override
     public boolean isLegalMove(int sr, int sc, int tr, int tc, Piece piece, Board board) {
-        if (piece == null) {
-            return false;
-        }
+        // Bishop moves diagonally
+        int deltaRow = Math.abs(tr - sr);
+        int deltaCol = Math.abs(tc - sc);
 
-        // Rook moves in straight lines (horizontal or vertical)
-        if (sr != tr && sc != tc)
+        if (deltaRow != deltaCol)
             return false;
         return isPathClear(sr, sc, tr, tc, board);
     }
 
+    @Override
+    public Piece onReachEdge(Piece piece, int targetRow) {
+        return piece; // Bishop doesn't transform
+    }
+
+  
     private boolean isPathClear(int sr, int sc, int tr, int tc, Board board) {
         int stepRow = Integer.compare(tr, sr);
         int stepCol = Integer.compare(tc, sc);
@@ -31,10 +35,5 @@ public class RookRule implements IPieceRule {
             currCol += stepCol;
         }
         return true;
-    }
-
-    @Override
-    public Piece onReachEdge(Piece piece, int targetRow) {
-        return piece;// Rook doesn't transform
     }
 }

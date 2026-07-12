@@ -5,8 +5,8 @@ import java.util.List;
 
 import models.Board;
 import models.Piece;
+import models.PieceFactory;
 import models.Position;
-import models.STATE;
 
 public class BoardParser {
 
@@ -38,7 +38,7 @@ public class BoardParser {
                 if (token.equals(".")) {
                     continue;
                 }
-                if (!isValidToken(token)) {
+                else if (!isValidToken(token)) {
                     throw new IllegalArgumentException("ERROR UNKNOWN_TOKEN: " + token);
                 }
 
@@ -54,7 +54,7 @@ public class BoardParser {
     private static Piece parsePieceToken(String token, int row, int col) {
         char color = token.charAt(0);
         char type = token.charAt(1);
-        return new Piece(color, type,new Position(row, col), STATE.IDLE);
+        return PieceFactory.createPiece(color, type, new Position(row, col));
     }
 
     /**

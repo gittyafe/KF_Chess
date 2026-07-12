@@ -1,5 +1,8 @@
 package models;
 
+import rules.IPieceRule;
+import rules.RuleEngine;
+
 /**
  * Represents a chess piece on the board.
  * Composite object: combines color + type + position + state.
@@ -10,16 +13,22 @@ public class Piece {
     private char type;
     private Position square;
     private STATE state;
+    private IPieceRule rule;
 
-    public Piece(char color, char type) {
-        this(color, type, null, STATE.IDLE);
+    public Piece(char color, char type, Position square, IPieceRule rule) {
+        this(color, type, square, STATE.IDLE, rule);
     }
 
-    public Piece(char color, char type, Position square, STATE state) {
+    public Piece(char color, char type, Position square, STATE state, IPieceRule rule) {
         this.color = color;
         this.type = type;
         this.square = square;
         this.state = state;
+        this.rule = rule;
+    }
+
+    public IPieceRule getPieceRule() {
+        return rule;
     }
 
     public int getId() {
@@ -60,6 +69,14 @@ public class Piece {
 
     public void setState(STATE state) {
         this.state = state;
+    }
+
+    public Position getPosition() {
+        return square;
+    }
+
+    public void setPosition(Position position) {
+        this.square = position;
     }
 
     public boolean isEmpty() {

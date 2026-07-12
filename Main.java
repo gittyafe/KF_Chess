@@ -9,7 +9,11 @@ public class Main {
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine().trim();
             if (!line.isEmpty()) {
+                try{
                 scriptRunner.handleInputLine(line);
+                }catch(Exception e){
+                    System.out.println(e.getMessage());
+                }
             }
         }
         scanner.close();

@@ -41,7 +41,7 @@ public class BoardParser {
                 if (token.equals(".")) {
                     continue;
                 } else if (!isValidToken(token)) {
-                    throw new IllegalArgumentException("ERROR UNKNOWN_TOKEN: " + token);
+                    throw new IllegalArgumentException("ERROR UNKNOWN_TOKEN");
                 }
 
                 Piece piece = parsePieceToken(token, row, col);

@@ -57,7 +57,11 @@ public class GameEngine {
         }
 
         if (rta.hasActiveMotion()) {
-            return new MoveRequest(MoveStatus.PIECE_IN_MOTION, false);
+            return new MoveRequest(MoveStatus.ANOTHER_PIECE_MOVING, false);
+        }
+
+        if (piece != null && piece.getState() != STATE.IDLE) {
+            return new MoveRequest(MoveStatus.PIECE_ALREADY_IN_MOTION, false);
         }
 
         // Check if the target position is within the board bounds
@@ -87,7 +91,7 @@ public class GameEngine {
 
     public void wait_(long ms) {
         List<MovingPiece> finishedThisTick = rta.updateTime(ms);
-        
+
         for (MovingPiece finished : finishedThisTick) {
             if (!finished.isJump()) {
                 arrivedPiece(finished);
@@ -105,9 +109,8 @@ public class GameEngine {
         Position destination = finished.getDestination();
 
         Piece targetPiece = board.queryPieceAt(destination);
-        
-        if (targetPiece != null && targetPiece.getState()!=STATE.JUMPING) {
-            System.out.println(targetPiece.getState());
+
+        if (targetPiece != null && targetPiece.getState() != STATE.JUMPING) {
             board.removePiece(targetPiece);
             if (targetPiece.getType() == 'K') {
                 isGameOver = true;
@@ -121,8 +124,9 @@ public class GameEngine {
     // לסדר את זה שיחזיר את הסטטוס של המהלך במקום בוליאןJumpRequest
     public void jumpRequest(Position destination) {
         Piece piece = board.queryPieceAt(destination);
-        piece.setState(STATE.JUMPING);
-        if (piece != null && !isGameOver && !rta.hasActiveJump()) {
+
+        if (piece != null && !isGameOver && !rta.hasActiveJump() && piece.getState() == STATE.IDLE) {
+            piece.setState(STATE.JUMPING);
             rta.setActiveJump(piece);
         }
     }

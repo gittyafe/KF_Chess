@@ -21,7 +21,7 @@ public class RealTimeEngine {
 
     // הגדרת כלי בקפיצה מבוססת זמן
     public void setActiveJump(Piece piece) {
-        this.activeJump = new MovingPiece(piece, piece.getPosition(), MS_PER_CELL, true);
+        this.activeJump = new MovingPiece(piece, piece.getSquare(), MS_PER_CELL, true);
     }
 
     public boolean hasActiveMotion() {

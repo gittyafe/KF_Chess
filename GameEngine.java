@@ -117,7 +117,7 @@ public class GameEngine {
             }
         }
         piece.setState(STATE.IDLE);
-        piece.setPosition(destination);
+        board.movePiece(piece, destination);
         promoteIfNeeded(piece);
     }
 
@@ -134,7 +134,7 @@ public class GameEngine {
 
     private void promoteIfNeeded(Piece piece) {
         if (piece.getType() == 'P') {
-            int targetRow = piece.getPosition().getRow();
+            int targetRow = piece.getSquare().getRow();
 
             int lastRowForWhite = 0;
             int lastRowForBlack = board.getHeight() - 1;

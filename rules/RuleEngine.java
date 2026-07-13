@@ -7,23 +7,21 @@ import models.Position;
 public class RuleEngine {
 
     /**
-     * פונקציית השרשרת הראשית (Validation Pipeline)
+     * Validate whether a move is legal for the given piece on the specified board.
      */
     public static boolean isValidMove(Piece piece, Position src, Position dest, Board board) {
         Piece targetPiece = board.queryPieceAt(dest);
         boolean isCapture = (targetPiece != null);
 
-        // שלב 1: בדיקת וקטור תנועה גיאומטרי יבש
-        if (!MoveGeometry.isDirectionValid(piece.getType(), src, dest, piece.getColor(), isCapture, board.getHeight())) {
+        if (!MoveGeometry.isDirectionValid(piece.getType(), src, dest, piece.getColor(), isCapture,
+                board.getHeight())) {
             return false;
         }
 
-        // שלב 2: בדיקת חסימת מסלול לכלים ארוכי טווח (Rook, Bishop, Queen)
         if (requiresPathClearCheck(piece.getType()) && !isPathClear(src, dest, board)) {
             return false;
         }
 
-        // שלב 3: בדיקת חסימות ייחודיות בהתאם להקשר הלוח (כמו צעד כפול של רגלי)
         if (!checkContextualObstacles(piece, src, dest, board)) {
             return false;
         }
@@ -37,7 +35,7 @@ public class RuleEngine {
     }
 
     /**
-     * בדיקת חסימת מסלול גנרית ואלגוריתמית
+     * Generic path blocking check for sliding pieces.
      */
     private static boolean isPathClear(Position src, Position dest, Board board) {
         int stepRow = Integer.compare(dest.getRow(), src.getRow());
@@ -57,20 +55,18 @@ public class RuleEngine {
     }
 
     /**
-     * ריכוז בדיקות חסימה תלויות-לוח מיוחדות
+     * Perform board-dependent obstacle checks for special movement rules.
      */
     private static boolean checkContextualObstacles(Piece piece, Position src, Position dest, Board board) {
         char type = Character.toUpperCase(piece.getType());
-        
-        // החרגה ייחודית לרגלי: מניעת קפיצה מעל כלי בצעד כפול קדימה
+
         if (type == 'P' && Math.abs(dest.getRow() - src.getRow()) == 2) {
             int stepRow = (piece.getColor() == 'w') ? -1 : 1;
             if (board.queryPieceAt(src.getRow() + stepRow, src.getColumn()) != null) {
                 return false;
             }
         }
-        
-        // כאן בעתיד ייכנסו בדיקות כמו: האם המלך עובר דרך משבצת מאוימת בזמן הצרחה
+
         return true;
     }
 }

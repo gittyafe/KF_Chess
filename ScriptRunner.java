@@ -2,22 +2,31 @@ import models.Board;
 import textIO.BoardParser;
 import textIO.BoardPrinter;
 
+/**
+ * Parses and executes simple script commands for board setup and actions.
+ */
 public class ScriptRunner {
 
     private Board board;
-    private String boardString = "";
+    private StringBuilder boardString = new StringBuilder();
     private boolean readingBoard = false;
     private GameEngine gameEngine;
     private Controller controller;
     private RealTimeEngine rta;
 
+    /**
+     * Process a single input line from the script.
+     *
+     * @param line input line containing board data or a command
+     */
     public void handleInputLine(String line) {
         if (line.equalsIgnoreCase("Board:")) {
             readingBoard = true;
             return;
         }
-        if (line.startsWith("Commands")) {
-            this.board = BoardParser.parse(boardString);
+
+        if (line.equalsIgnoreCase("Commands:")) {
+            board = BoardParser.parse(boardString.toString());
             rta = new RealTimeEngine();
             gameEngine = new GameEngine(board, rta);
             controller = new Controller(gameEngine);
@@ -26,28 +35,51 @@ public class ScriptRunner {
         }
 
         if (readingBoard) {
-            parseAndAddRow(line);
+            appendBoardRow(line);
         } else {
             processCommand(line);
         }
     }
 
-    private void parseAndAddRow(String line) {
-        boardString += (line + "\n");
+    private void appendBoardRow(String line) {
+        boardString.append(line).append('\n');
     }
 
     private void processCommand(String line) {
         String[] cmdTokens = line.split("\\s+");
-        String command = cmdTokens[0].toLowerCase();
+        if (cmdTokens.length == 0) {
+            return;
+        }
 
-        if (command.equals("print") && cmdTokens.length > 1 && cmdTokens[1].equalsIgnoreCase("board")) {
-            BoardPrinter.print(board);
-        } else if (command.equals("click") && cmdTokens.length == 3) {
-            handleClickCommand(cmdTokens);
-        } else if (command.equals("wait") && cmdTokens.length == 2) {
-            handleWaitCommand(cmdTokens);
-        } else if (command.equals("jump") && cmdTokens.length == 3) {
-            handleJumpCommandParsed(cmdTokens);
+        String command = cmdTokens[0].toLowerCase();
+        switch (command) {
+            case "print":
+                if (cmdTokens.length > 1 && cmdTokens[1].equalsIgnoreCase("board")) {
+                    BoardPrinter.print(board);
+                }
+                break;
+
+            case "click":
+                if (cmdTokens.length == 3) {
+                    handleClickCommand(cmdTokens);
+                }
+                break;
+
+            case "wait":
+                if (cmdTokens.length == 2) {
+                    handleWaitCommand(cmdTokens);
+                }
+                break;
+
+            case "jump":
+                if (cmdTokens.length == 3) {
+                    handleJumpCommandParsed(cmdTokens);
+                }
+                break;
+
+            default:
+                System.err.println("Unknown command: " + line);
+                break;
         }
     }
 
@@ -62,7 +94,12 @@ public class ScriptRunner {
     }
 
     private void handleWaitCommand(String[] cmdTokens) {
-        gameEngine.wait_(Long.parseLong(cmdTokens[1]));
+        try {
+            long delay = Long.parseLong(cmdTokens[1]);
+            gameEngine.wait_(delay);
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid wait time: " + cmdTokens[1]);
+        }
     }
 
     private void handleJumpCommandParsed(String[] cmdTokens) {
@@ -74,5 +111,4 @@ public class ScriptRunner {
             System.err.println("Invalid coordinate format in command: " + String.join(" ", cmdTokens));
         }
     }
-
 }

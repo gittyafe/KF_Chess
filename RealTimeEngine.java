@@ -1,25 +1,23 @@
 
-
 import java.util.ArrayList;
 import java.util.List;
 import models.MovingPiece;
 import models.Piece;
 import models.Position;
 
+/**
+ * Tracks active piece motions and jump timing.
+ */
 public class RealTimeEngine {
-    
-    // הפרדה מלאה בזיכרון בין סוגי התנועות
     private MovingPiece activeMotion = null;
     private MovingPiece activeJump = null;
-    
+
     private static final int MS_PER_CELL = 1000;
 
-    // הגדרת כלי בתנועה רגילה
     public void setActiveMotion(int distanceCells, Piece piece, Position destination) {
         this.activeMotion = new MovingPiece(piece, destination, distanceCells * MS_PER_CELL, false);
     }
 
-    // הגדרת כלי בקפיצה מבוססת זמן
     public void setActiveJump(Piece piece) {
         this.activeJump = new MovingPiece(piece, piece.getSquare(), MS_PER_CELL, true);
     }
@@ -33,26 +31,27 @@ public class RealTimeEngine {
     }
 
     /**
-     * מעדכן את הזמן עבור שני סוגי התנועות ומחזיר את אלו שסיימו את הזמן שלהם
+     * Advance both motion and jump timers and return pieces that finished moving.
+     *
+     * @param deltaTime time in milliseconds to advance
+     * @return list of completed moving pieces
      */
     public List<MovingPiece> updateTime(long deltaTime) {
         List<MovingPiece> finishedThisTick = new ArrayList<>();
 
-        // 1. עדכון שעון התנועה הרגילה
         if (activeMotion != null) {
             activeMotion.decrementTimeLeft(deltaTime);
             if (activeMotion.isTimeUp()) {
                 finishedThisTick.add(activeMotion);
-                activeMotion = null; // פינוי המקום לתנועה הבאה
+                activeMotion = null;
             }
         }
 
-        // 2. עדכון שעון הקפיצה
         if (activeJump != null) {
             activeJump.decrementTimeLeft(deltaTime);
             if (activeJump.isTimeUp()) {
                 finishedThisTick.add(activeJump);
-                activeJump = null; // פינוי המקום לקפיצה הבאה
+                activeJump = null;
             }
         }
 

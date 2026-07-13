@@ -10,6 +10,12 @@ import models.Position;
 
 public class BoardParser {
 
+    /**
+     * Parse a board layout string into a Board instance.
+     *
+     * @param boardString raw board text
+     * @return parsed board
+     */
     public static Board parse(String boardString) {
         Board board = new Board();
         if (boardString == null || boardString.trim().isEmpty()) {

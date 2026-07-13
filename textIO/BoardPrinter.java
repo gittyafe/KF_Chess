@@ -4,8 +4,16 @@ import models.Board;
 import models.Piece;
 import models.Position;
 
+/**
+ * Simple board printer for console output.
+ */
 public class BoardPrinter {
 
+    /**
+     * Print the board state to standard output.
+     *
+     * @param board board instance to print
+     */
     public static void print(Board board) {
         if (board == null) {
             return;

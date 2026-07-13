@@ -52,7 +52,7 @@ public class Board {
         boolean removed = pieces.remove(piece);
         if (removed) {
             piece.setSquare(null);
-            piece.setState(STATE.CUPTURED);
+            piece.setState(State.CAPTURED);
         }
         return removed;
     }
@@ -65,7 +65,7 @@ public class Board {
         for (Piece piece : pieces) {
             Position piecePosition = piece.getSquare();
             if (piecePosition != null && piecePosition.equals(position)
-                    && (piece.getState() != STATE.CUPTURED)) {
+                    && (piece.getState() != State.CAPTURED)) {
                 return piece;
             }
         }
@@ -76,8 +76,15 @@ public class Board {
         return queryPieceAt(new Position(row, column));
     }
 
+    /**
+     * Move a piece to the destination if the destination is empty or occupied by
+     * the same piece.
+     *
+     * @param piece       the piece to move
+     * @param destination destination coordinates
+     * @return true if the move is applied, false otherwise
+     */
     public boolean movePiece(Piece piece, Position destination) {
-        // ????
         if (piece == null || destination == null || !isInsideBounds(destination)) {
             return false;
         }
@@ -91,10 +98,10 @@ public class Board {
             return true;
         }
 
-        if (queryPieceAt(destination) != null && queryPieceAt(destination) != piece) {
+        Piece occupyingPiece = queryPieceAt(destination);
+        if (occupyingPiece != null && occupyingPiece != piece) {
             return false;
         }
-        //// ????
 
         piece.setSquare(destination);
         return true;

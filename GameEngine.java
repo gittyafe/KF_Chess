@@ -7,7 +7,7 @@ import models.MoveStatus;
 import models.MovingPiece;
 import models.Piece;
 import models.Position;
-import models.STATE;
+import models.State;
 import rules.RuleEngine;
 
 /**
@@ -31,64 +31,85 @@ public class GameEngine {
         return board.queryPieceAt(position);
     }
 
+    /**
+     * Request a move for a piece from one position to another.
+     *
+     * @param from source position
+     * @param to   destination position
+     * @return move request result with validation status
+     */
     public MoveRequest requestMove(Position from, Position to) {
         Piece piece = board.queryPieceAt(from);
 
         MoveRequest moveResult = validateMove(piece, from, to);
         if (moveResult.isValid()) {
-            movePiece(piece, from, to);
+            setPieceMoving(piece, from, to);
         }
         return moveResult;
     }
 
-    public void movePiece(Piece piece, Position from, Position to) {
+    /**
+     * Mark a piece as moving and schedule its animated motion.
+     *
+     * @param piece the piece to move
+     * @param from  source position
+     * @param to    destination position
+     */
+    public void setPieceMoving(Piece piece, Position from, Position to) {
         if (piece == null || from == null || to == null) {
             return;
         }
-        piece.setState(STATE.MOVING);
+        piece.setState(State.MOVING);
         int distanceCells = Math.max(Math.abs(to.getRow() - from.getRow()),
                 Math.abs(to.getColumn() - from.getColumn()));
         rta.setActiveMotion(distanceCells, piece, to);
     }
 
+    /**
+     * Validate whether a move is allowed in the current board and game state.
+     *
+     * @param piece the moving piece
+     * @param from  source position
+     * @param to    destination position
+     * @return move request result indicating whether the move is allowed
+     */
     public MoveRequest validateMove(Piece piece, Position from, Position to) {
-        if (isGameOver) {
+        if (isGameOver)
             return new MoveRequest(MoveStatus.GAME_OVER, false);
-        }
 
-        if (rta.hasActiveMotion()) {
+        if (rta.hasActiveMotion())
             return new MoveRequest(MoveStatus.ANOTHER_PIECE_MOVING, false);
-        }
 
-        if (piece != null && piece.getState() != STATE.IDLE) {
+        if (piece != null && piece.getState() != State.IDLE)
             return new MoveRequest(MoveStatus.PIECE_ALREADY_IN_MOTION, false);
-        }
 
-        // Check if the target position is within the board bounds
         if (to != null && (to.getRow() < 0 || to.getColumn() < 0 || to.getRow() >= board.getHeight()
                 || to.getColumn() >= board.getWidth())) {
             return new MoveRequest(MoveStatus.OUT_OF_BOUNDS, false);
         }
 
-        // Check if the source position is within the board bounds
         if (from != null && (from.getRow() < 0 || from.getColumn() < 0 || from.getRow() >= board.getHeight()
                 || from.getColumn() >= board.getWidth())) {
             return new MoveRequest(MoveStatus.OUT_OF_BOUNDS, false);
         }
 
-        // Check if the target position is occupied by a piece of the same color
         Piece targetPiece = board.queryPieceAt(to);
         if (targetPiece != null && targetPiece.getColor() == piece.getColor()) {
             return new MoveRequest(MoveStatus.SAME_COLOR_OCCUPIED, false);
         }
 
-        if (!RuleEngine.isValidMove(piece, from, to, board)) {
+        if (!RuleEngine.isValidMove(piece, from, to, board))
             return new MoveRequest(MoveStatus.INVALID_MOVE, false);
-        }
 
         return new MoveRequest(MoveStatus.SUCCESS, true);
     }
 
+    /**
+     * Advance the real-time engine by the specified interval and finalize any
+     * completed moves.
+     *
+     * @param ms number of milliseconds to advance
+     */
     public void wait_(long ms) {
         List<MovingPiece> finishedThisTick = rta.updateTime(ms);
 
@@ -110,26 +131,39 @@ public class GameEngine {
 
         Piece targetPiece = board.queryPieceAt(destination);
 
-        if (targetPiece != null && targetPiece.getState() != STATE.JUMPING) {
+        if (targetPiece != null && targetPiece.getState() != State.JUMPING) {
             board.removePiece(targetPiece);
             if (targetPiece.getType() == 'K') {
                 isGameOver = true;
             }
         }
-        piece.setState(STATE.IDLE);
+        piece.setState(State.IDLE);
         board.movePiece(piece, destination);
         promoteIfNeeded(piece);
     }
 
-    ////////////////////////////////////////////////////////////
-    // לסדר את זה שיחזיר את הסטטוס של המהלך במקום בוליאןJumpRequest
-    public void jumpRequest(Position destination) {
-        Piece piece = board.queryPieceAt(destination);
+    /**
+     * Request a jump action for the piece at the specified destination.
+     *
+     * @param destination target position for jump selection
+     * @return move status result
+     */
+    public MoveStatus jumpRequest(Position destination) {
+        if (isGameOver)
+            return MoveStatus.GAME_OVER;
+        if (!board.isInsideBounds(destination))
+            return MoveStatus.OUT_OF_BOUNDS;
 
-        if (piece != null && !isGameOver && !rta.hasActiveJump() && piece.getState() == STATE.IDLE) {
-            piece.setState(STATE.JUMPING);
-            rta.setActiveJump(piece);
-        }
+        Piece piece = board.queryPieceAt(destination);
+        if (piece == null)
+            return MoveStatus.INVALID_MOVE;
+        if (rta.hasActiveJump())
+            return MoveStatus.ANOTHER_PIECE_MOVING;
+        if (piece.getState() != State.IDLE)
+            return MoveStatus.PIECE_ALREADY_IN_MOTION;
+
+        rta.setActiveJump(piece);
+        return MoveStatus.SUCCESS;
     }
 
     private void promoteIfNeeded(Piece piece) {
@@ -140,8 +174,8 @@ public class GameEngine {
             int lastRowForBlack = board.getHeight() - 1;
 
             if ((piece.getColor() == 'w' && targetRow == lastRowForWhite) ||
-                    (piece.getColor() == 'b' && targetRow == lastRowForBlack)) { // Simple check
-                piece.promote('Q'); // Promote to Queen
+                    (piece.getColor() == 'b' && targetRow == lastRowForBlack)) {
+                piece.promote('Q');
             }
         }
     }

@@ -2,7 +2,6 @@
 import models.MoveRequest;
 import models.Position;
 
-
 /**
  * Manages piece selection and move initiation
  */
@@ -17,13 +16,19 @@ public class Controller {
         this.gameEngine = gameEngine;
     }
 
+    /**
+     * Process a click at pixel coordinates and either select a piece or attempt a
+     * move.
+     *
+     * @param x horizontal pixel coordinate
+     * @param y vertical pixel coordinate
+     */
     public void click(int x, int y) {
         int targetRow = BoardMapper.pixelToCell(y);
         int targetCol = BoardMapper.pixelToCell(x);
         Position targetPosition = new Position(targetRow, targetCol);
-        // אם זו לחיצה ראשונה (בחירת כלי)
+
         if (!isSelected) {
-            // נשאל את המנוע אם יש שם כלי של השחקן הנוכחי שאפשר לבחור
             if (gameEngine.getPieceAt(targetPosition) != null) {
                 isSelected = true;
                 selectedPosition = targetPosition;
@@ -31,37 +36,39 @@ public class Controller {
             return;
         }
 
-        // אם זו לחיצה שנייה (ניסיון תנועה)
         MoveRequest moveResult = gameEngine.requestMove(selectedPosition, targetPosition);
         switch (moveResult.getReason()) {
             case SUCCESS:
-                // המנוע כבר עדכן את ה-STATE של הכלי בפנים והפעיל את האנימציה!
                 clearSelection();
                 break;
 
             case SAME_COLOR_OCCUPIED:
-                // החלפת בחירה לכלי השני מאותו הצבע
                 selectedPosition = targetPosition;
                 break;
 
             default:
-                // מהלך שגוי או תנועה שעדיין א"א לעשות או מחוץ ללוח - מבטלים בחירה
                 clearSelection();
                 break;
         }
     }
 
+    /**
+     * Clear the currently selected piece.
+     */
     public void clearSelection() {
         isSelected = false;
-        selectedPosition = new Position(-1, -1); // עדיף ליצור חדש מאשר לשנות מוטציה פנימית בטעות
+        selectedPosition = new Position(-1, -1);
     }
 
-    public void jump(int x, int y){
+    /**
+     * Start a jump action for the piece at the clicked location.
+     *
+     * @param x horizontal pixel coordinate
+     * @param y vertical pixel coordinate
+     */
+    public void jump(int x, int y) {
         int row = BoardMapper.pixelToCell(y);
         int col = BoardMapper.pixelToCell(x);
-        Position jumpPosition = new Position(row, col);
-
-        gameEngine.jumpRequest(jumpPosition);
+        gameEngine.jumpRequest(new Position(row, col));
     }
 }
-

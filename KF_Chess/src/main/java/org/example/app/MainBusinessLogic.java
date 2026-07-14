@@ -1,9 +1,9 @@
-package org.example;
+package org.example.app;
 
 import java.util.Scanner;
 import org.example.textIO.ScriptRunner;
 
-public class Main {
+public class MainBusinessLogic {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);

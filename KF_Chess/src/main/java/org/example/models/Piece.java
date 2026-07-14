@@ -7,6 +7,7 @@ public class Piece {
     private Position square;
     private State state;
 
+
     public Piece(int id, char color, char type, Position square) {
         this(id, color, type, square, State.IDLE);
     }

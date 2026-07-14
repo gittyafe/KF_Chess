@@ -1,9 +1,9 @@
-package rules;
+package realtime;
 
 import org.example.models.Board;
 import org.example.models.Piece;
 import org.example.models.Position;
-import org.example.rules.RuleEngine;
+import org.example.realtime.Motion;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -16,15 +16,18 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class RuleEngineTest {
+class MotionTest {
 
     @Mock
     private Board board;
+
+    private Motion motion;
 
     @BeforeEach
     void setUp() {
         // הגדרת גובה לוח דיפולטיבי עבור ה-Mock
         lenient().when(board.getHeight()).thenReturn(8);
+        motion = new Motion();
     }
 
     @Nested
@@ -44,7 +47,7 @@ class RuleEngineTest {
             lenient().when(board.queryPieceAt(any(Position.class))).thenReturn(null);
 
             // Act
-            boolean result = RuleEngine.isValidMove(rook, src, dest, board);
+            boolean result = motion.isValidMove(rook, src, dest, board);
 
             // Assert
             assertTrue(result);
@@ -77,7 +80,7 @@ class RuleEngineTest {
             }).when(board).queryPieceAt(anyInt(), anyInt());
 
             // 2. Act
-            boolean result = RuleEngine.isValidMove(slidingPiece, src, dest, board);
+            boolean result = motion.isValidMove(slidingPiece, src, dest, board);
 
             // 3. Assert
             assertFalse(result, "Should return false because the path is blocked at (0,2)");
@@ -102,7 +105,7 @@ class RuleEngineTest {
             lenient().when(board.queryPieceAt(5, 4)).thenReturn(new Piece(2, 'b', 'P', new Position(5, 4)));
 
             // Act
-            boolean result = RuleEngine.isValidMove(pawn, src, dest, board);
+            boolean result = motion.isValidMove(pawn, src, dest, board);
 
             // Assert
             assertFalse(result, "Pawn double-step should fail if the skipped square contains a piece");
@@ -121,7 +124,7 @@ class RuleEngineTest {
             lenient().when(board.queryPieceAt(anyInt(), anyInt())).thenReturn(null);
 
             // Act
-            boolean result = RuleEngine.isValidMove(pawn, src, dest, board);
+            boolean result = motion.isValidMove(pawn, src, dest, board);
 
             // Assert
             assertTrue(result);
@@ -141,7 +144,7 @@ class RuleEngineTest {
             Position dest = new Position(0, 5);
 
             // Act
-            boolean result = RuleEngine.isValidMove(bishop, src, dest, board);
+            boolean result = motion.isValidMove(bishop, src, dest, board);
 
             // Assert
             assertFalse(result);

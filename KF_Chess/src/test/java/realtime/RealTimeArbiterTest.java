@@ -1,6 +1,6 @@
-package engines;
+package realtime;
 
-import org.example.engines.RealTimeEngine;
+import org.example.realtime.RealTimeArbiter;
 import org.example.models.Piece;
 import org.example.models.Position;
 import org.example.models.MovingPiece;
@@ -13,15 +13,15 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class RealTimeEngineTest {
+class RealTimeArbiterTest {
 
-    private RealTimeEngine rta;
+    private RealTimeArbiter rta;
     private Piece mockPiece;
     private Position dummyPosition;
 
     @BeforeEach
     void setUp() {
-        rta = new RealTimeEngine();
+        rta = new RealTimeArbiter();
         dummyPosition = new Position(3, 3);
         mockPiece = new Piece(1, 'w', 'P', dummyPosition);
     }

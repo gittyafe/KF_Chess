@@ -1,11 +1,9 @@
 package org.example.textIO;
 
 import org.example.models.Board;
-import org.example.textIO.BoardParser;
-import org.example.textIO.BoardPrinter;
 import org.example.controllers.Controller;
 import org.example.engines.GameEngine;
-import org.example.engines.RealTimeEngine;
+import org.example.realtime.RealTimeArbiter;
 
 
 /**
@@ -18,7 +16,7 @@ public class ScriptRunner {
     private boolean readingBoard = false;
     private GameEngine gameEngine;
     private Controller controller;
-    private RealTimeEngine rta;
+    private RealTimeArbiter rta;
 
     /**
      * Process a single input line from the script.
@@ -33,7 +31,7 @@ public class ScriptRunner {
 
         if (line.equalsIgnoreCase("Commands:")) {
             board = BoardParser.parse(boardString.toString());
-            rta = new RealTimeEngine();
+            rta = new RealTimeArbiter();
             gameEngine = new GameEngine(board, rta);
             controller = new Controller(gameEngine);
             readingBoard = false;

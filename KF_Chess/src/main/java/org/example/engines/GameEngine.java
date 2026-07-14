@@ -9,7 +9,8 @@ import org.example.models.MovingPiece;
 import org.example.models.Piece;
 import org.example.models.Position;
 import org.example.models.State;
-import org.example.rules.RuleEngine;
+import org.example.realtime.Motion;
+import org.example.realtime.RealTimeArbiter;
 
 /**
  * Main game engine that orchestrates board state and game flow
@@ -17,9 +18,10 @@ import org.example.rules.RuleEngine;
 public class GameEngine {
     private Board board;
     private boolean isGameOver = false;
-    private RealTimeEngine rta;
+    private RealTimeArbiter rta;
+    private Motion motion = new Motion();
 
-    public GameEngine(Board board, RealTimeEngine rta) {
+    public GameEngine(Board board, RealTimeArbiter rta) {
         this.board = board;
         this.rta = rta;
     }
@@ -98,7 +100,7 @@ public class GameEngine {
             return new MoveRequest(MoveStatus.SAME_COLOR_OCCUPIED, false);
         }
 
-        if (!RuleEngine.isValidMove(piece, from, to, board))
+        if (!motion.isValidMove(piece, from, to, board))
             return new MoveRequest(MoveStatus.INVALID_MOVE, false);
 
         return new MoveRequest(MoveStatus.SUCCESS, true);

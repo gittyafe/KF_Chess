@@ -1,15 +1,16 @@
-package org.example.rules;
+package org.example.realtime;
 
 import org.example.models.Board;
 import org.example.models.Piece;
 import org.example.models.Position;
+import org.example.rules.MoveGeometry;
 
-public class RuleEngine {
+public class Motion {
 
     /**
      * Validate whether a move is legal for the given piece on the specified board.
      */
-    public static boolean isValidMove(Piece piece, Position src, Position dest, Board board) {
+    public boolean isValidMove(Piece piece, Position src, Position dest, Board board) {
         Piece targetPiece = board.queryPieceAt(dest);
         boolean isCapture = (targetPiece != null);
 
@@ -22,14 +23,10 @@ public class RuleEngine {
             return false;
         }
 
-        if (!checkContextualObstacles(piece, src, dest, board)) {
-            return false;
-        }
-
-        return true;
+        return checkContextualObstacles(piece, src, dest, board);
     }
 
-    private static boolean requiresPathClearCheck(char type) {
+    private boolean requiresPathClearCheck(char type) {
         char t = Character.toUpperCase(type);
         return t == 'R' || t == 'B' || t == 'Q';
     }
@@ -37,7 +34,7 @@ public class RuleEngine {
     /**
      * Generic path blocking check for sliding pieces.
      */
-    private static boolean isPathClear(Position src, Position dest, Board board) {
+    private boolean isPathClear(Position src, Position dest, Board board) {
         int stepRow = Integer.compare(dest.getRow(), src.getRow());
         int stepCol = Integer.compare(dest.getColumn(), src.getColumn());
 
@@ -57,14 +54,12 @@ public class RuleEngine {
     /**
      * Perform board-dependent obstacle checks for special movement rules.
      */
-    private static boolean checkContextualObstacles(Piece piece, Position src, Position dest, Board board) {
+    private boolean checkContextualObstacles(Piece piece, Position src, Position dest, Board board) {
         char type = Character.toUpperCase(piece.getType());
 
         if (type == 'P' && Math.abs(dest.getRow() - src.getRow()) == 2) {
             int stepRow = (piece.getColor() == 'w') ? -1 : 1;
-            if (board.queryPieceAt(src.getRow() + stepRow, src.getColumn()) != null) {
-                return false;
-            }
+            return board.queryPieceAt(src.getRow() + stepRow, src.getColumn()) == null;
         }
 
         return true;

@@ -1,4 +1,4 @@
-package org.example.engines;
+package org.example.realtime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ import org.example.models.State;
 /**
  * Tracks active piece motions and jump timing.
  */
-public class RealTimeEngine {
+public class RealTimeArbiter {
     private MovingPiece activeMotion = null;
     private MovingPiece activeJump = null;
 

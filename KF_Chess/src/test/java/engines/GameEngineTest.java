@@ -1,20 +1,15 @@
 package engines;
 
 import org.example.engines.GameEngine;
-import org.example.engines.RealTimeEngine;
+import org.example.realtime.RealTimeArbiter;
 import org.example.models.*;
-import org.example.rules.RuleEngine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Collections;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -26,7 +21,7 @@ class GameEngineTest {
     private Board board;
 
     @Mock
-    private RealTimeEngine rta;
+    private RealTimeArbiter rta;
 
     private GameEngine gameEngine;
 

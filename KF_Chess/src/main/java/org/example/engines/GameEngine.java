@@ -9,7 +9,7 @@ import org.example.models.MovingPiece;
 import org.example.models.Piece;
 import org.example.models.Position;
 import org.example.models.State;
-import org.example.realtime.Motion;
+import org.example.realtime.MotionValidity;
 import org.example.realtime.RealTimeArbiter;
 
 /**
@@ -19,7 +19,7 @@ public class GameEngine {
     private Board board;
     private boolean isGameOver = false;
     private RealTimeArbiter rta;
-    private Motion motion = new Motion();
+    private MotionValidity motion = new MotionValidity();
 
     public GameEngine(Board board, RealTimeArbiter rta) {
         this.board = board;
@@ -78,9 +78,6 @@ public class GameEngine {
     public MoveRequest validateMove(Piece piece, Position from, Position to) {
         if (isGameOver)
             return new MoveRequest(MoveStatus.GAME_OVER, false);
-
-        if (rta.hasActiveMotion())
-            return new MoveRequest(MoveStatus.ANOTHER_PIECE_MOVING, false);
 
         if (piece != null && piece.getState() != State.IDLE)
             return new MoveRequest(MoveStatus.PIECE_ALREADY_IN_MOTION, false);

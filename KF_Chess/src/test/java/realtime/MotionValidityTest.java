@@ -3,7 +3,7 @@ package realtime;
 import org.example.models.Board;
 import org.example.models.Piece;
 import org.example.models.Position;
-import org.example.realtime.Motion;
+import org.example.realtime.MotionValidity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -16,18 +16,18 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class MotionTest {
+class MotionValidityTest {
 
     @Mock
     private Board board;
 
-    private Motion motion;
+    private MotionValidity motion;
 
     @BeforeEach
     void setUp() {
         // הגדרת גובה לוח דיפולטיבי עבור ה-Mock
         lenient().when(board.getHeight()).thenReturn(8);
-        motion = new Motion();
+        motion = new MotionValidity();
     }
 
     @Nested

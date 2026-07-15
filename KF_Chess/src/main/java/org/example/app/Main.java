@@ -21,7 +21,6 @@ public class Main {
 
     // נתיבים למשאבים בתוך תיקיית resources
     private static final String BOARD_IMAGE = "src/main/resources/board.png";
-    private static final String BACKGROUND_IMAGE = "src/main/resources/main_background.png";
 
     public static void main(String[] args) {
         // 1. אתחול מודלים ולוגיקת המשחק
@@ -57,7 +56,7 @@ public class Main {
                 gameEngine.wait_(TICK_MS);
 
                 // ב. יצירת GameSnapshot לקריאה בלבד (מניעת Race Conditions)
-                GameSnapshot snapshot = createSnapshot(board, gameEngine);
+                GameSnapshot snapshot = createSnapshot(board, gameEngine, rta);
 
                 // ג. יצירת הפריים המלא (לוח משמאל + סיידבר טקסטואלי מימין)
                 org.example.Img fullFrame = composer.composeFrame(snapshot);
@@ -74,7 +73,7 @@ public class Main {
     /**
      * פונקציית עזר המעתיקה את מצב הלוח הנוכחי למבנה נתונים קבוע לצורך ציור בטוח
      */
-    private static GameSnapshot createSnapshot(Board board, GameEngine engine) {
+    private static GameSnapshot createSnapshot(Board board, GameEngine engine, RealTimeArbiter rta) {
         List<PieceSnapshot> pieces = new ArrayList<>();
 
         for (int r = 0; r < board.getHeight(); r++) {
@@ -82,10 +81,17 @@ public class Main {
                 Position pos = new Position(r, c);
                 Piece piece = engine.getPieceAt(pos);
                 if (piece != null) {
+                    Position targetPos = pos; // כברירת מחדל, היעד הוא המיקום הנוכחי
+                    if (rta.getMovingPiece(piece.getId()) != null) {
+                    // בדיקה: אם יש כרגע כלי פעיל ב-MovingPiece ב-RTA, והוא הכלי הנוכחי שלנו// נשלוף את משבצת היעד האמיתית מתוך ה-MovingPiece!
+                        targetPos = rta.getMovingPiece(piece.getId()).getDestination();
+                    }
                     pieces.add(new PieceSnapshot(
+                            piece.getId(),
                             piece.getType(),
                             piece.getColor(),
                             pos,
+                            targetPos,
                             piece.getState()
                     ));
                 }

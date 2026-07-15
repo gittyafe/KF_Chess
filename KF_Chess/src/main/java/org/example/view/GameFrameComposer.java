@@ -1,36 +1,31 @@
 package org.example.view;
 
 import java.awt.Color;
-
 import org.example.Img;
 import org.example.models.State;
 import org.example.engines.GameSnapshot;
 
-
 public class GameFrameComposer {
     private final ImgRenderer boardRenderer;
 
-    // הבנאי לא צריך שום קובץ רקע יותר!
     public GameFrameComposer(ImgRenderer boardRenderer) {
         this.boardRenderer = boardRenderer;
     }
 
     public Img composeFrame(GameSnapshot snapshot) {
-        // 1. ניצור אובייקט Img חדש לגמרי (שהוא בגודל החלון 1100x800)
-        // 2. נצייר את הלוח העדכני (גובה/רוחב משתנים)
+        // 1. ציור לוח המשחק (מתודה נקייה ללא צורך בהעברת שעון חיצוני)
         Img boardImg = boardRenderer.drawGame(snapshot);
 
-        // Ensure master frame is at least as big as boardImg
+        // 2. יצירת קנבס מאסטר ריק בגודל החלון כפי שהגדרת במקור
         int masterW = Math.max(1100, boardImg.get().getWidth());
         int masterH = Math.max(800, boardImg.get().getHeight());
         Img masterFrame = new Img().createEmpty(masterW, masterH, true);
 
-        // 3. נדביק את לוח בצד שמאל (X=0, Y=0)
+        // 3. הדבקת הלוח המרונדר בצד שמאל (X=0, Y=0)
         boardImg.drawOn(masterFrame, 0, 0);
 
-        // 4. כתיבת הטקסטים של הסיידבר בצד ימין (החל מ-X=825)
+        // 4. כתיבת נתוני הסטטיסטיקה והסיידבר בצד ימין (החל מ-X=825)
         int startX = 825;
-
         masterFrame.putText("KUNG FU CHESS", startX, 60, 1.8f, new Color(212, 175, 55), 2);
         masterFrame.putText("REAL-TIME", startX, 95, 1.0f, Color.LIGHT_GRAY, 1);
 

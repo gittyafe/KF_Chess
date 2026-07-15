@@ -5,7 +5,7 @@ import org.example.models.Piece;
 import org.example.models.Position;
 import org.example.rules.MoveGeometry;
 
-public class Motion {
+public class MotionValidity {
 
     /**
      * Validate whether a move is legal for the given piece on the specified board.

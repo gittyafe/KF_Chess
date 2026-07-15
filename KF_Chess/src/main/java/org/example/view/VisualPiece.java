@@ -12,31 +12,37 @@ public class VisualPiece {
     public int targetY;
 
     public State lastState;
-    public long stateStartTime;
+
+    // הפרדה ברורה בין זמנים:
+    public long stateStartTime; // מתי הסטייט (האנימציה) התחיל
+    public long moveStartTime;  // מתי התנועה הפיזית הנוכחית (ההחלקה) התחילה
 
     private long currentMoveDurationMs = 300;
 
-    public VisualPiece(int startX, int startY, long startTime) {
+    public VisualPiece(int startX, int startY, State state, long startTime) {
         this.currentX = startX;
         this.currentY = startY;
         this.startX = startX;
         this.startY = startY;
         this.targetX = startX;
         this.targetY = startY;
+        this.lastState = state;
         this.stateStartTime = startTime;
+        this.moveStartTime = startTime;
     }
 
-    public void setNewTarget(int newTargetX, int newTargetY, long durationMs, long startTime) {
+    // כשמגדירים יעד חדש, מעדכנים רק את זמן התנועה הפיזית!
+    public void setNewTarget(int newTargetX, int newTargetY, long durationMs, long frameTime) {
         this.startX = (int) this.currentX;
         this.startY = (int) this.currentY;
         this.targetX = newTargetX;
         this.targetY = newTargetY;
         this.currentMoveDurationMs = durationMs;
-        this.stateStartTime = startTime;
+        this.moveStartTime = frameTime; // עדכון זמן תחילת ההחלקה בלבד!
     }
 
-    public void updatePosition(long currentTime) {
-        long elapsed = currentTime - stateStartTime;
+    public void updatePosition(long frameTime) {
+        long elapsed = frameTime - moveStartTime; // חישוב לפי זמן התנועה הפיזית
 
         if (elapsed >= currentMoveDurationMs) {
             currentX = targetX;

@@ -123,4 +123,35 @@ public class Img {
     }
 
     /* ----------- draw rectangle (filled or outline) ----------- */
+    public void drawRect(int x, int y, int width, int height, Color color, int thickness) {
+        if (this.img == null) {
+            throw new IllegalStateException("Image not loaded."); // [cite: 95]
+        }
+
+        Graphics2D graphics = this.img.createGraphics();
+        graphics.setColor(color); // [cite: 96]
+        graphics.setStroke(new BasicStroke(thickness)); // [cite: 96]
+        graphics.drawRect(x, y, width, height); // [cite: 96]
+        graphics.dispose(); // [cite: 96]
+    }
+
+    public Img copy() {
+        if (this.img == null) {
+            throw new IllegalStateException("Image not loaded."); // [cite: 97]
+        }
+
+        BufferedImage copy = new BufferedImage(
+                this.img.getWidth(),
+                this.img.getHeight(),
+                BufferedImage.TYPE_INT_ARGB
+        ); // [cite: 98]
+
+        Graphics2D graphics = copy.createGraphics();
+        graphics.drawImage(this.img, 0, 0, null); // [cite: 98]
+        graphics.dispose(); // [cite: 98]
+
+        Img result = new Img();
+        result.img = copy; // [cite: 99, 100]
+        return result;
+    }
 }

@@ -26,6 +26,9 @@ public class PieceImageLoader {
                 preloadState(pieceDirName, color, type, "idle", targetSize);
                 preloadState(pieceDirName, color, type, "jump", targetSize);
                 preloadState(pieceDirName, color, type, "move", targetSize);
+                preloadState(pieceDirName, color, type, "long_rest", targetSize);
+                preloadState(pieceDirName, color, type, "short_rest", targetSize);
+
             }
         }
     }

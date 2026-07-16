@@ -13,6 +13,7 @@ import org.example.models.State;
 public class RealTimeArbiter {
     private List<MovingPiece> activeMotion = new ArrayList<>();
     private List<MovingPiece> activeJump = new ArrayList<>();
+    private List<MovingPiece> activeRest = new ArrayList<>();
 
     private static final int MS_PER_CELL = 1000;
 
@@ -26,6 +27,16 @@ public class RealTimeArbiter {
         this.activeJump.add(new MovingPiece(piece, piece.getSquare(), MS_PER_CELL, true));
     }
 
+    public void setShortRest(Piece piece) {
+        piece.setState(State.SHORT_REST);
+        this.activeRest.add(new MovingPiece(piece, null, MS_PER_CELL, false));
+    }
+
+    public void setLongRest(Piece piece) {
+        piece.setState(State.LONG_REST);
+        this.activeRest.add(new MovingPiece(piece, null, MS_PER_CELL*4, false));
+    }
+
     public boolean hasActiveMotion() {
         return !this.activeMotion.isEmpty();
     }
@@ -34,12 +45,6 @@ public class RealTimeArbiter {
         return !this.activeJump.isEmpty();
     }
 
-    public List<MovingPiece> getActiveMotion() {
-        return new ArrayList<>(this.activeMotion);
-    }
-    public List<MovingPiece> getActiveJump() {
-        return new ArrayList<>(this.activeJump);
-    }
 
     public MovingPiece getMovingPiece(int pieceId) {
         for (MovingPiece motion : activeMotion) {
@@ -80,6 +85,16 @@ public class RealTimeArbiter {
             if (jump.isTimeUp()) {
                 finishedThisTick.add(jump);
                 activeJump.remove(i);
+                i--;
+            }
+        }
+
+        for (int i = 0; i < activeRest.size(); i++) {
+            MovingPiece rest = activeRest.get(i);
+            rest.decrementTimeLeft(deltaTime);
+            if (rest.isTimeUp()) {
+                finishedThisTick.add(rest);
+                activeRest.remove(i);
                 i--;
             }
         }

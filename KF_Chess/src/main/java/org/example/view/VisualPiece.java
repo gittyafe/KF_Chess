@@ -11,27 +11,22 @@ public class VisualPiece {
     public int targetX;
     public int targetY;
 
-    public State engineState;      // מה שהמנוע שלח
-    public State animationState;   // מה שמוצג כרגע
-    public State previousEngineState;  // הstateהקודם מהמנוע - לטרנזיציות
-    
+    public State state;      // מה שהמנוע שלח
+
     // הפרדה ברורה בין זמנים:
     public long stateStartTime; // מתי הסטייט (האנימציה) התחיל
     public long moveStartTime;  // מתי התנועה הפיזית הנוכחית (ההחלקה) התחילה
 
     private long currentMoveDurationMs = 300;
-    private long restDurationMs = 500; // משך הREST states
 
-    public VisualPiece(int startX, int startY, State engineState, State animationState, long startTime) {
+    public VisualPiece(int startX, int startY, State state, long startTime) {
         this.currentX = startX;
         this.currentY = startY;
         this.startX = startX;
         this.startY = startY;
         this.targetX = startX;
         this.targetY = startY;
-        this.engineState = engineState;
-        this.previousEngineState = engineState;
-        this.animationState = animationState;
+        this.state = state;
         this.stateStartTime = startTime;
         this.moveStartTime = startTime;
     }
@@ -46,45 +41,7 @@ public class VisualPiece {
         this.moveStartTime = frameTime; // עדכון זמן תחילת ההחלקה בלבד!
     }
 
-    // עדכון engine state עם state machine לטרנזיציות
-    public void updateEngineState(State newEngineState, long frameTime) {
-        if (newEngineState == engineState) {
-            return; // אין שינוי
-        }
 
-        previousEngineState = engineState;
-        engineState = newEngineState;
-
-        // Handle transitions: MOVING/JUMPING -> REST states
-        if (newEngineState == State.IDLE && previousEngineState != State.IDLE) {
-            if (previousEngineState == State.MOVING) {
-                animationState = State.LONG_REST;
-                stateStartTime = frameTime;
-            } else if (previousEngineState == State.JUMPING) {
-                animationState = State.SHORT_REST;
-                stateStartTime = frameTime;
-            }
-        } else {
-            // ישיר: סנכרון animationState עם engineState
-            animationState = newEngineState;
-            stateStartTime = frameTime;
-        }
-    }
-
-    // בדוק אם צריך לעבור מREST לIDLE
-    public void updateRestTransition(long frameTime) {
-        if (animationState == State.LONG_REST || animationState == State.SHORT_REST) {
-            long elapsed = frameTime - stateStartTime;
-            if (elapsed >= restDurationMs) {
-                animationState = State.IDLE;
-                stateStartTime = frameTime;
-            }
-        }
-    }
-
-    public void setRestDurationMs(long duration) {
-        this.restDurationMs = duration;
-    }
 
     public void updatePosition(long frameTime) {
         long elapsed = frameTime - moveStartTime; // חישוב לפי זמן התנועה הפיזית
@@ -102,7 +59,4 @@ public class VisualPiece {
         }
     }
 
-    public long getCurrentMoveDurationMs() {
-        return currentMoveDurationMs;
-    }
 }

@@ -24,58 +24,45 @@ public class ImgRenderer {
         this.imageLoader = imageLoader;
     }
 
-    private void updateVisualPieces(List<PieceSnapshot> snapshots, long frameTime) {
-        Set<Integer> activeIds = new HashSet<>();
+private void updateVisualPieces(List<PieceSnapshot> snapshots, long frameTime) {
+    Set<Integer> activeIds = new HashSet<>();
 
-        for (PieceSnapshot snapshot : snapshots) {
-            int id = snapshot.id();
-            activeIds.add(id);
+    for (PieceSnapshot snapshot : snapshots) {
+        int id = snapshot.id();
+        activeIds.add(id);
 
-            int targetX = snapshot.targetPosition().getColumn() * cellSize + 10;
-            int targetY = snapshot.targetPosition().getRow() * cellSize + 10;
+        int targetX = snapshot.targetPosition().getColumn() * cellSize + 10;
+        int targetY = snapshot.targetPosition().getRow() * cellSize + 10;
 
-            VisualPiece visual = activeVisualPieces.get(id);
+        VisualPiece visual = activeVisualPieces.get(id);
 
-            if (visual == null) {
-                int startX = snapshot.position().getColumn() * cellSize + 10;
-                int startY = snapshot.position().getRow() * cellSize + 10;
-
-                visual = new VisualPiece(startX, startY, snapshot.state(), snapshot.state(), frameTime);
-                activeVisualPieces.put(id, visual);
-
-                if (startX != targetX || startY != targetY) {
-                    GenericFrameState fs = getFrameStateHelper(visual.animationState);
-                    AnimationConfig cfg = imageLoader.getAnimation(snapshot.color(), snapshot.type(), fs.getFolderName());
-                    long duration = (cfg != null) ? cfg.getTotalDuration() : 300;
-                    visual.setNewTarget(targetX, targetY, duration, frameTime);
-                }
-
-            } else {
-                // עדכון engine state עם state machine
-                visual.updateEngineState(snapshot.state(), frameTime);
-
-                // בדוק transitions מREST לIDLE
-                visual.updateRestTransition(frameTime);
-
-                // אם המצב הוא REST, עדכן את משך ה-REST לפי הקונפיג
-                if (visual.animationState == State.LONG_REST || visual.animationState == State.SHORT_REST) {
-                    GenericFrameState fs = getFrameStateHelper(visual.animationState);
-                    AnimationConfig cfg = imageLoader.getAnimation(snapshot.color(), snapshot.type(), fs.getFolderName());
-                    if (cfg != null) {
-                        visual.setRestDurationMs(cfg.getTotalDuration());
-                    }
-                }
-
-                if (visual.targetX != targetX || visual.targetY != targetY) {
-                    GenericFrameState fs = getFrameStateHelper(visual.animationState);
-                    AnimationConfig cfg = imageLoader.getAnimation(snapshot.color(), snapshot.type(), fs.getFolderName());
-                    long duration = (cfg != null) ? cfg.getTotalDuration() : 300;
-                    visual.setNewTarget(targetX, targetY, duration, frameTime);
-                }
+        if (visual == null) {
+            visual = new VisualPiece(targetX, targetY, snapshot.state(), frameTime);
+            activeVisualPieces.put(id, visual);
+        } else {
+            // עדכון סטייט במידה והשתנה (ה-Renderer מקשיב למנוע!)
+            if (visual.state != snapshot.state()) {
+                visual.state = snapshot.state();
+                visual.stateStartTime = frameTime;
             }
-            visual.updatePosition(frameTime);
+
+            // עדכון יעד רק אם המיקום ב-Snapshot השתנה
+            if (visual.targetX != targetX || visual.targetY != targetY) {
+                // כאן אפשר להוסיף לוגיקה לבחירת משך זמן לפי ה-State
+                long duration = getDurationForState(snapshot);
+                visual.setNewTarget(targetX, targetY, duration, frameTime);
+            }
         }
-        activeVisualPieces.keySet().retainAll(activeIds);
+        // תמיד מעדכנים את המיקום הפיזי
+        visual.updatePosition(frameTime);
+    }
+    activeVisualPieces.keySet().retainAll(activeIds);
+}
+
+    private long getDurationForState(PieceSnapshot snapshot) {
+        GenericFrameState fs = getFrameStateHelper(snapshot.state());
+        AnimationConfig cfg = imageLoader.getAnimation(snapshot.color(), snapshot.type(), fs.getFolderName());
+        return (cfg != null) ? cfg.getTotalDuration() : 300;
     }
 
 
@@ -93,8 +80,8 @@ public class ImgRenderer {
 
 
             // אם הכלי עבר לסטייט פנימי כמו LONG_REST, נשתמש בסטייט הויזואלי הנוכחי שלו
-            State currentState =
-                    (visual != null) ? visual.animationState : piece.state();
+            State currentState = piece.state();
+            System.out.println("Piece ID: " + piece.id() + ", Engine State: " + piece.state() + ", Visual State: " + (visual != null ? visual.state : "N/A"));
             long startTime = (visual != null) ? visual.stateStartTime : frameTime;
 
             GenericFrameState frameState = getFrameStateHelper(currentState);

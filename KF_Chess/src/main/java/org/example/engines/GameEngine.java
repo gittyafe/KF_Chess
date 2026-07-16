@@ -136,7 +136,16 @@ public class GameEngine {
                 isGameOver = true;
             }
         }
-        piece.setState(State.IDLE);
+        if(piece.getState() == State.JUMPING){
+            piece.setState(State.SHORT_REST);
+            rta.setShortRest(piece);
+        } else if(piece.getState() == State.MOVING){
+            rta.setLongRest(piece);
+            piece.setState(State.LONG_REST);
+        }
+        else {
+            piece.setState(State.IDLE);
+        }
         board.movePiece(piece, destination);
         //המובפיס לא שינה את הדסטיניישן של הפיס!!
         promoteIfNeeded(piece);

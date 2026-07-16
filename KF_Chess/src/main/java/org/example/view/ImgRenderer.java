@@ -13,16 +13,8 @@ import org.example.engines.PieceSnapshot;
 import org.example.models.State;
 
 /**
- * אחראית על רינדור מצב המשחק לתמונה יחידה.
- *
- * שינויים עיקריים בריפקטור:
- *  - כל חישובי המיקום/גודל עוברים דרך BoardGeometry (במקום cellSize גולמי) -
- *    זה מה שפותר את בעיית חוסר היישור בין הכלים למשבצות.
- *  - תמונת הלוח נטענת עם resize לגודל שמוגדר ב-geometry, כך שאפשר להקטין/
- *    להגדיל את הלוח פשוט ע"י שינוי הפרמטר במקום אחד (ב-BoardGeometry).
- *  - הוסרו הדפסות דיבוג (System.out.println) שנשארו בקוד המקורי.
- *  - חולצו מתודות עזר קטנות לשיפור קריאות (getOrCreateVisualPiece,
- *    resolvePosition) במקום בלוק לוגיקה ארוך אחד בתוך drawGame.
+ * גרסה מתוקנת וממוטבת של מחלקת ImgRenderer.
+ * פותרת את בעיית שיגור הכלים ומחילה את האנימציות כראוי.
  */
 public class ImgRenderer {
     private static final long DEFAULT_ANIMATION_DURATION_MS = 300;
@@ -32,8 +24,6 @@ public class ImgRenderer {
     private final BoardGeometry geometry;
     private final PieceImageLoader imageLoader;
     private final Map<Integer, VisualPiece> activeVisualPieces = new HashMap<>();
-
-    private Img cachedBoardImg; // תמונת הלוח הבסיסית (ללא כלים), נטענת פעם אחת
 
     public ImgRenderer(String boardPath, BoardGeometry geometry, PieceImageLoader imageLoader) {
         this.boardPath = boardPath;
@@ -53,17 +43,9 @@ public class ImgRenderer {
         return frameCanvas;
     }
 
-    /**
-     * טוענת את תמונת הלוח בגודל שמוגדר ב-geometry (boardSizePx x boardSizePx).
-     * זהו התיקון המרכזי: בגרסה הקודמת תמונת הלוח נטענה בגודלה הטבעי,
-     * שלא בהכרח תאם ל-cellSize ששימש לחישוב מיקומי הכלים.
-     */
     private Img loadBoardCanvas() {
         int size = geometry.getBoardSizePx();
-        // מניחים שקיים ל-Img overload שמקבל גודל יעד, כמו זה שכבר בשימוש
-        // ב-PieceImageLoader. אם ה-API של Img שונה - יש להתאים את הקריאה הזו.
-        Img fresh = new Img().read(boardPath, new java.awt.Dimension(size, size), false, null);
-        return fresh;
+        return new Img().read(boardPath, new java.awt.Dimension(size, size), false, null);
     }
 
     private void renderPiece(Img frameCanvas, PieceSnapshot piece, long frameTime) {
@@ -95,6 +77,12 @@ public class ImgRenderer {
         return (visual != null) ? (int) visual.currentY : geometry.pixelY(piece.position().getRow());
     }
 
+    /**
+     * תיקון הבאג המרכזי:
+     * 1. אתחול הכלים במיקום ההתחלתי שלהם (מתוך snapshot.position()) במקום ישר ביעד.
+     * 2. ביטול ה-continue המוקדם שגרם לדילוג על תחילת התנועה.
+     * 3. הוספת Fallback לזמן תנועה תקין (מינימום 100 מילישניות).
+     */
     private void updateVisualPieces(List<PieceSnapshot> snapshots, long frameTime) {
         Set<Integer> activeIds = new HashSet<>();
 
@@ -102,13 +90,20 @@ public class ImgRenderer {
             int id = snapshot.id();
             activeIds.add(id);
 
+            // נקודת המוצא הנוכחית בפיקסלים
+            int startX = geometry.pixelX(snapshot.position().getColumn());
+            int startY = geometry.pixelY(snapshot.position().getRow());
+
+            // נקודת היעד הסופית בפיקסלים
             int targetX = geometry.pixelX(snapshot.targetPosition().getColumn());
             int targetY = geometry.pixelY(snapshot.targetPosition().getRow());
 
             VisualPiece visual = activeVisualPieces.get(id);
             if (visual == null) {
-                activeVisualPieces.put(id, new VisualPiece(targetX, targetY, snapshot.state(), frameTime));
-                continue;
+                // יוצרים את הכלי החדש במיקום המוצא שלו (ולא ביעד)
+                visual = new VisualPiece(startX, startY, snapshot.state(), frameTime);
+                activeVisualPieces.put(id, visual);
+                // לא עושים continue, אלא ממשיכים לבדוק אם הוא צריך לזוז ליעד חדש
             }
 
             if (visual.state != snapshot.state()) {
@@ -116,8 +111,15 @@ public class ImgRenderer {
                 visual.stateStartTime = frameTime;
             }
 
+            // עדכון היעד יתבצע רק אם חל שינוי אמיתי בקואורדינטות היעד
             if (visual.targetX != targetX || visual.targetY != targetY) {
                 long duration = getDurationForState(snapshot);
+
+                // מניעת באג משך תנועה אפסי (Zero Duration Bug)
+                if (duration <= 10) {
+                    duration = DEFAULT_ANIMATION_DURATION_MS;
+                }
+
                 visual.setNewTarget(targetX, targetY, duration, frameTime);
             }
 

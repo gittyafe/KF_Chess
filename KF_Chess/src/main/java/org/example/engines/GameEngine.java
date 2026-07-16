@@ -12,6 +12,7 @@ import org.example.models.Position;
 import org.example.models.State;
 import org.example.realtime.MotionValidity;
 import org.example.realtime.RealTimeArbiter;
+import org.example.view.CaptureListener;
 import org.example.view.MoveListener;
 
 /**
@@ -128,12 +129,21 @@ public class GameEngine {
 
     public void arrivedPiece(MovingPiece finished) {
         Piece piece = finished.getPiece();
+
+        // ייתכן שהכלי הזה כבר נאכל (הוסר מהלוח) ע"י arrivedPiece אחר
+        // שעובד באותו tick - למשל אם כלי אחר "נחת" על המשבצת שלו לפני
+        // שהגענו לעבד את ה-entry שלו כאן. במקרה כזה אין מה לעבד יותר.
+        if (piece.getSquare() == null) {
+            return;
+        }
+
         Position destination = finished.getDestination();
 
         Piece targetPiece = board.queryPieceAt(destination);
 
         if (targetPiece != null && targetPiece.getState() != State.JUMPING) {
             board.removePiece(targetPiece);
+            notifyCaptureListeners(targetPiece.getType(), piece.getColor());
             if (targetPiece.getType() == 'K') {
                 isGameOver = true;
             }
@@ -236,6 +246,19 @@ public class GameEngine {
     private void notifyMoveListeners(String time, String moveNotation, char color) {
         for (MoveListener listener : moveListeners) {
             listener.onMoveAdded(time, moveNotation, color);
+        }
+    }
+
+    // רשימת מאזינים לאירועי אכילה (capture), למשל לצורך עדכון ניקוד
+    private final List<CaptureListener> captureListeners = new ArrayList<>();
+
+    public void addCaptureListener(CaptureListener listener) {
+        this.captureListeners.add(listener);
+    }
+
+    private void notifyCaptureListeners(char capturedType, char capturingColor) {
+        for (CaptureListener listener : captureListeners) {
+            listener.onPieceCaptured(capturedType, capturingColor);
         }
     }
 }

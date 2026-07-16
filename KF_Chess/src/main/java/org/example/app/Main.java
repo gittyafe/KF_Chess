@@ -20,7 +20,9 @@ public class Main {
 
     // גודל הלוח בפיקסלים - זה המקום היחיד ששולט על גודל הלוח על המסך.
     // כדי להקטין/להגדיל את הלוח, משנים רק את הערך הזה.
-    private static final int BOARD_SIZE_PX = 800;
+    // הוקטן מ-800 ל-650 כדי לפנות מקום לכותרות/ניקוד/קואורדינטות
+    // מעל ומתחת ללוח (ראו GameFrameComposer) בתוך DisplayConstants.MASTER_HEIGHT.
+    private static final int BOARD_SIZE_PX = 650;
     private static final int PIECE_MARGIN_PX = 10; // ריפוד פנימי של כלי בתוך המשבצת שלו
 
     private static final int TICK_MS = 30; // קצב ריצה של כ-33 פריימים בשנייה
@@ -50,13 +52,23 @@ public class Main {
         ImgRenderer boardRenderer = new ImgRenderer(BOARD_IMAGE, geometry, imageLoader);
         GameHistoryManager historyManager = new GameHistoryManager();
         gameEngine.addMoveListener(historyManager);
-        GameFrameComposer composer = new GameFrameComposer(boardRenderer, historyManager);
 
-        // BOARD_X/BOARD_Y כבר לא שדות ציבוריים ב-composer - נגישים דרך getters.
-        // גודל החלון נלקח מאותו מקור אמת (DisplayConstants) שמשמש את
-        // GameFrameComposer, כדי שהחלון תמיד יתאים בדיוק לגודל הפריים שמורכב.
+        // פרטי שחקנים לתצוגה (שם + ניקוד) - top מוצג מעל הלוח (Black), bottom מתחתיו (White).
+        PlayerInfo topPlayer = new PlayerInfo("Chicko Miko");    // Black
+        PlayerInfo bottomPlayer = new PlayerInfo("Musti Shusti"); // White
+
+        // ScoreManager מאזין לאירועי אכילה ומעדכן את הניקוד של השחקן שאכל,
+        // לפי ערכי כלים סטנדרטיים (פרש/רץ=3, צריח=5, מלכה=9, חייל=1, מלך=0).
+        ScoreManager scoreManager = new ScoreManager(bottomPlayer, topPlayer); // (white, black)
+        gameEngine.addCaptureListener(scoreManager);
+
+        GameFrameComposer composer = new GameFrameComposer(boardRenderer, historyManager, geometry, topPlayer, bottomPlayer);
+
+        // BOARD_X/BOARD_Y/MASTER_WIDTH/MASTER_HEIGHT כבר לא שדות ציבוריים -
+        // נגישים דרך static getters ב-GameFrameComposer, שהוא מקור האמת
+        // היחיד לגודל הכולל, כדי שהחלון תמיד יתאים בדיוק לגודל הפריים שמורכב.
         GameWindow window = new GameWindow("Kung Fu Chess",
-                DisplayConstants.MASTER_WIDTH, DisplayConstants.MASTER_HEIGHT,
+                GameFrameComposer.getMasterWidth(), GameFrameComposer.getMasterHeight(),
                 GameFrameComposer.getBoardX(), GameFrameComposer.getBoardY());
 
         window.init(controller);

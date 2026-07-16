@@ -4,7 +4,7 @@ package org.example.controllers;
  * Maps pixel coordinates to board cells.
  */
 public class BoardMapper {
-    private static final int PIXELS_PER_CELL = 100;
+    private static final int PIXELS_PER_CELL = 81;
 
     /**
      * Convert a pixel coordinate into a cell index.

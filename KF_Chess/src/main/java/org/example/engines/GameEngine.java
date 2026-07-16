@@ -180,8 +180,7 @@ public class GameEngine {
     }
 
     private void promoteIfNeeded(Piece piece) {
-        if (piece.getType() == 'P' && piece.getState() == State.IDLE ) {
-            System.out.println("Checking promotion for piece: " + piece.getId() + " at position: " + piece.getSquare());
+        if (piece.getType() == 'P' && piece.getState() == State.IDLE && piece.getSquare() != null) {
             int targetRow = piece.getSquare().getRow();
 
             int lastRowForWhite = 0;

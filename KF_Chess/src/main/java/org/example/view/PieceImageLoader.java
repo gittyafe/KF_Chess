@@ -6,72 +6,85 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * טוענת ומטמינה (cache) את אנימציות הכלים.
+ *
+ * שינוי מרכזי בריפקטור: גודל תמונות הכלים נגזר מ-BoardGeometry (שהוא גם
+ * מה ש-ImgRenderer משתמש בו לטעינת תמונת הלוח), במקום מ-cellSize מקומי
+ * שחושב בנפרד (cellSize - 20). כך מובטח שתמונות הכלים תמיד יתאימו בדיוק
+ * לגודל המשבצת בפועל בלוח - גם אם מקטינים/מגדילים את הלוח.
+ */
 public class PieceImageLoader {
-    private final Map<String, AnimationConfig> piecesCache = new HashMap<>();
-    private final int cellSize;
+    private static final char[] PIECE_TYPES = {'P', 'R', 'N', 'B', 'Q', 'K'};
+    private static final char[] COLORS = {'w', 'b'};
+    private static final String[] STATE_FOLDERS = {"idle", "jump", "move", "long_rest", "short_rest"};
+    private static final String PIECES_ROOT = "src/main/resources/pieces";
 
-    public PieceImageLoader(int cellSize) {
-        this.cellSize = cellSize;
+    private final Map<String, AnimationConfig> piecesCache = new HashMap<>();
+    private final BoardGeometry geometry;
+
+    public PieceImageLoader(BoardGeometry geometry) {
+        this.geometry = geometry;
     }
 
     public void preload() {
-        Dimension targetSize = new Dimension(cellSize - 20, cellSize - 20);
-        char[] types = {'P', 'R', 'N', 'B', 'Q', 'K'};
-        char[] colors = {'w', 'b'};
+        Dimension targetSize = geometry.getPieceTargetSize();
 
-        for (char color : colors) {
+        for (char color : COLORS) {
             char colorUpper = Character.toUpperCase(color);
-            for (char type : types) {
+            for (char type : PIECE_TYPES) {
                 String pieceDirName = "" + Character.toUpperCase(type) + colorUpper;
-                preloadState(pieceDirName, color, type, "idle", targetSize);
-                preloadState(pieceDirName, color, type, "jump", targetSize);
-                preloadState(pieceDirName, color, type, "move", targetSize);
-                preloadState(pieceDirName, color, type, "long_rest", targetSize);
-                preloadState(pieceDirName, color, type, "short_rest", targetSize);
-
+                for (String stateFolder : STATE_FOLDERS) {
+                    preloadState(pieceDirName, color, type, stateFolder, targetSize);
+                }
             }
         }
     }
 
     private void preloadState(String pieceDirName, char color, char type, String stateFolder, Dimension targetSize) {
-        String cacheKey = color + "_" + Character.toUpperCase(type) + "_" + stateFolder;
-        AnimationConfig config = new AnimationConfig(); //
+        AnimationConfig config = new AnimationConfig();
 
-        String configPath = "src/main/resources/pieces/" + pieceDirName + "/states/" + stateFolder + "/config.json";
-        ConfigParser.parseJson(configPath, config); // עיבוד ה-JSON החדש
+        String stateDir = PIECES_ROOT + "/" + pieceDirName + "/states/" + stateFolder;
+        ConfigParser.parseJson(stateDir + "/config.json", config);
+
         int frameIndex = 1;
         while (true) {
-            String imagePath = "src/main/resources/pieces/" + pieceDirName + "/states/" + stateFolder + "/sprites/" + frameIndex + ".png";
+            String imagePath = stateDir + "/sprites/" + frameIndex + ".png";
             if (!new File(imagePath).exists()) {
                 break;
             }
-            try {
-                Img img = new Img().read(imagePath, targetSize, true, null); //
-                if (img != null) {
-                    config.frames.add(img);
-                    frameIndex++;
-                } else {
-                    break;
-                }
-            } catch (Exception e) {
+            Img img = loadFrame(imagePath, targetSize);
+            if (img == null) {
                 break;
             }
+            config.frames.add(img);
+            frameIndex++;
         }
 
         if (!config.frames.isEmpty()) {
-            piecesCache.put(cacheKey, config);
+            piecesCache.put(cacheKey(color, type, stateFolder), config);
         }
     }
 
+    private Img loadFrame(String imagePath, Dimension targetSize) {
+        try {
+            return new Img().read(imagePath, targetSize, true, null);
+        } catch (Exception e) {
+            System.err.println("Failed to load piece sprite: " + imagePath + " (" + e.getMessage() + ")");
+            return null;
+        }
+    }
 
     public AnimationConfig getAnimation(char color, char type, String stateFolder) {
-        String cacheKey = Character.toLowerCase(color) + "_" + Character.toUpperCase(type) + "_" + stateFolder;
-        AnimationConfig config = piecesCache.get(cacheKey);
+        AnimationConfig config = piecesCache.get(cacheKey(color, type, stateFolder));
 
-        // Fallback למצב ברירת מחדל idle אם האנימציה המבוקשת לא נמצאה
         if (config == null || config.frames.isEmpty()) {
-            config = piecesCache.get(Character.toLowerCase(color) + "_" + Character.toUpperCase(type) + "_idle");
+            config = piecesCache.get(cacheKey(color, type, "idle"));
         }
         return config;
+    }
+
+    private String cacheKey(char color, char type, String stateFolder) {
+        return Character.toLowerCase(color) + "_" + Character.toUpperCase(type) + "_" + stateFolder;
     }
 }

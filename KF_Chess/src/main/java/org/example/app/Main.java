@@ -3,7 +3,6 @@ package org.example.app;
 import org.example.Img;
 import org.example.engines.GameEngine;
 import org.example.engines.GameSnapshot;
-import org.example.engines.PieceSnapshot;
 import org.example.models.Board;
 import org.example.models.Piece;
 import org.example.models.PieceFactory;
@@ -14,11 +13,16 @@ import org.example.view.*;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Main {
-    private static final int CELL_SIZE = 100;
+    private static final int BOARD_COLS = 8;
+    private static final int BOARD_ROWS = 8;
+
+    // גודל הלוח בפיקסלים - זה המקום היחיד ששולט על גודל הלוח על המסך.
+    // כדי להקטין/להגדיל את הלוח, משנים רק את הערך הזה.
+    private static final int BOARD_SIZE_PX = 800;
+    private static final int PIECE_MARGIN_PX = 10; // ריפוד פנימי של כלי בתוך המשבצת שלו
+
     private static final int TICK_MS = 30; // קצב ריצה של כ-33 פריימים בשנייה
 
     // נתיבים למשאבים בתוך תיקיית resources
@@ -27,7 +31,7 @@ public class Main {
 
     public static void main(String[] args) {
         // 1. אתחול מודלים ולוגיקת המשחק
-        Board board = new Board(8, 8);
+        Board board = new Board(BOARD_ROWS, BOARD_COLS);
         RealTimeArbiter rta = new RealTimeArbiter();
         GameEngine gameEngine = new GameEngine(board, rta);
         Controller controller = new Controller(gameEngine);
@@ -36,28 +40,36 @@ public class Main {
         loadBoardFromCSV(board, BOARD_CSV);
 
         // 2. אתחול ה-UI והרכיבים הויזואליים
-        PieceImageLoader imageLoader = new PieceImageLoader(CELL_SIZE);
+        // BoardGeometry הוא מקור האמת היחיד לגודל הלוח והתאים - גם תמונת
+        // הלוח וגם תמונות הכלים נגזרות ממנו, כך שהם תמיד מיושרים זה לזה.
+        BoardGeometry geometry = new BoardGeometry(BOARD_SIZE_PX, BOARD_COLS, BOARD_ROWS, PIECE_MARGIN_PX);
+
+        PieceImageLoader imageLoader = new PieceImageLoader(geometry);
         imageLoader.preload();
 
-        ImgRenderer boardRenderer = new ImgRenderer(BOARD_IMAGE, CELL_SIZE, imageLoader);
+        ImgRenderer boardRenderer = new ImgRenderer(BOARD_IMAGE, geometry, imageLoader);
         GameHistoryManager historyManager = new GameHistoryManager();
         gameEngine.addMoveListener(historyManager);
         GameFrameComposer composer = new GameFrameComposer(boardRenderer, historyManager);
-        GameWindow window = new GameWindow("Kung Fu Chess", 1400, 1000, composer.BOARD_X, composer.BOARD_Y);
+
+        // BOARD_X/BOARD_Y כבר לא שדות ציבוריים ב-composer - נגישים דרך getters.
+        // גודל החלון נלקח מאותו מקור אמת (DisplayConstants) שמשמש את
+        // GameFrameComposer, כדי שהחלון תמיד יתאים בדיוק לגודל הפריים שמורכב.
+        GameWindow window = new GameWindow("Kung Fu Chess",
+                DisplayConstants.MASTER_WIDTH, DisplayConstants.MASTER_HEIGHT,
+                GameFrameComposer.getBoardX(), GameFrameComposer.getBoardY());
 
         window.init(controller);
 
         // 3. לולאת המשחק הראשית (Game Loop)
         Thread gameLoop = new Thread(() -> {
             try {
-                // תיקון: שימוש ב-getSnapshot(gameEngine) המקומי במקום gameEngine.snapshot()
                 while (!gameEngine.getSnapshot().isGameOver()) {
                     long startTime = System.currentTimeMillis();
 
                     // עדכון לוגיקת המשחק
                     controller.wait_(TICK_MS);
 
-                    // תיקון: שימוש ב-getSnapshot(gameEngine) המקומי
                     GameSnapshot snapshot = gameEngine.getSnapshot();
                     Img frame = composer.composeFrame(snapshot);
 
@@ -98,7 +110,6 @@ public class Main {
                         Position pos = new Position(rowIndex, colIndex);
                         Piece piece = PieceFactory.createPiece(color, type, pos);
                         board.addPiece(piece);
-                        // בתוך הלולאה ב-loadBoardFromCSV
                     }
                     colIndex++;
                 }
@@ -109,5 +120,4 @@ public class Main {
             e.printStackTrace();
         }
     }
-
 }

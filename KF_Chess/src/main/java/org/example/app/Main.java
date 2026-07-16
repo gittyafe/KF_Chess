@@ -40,8 +40,10 @@ public class Main {
         imageLoader.preload();
 
         ImgRenderer boardRenderer = new ImgRenderer(BOARD_IMAGE, CELL_SIZE, imageLoader);
-        GameFrameComposer composer = new GameFrameComposer(boardRenderer);
-        GameWindow window = new GameWindow("Kung Fu Chess", 1100, 800);
+        GameHistoryManager historyManager = new GameHistoryManager();
+        gameEngine.addMoveListener(historyManager);
+        GameFrameComposer composer = new GameFrameComposer(boardRenderer, historyManager);
+        GameWindow window = new GameWindow("Kung Fu Chess", 1400, 1000, composer.BOARD_X, composer.BOARD_Y);
 
         window.init(controller);
 

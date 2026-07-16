@@ -12,8 +12,12 @@ import org.example.controllers.Controller;
 public class GameWindow {
     private final JFrame frame;
     private final JLabel imageLabel;
+    private final int boardOffsetX;
+    private final int boardOffsetY;
 
-    public GameWindow(String title, int width, int height) {
+    public GameWindow(String title, int width, int height, int boardOffsetX, int boardOffsetY) {
+        this.boardOffsetX = boardOffsetX;
+        this.boardOffsetY = boardOffsetY;
         frame = new JFrame(title);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
@@ -24,14 +28,19 @@ public class GameWindow {
     }
 
     public void init(Controller controller) {
-        // הוספת מאזין עכבר שמקשר ישירות ל-Controller
         imageLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                int boardX = e.getX() - boardOffsetX;
+                int boardY = e.getY() - boardOffsetY;
+
+                // התעלמות מקליקים מחוץ לתחום הלוח (אופציונלי אך מומלץ)
+                if (boardX < 0 || boardY < 0) return;
+
                 if (SwingUtilities.isLeftMouseButton(e)) {
-                    controller.click(e.getX(), e.getY());
+                    controller.click(boardX, boardY);
                 } else if (SwingUtilities.isRightMouseButton(e)) {
-                    controller.jump(e.getX(), e.getY());
+                    controller.jump(boardX, boardY);
                 }
             }
         });
@@ -41,9 +50,6 @@ public class GameWindow {
         frame.setVisible(true);
     }
 
-    /**
-     * Updates the window image smoothly with double buffering.
-     */
     public void updateFrame(Img currentFrame) {
         SwingUtilities.invokeLater(() -> {
             imageLabel.setIcon(new ImageIcon(currentFrame.get()));

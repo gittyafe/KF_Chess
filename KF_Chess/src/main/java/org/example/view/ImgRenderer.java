@@ -114,15 +114,4 @@ private void updateVisualPieces(List<PieceSnapshot> snapshots, long frameTime) {
         }
     }
 
-    private State convertStringToState(String stateStr) {
-        if (stateStr == null) return State.IDLE;
-        switch (stateStr.toLowerCase().trim()) {
-            case "long_rest":  return State.LONG_REST;
-            case "short_rest": return State.SHORT_REST;
-            case "move":       return State.MOVING;
-            case "jump":       return State.JUMPING;
-            case "idle":
-            default:           return State.IDLE;
-        }
-    }
 }

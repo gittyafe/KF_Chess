@@ -1,5 +1,6 @@
 package org.example.engines;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.example.models.Board;
@@ -11,6 +12,7 @@ import org.example.models.Position;
 import org.example.models.State;
 import org.example.realtime.MotionValidity;
 import org.example.realtime.RealTimeArbiter;
+import org.example.view.MoveListener;
 
 /**
  * Main game engine that orchestrates board state and game flow
@@ -140,6 +142,8 @@ public class GameEngine {
             piece.setState(State.SHORT_REST);
             rta.setShortRest(piece);
         } else if(piece.getState() == State.MOVING){
+            String time = "00:" + String.format("%.3f", System.currentTimeMillis() % 60000 / 1000.0); // דוגמה לפורמט זמן
+            notifyMoveListeners(time,piece.getSquare().toString(), piece.getColor());
             rta.setLongRest(piece);
             piece.setState(State.LONG_REST);
         }
@@ -176,7 +180,8 @@ public class GameEngine {
     }
 
     private void promoteIfNeeded(Piece piece) {
-        if (piece.getType() == 'P') {
+        if (piece.getType() == 'P' && piece.getState() == State.IDLE ) {
+            System.out.println("Checking promotion for piece: " + piece.getId() + " at position: " + piece.getSquare());
             int targetRow = piece.getSquare().getRow();
 
             int lastRowForWhite = 0;
@@ -189,4 +194,18 @@ public class GameEngine {
         }
     }
 
+    // 1. רשימה שמחזיקה את כל מי שמאזין למהלכים
+    private final List<MoveListener> moveListeners = new ArrayList<>();
+
+    // 2. מתודה שמאפשרת ל-Main או ל-Controller לרשום מאזינים
+    public void addMoveListener(MoveListener listener) {
+        this.moveListeners.add(listener);
+    }
+
+    // 3. הפעלת המאזינים ברגע שמהלך מתרחש
+    private void notifyMoveListeners(String time, String moveNotation, char color) {
+        for (MoveListener listener : moveListeners) {
+            listener.onMoveAdded(time, moveNotation, color);
+        }
+    }
 }

@@ -25,6 +25,10 @@ public class Position {
         return column;
     }
 
+    public String toString() {
+        return  (char)(row+'a'+1) + "" + (column+1);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

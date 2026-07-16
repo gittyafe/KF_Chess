@@ -4,8 +4,6 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.io.File;
 import java.io.IOException;
 
@@ -123,7 +121,8 @@ public class Img {
     }
 
     /* ----------- draw rectangle (filled or outline) ----------- */
-    public void drawRect(int x, int y, int width, int height, Color color, int thickness) {
+    public void drawRect(int x, int y, int width, int height, Color color) {
+        float thickness = 2.0f; // ערך ברירת מחדל
         if (this.img == null) {
             throw new IllegalStateException("Image not loaded."); // [cite: 95]
         }
@@ -153,5 +152,18 @@ public class Img {
         Img result = new Img();
         result.img = copy; // [cite: 99, 100]
         return result;
+    }
+
+    public void drawLine(int x1, int y1, int x2, int y2, Color color) {
+        if (this.img == null) {
+            throw new IllegalStateException("Image not loaded.");
+        }
+
+        Graphics2D graphics = this.img.createGraphics();
+        graphics.setColor(color);
+        // ניתן להגדיר עובי קו אם רוצים, נשתמש ב-1.0f כברירת מחדל
+        graphics.setStroke(new BasicStroke(1.0f));
+        graphics.drawLine(x1, y1, x2, y2);
+        graphics.dispose();
     }
 }

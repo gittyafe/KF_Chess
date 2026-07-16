@@ -14,11 +14,15 @@ public class AnimationConfig {
     // פיזיקה (physics)
     public double speedMPerSec = 0.0;
     public String nextStateWhenFinished = "idle";
+    public long durationMs = 0;  // משך הstateבמילישניות (אם מוגדר בקונפיג)
 
     /**
      * מחזירה את משך הזמן הכולל של האנימציה הזו במילישניות
      */
     public long getTotalDuration() {
+        if (durationMs > 0) {
+            return durationMs;  // אם מוגדר בקונפיג, השתמש בזה
+        }
         return (long) frames.size() * frameDuration;
     }
 }

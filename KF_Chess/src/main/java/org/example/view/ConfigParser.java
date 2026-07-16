@@ -33,6 +33,11 @@ public class ConfigParser {
             if (json.contains("is_loop")) {
                 config.loop = Boolean.parseBoolean(extractValue(json, "is_loop"));
             }
+            
+            // חילוץ משך הstateבמילישניות (אם מוגדר)
+            if (json.contains("duration_ms")) {
+                config.durationMs = Long.parseLong(extractValue(json, "duration_ms"));
+            }
         } catch (Exception e) {
             // אם הקובץ לא קיים, השדות של config יישארו עם ערכי ברירת המחדל שלהם
         }

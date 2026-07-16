@@ -39,7 +39,6 @@ public class PieceImageLoader {
 
         String configPath = "src/main/resources/pieces/" + pieceDirName + "/states/" + stateFolder + "/config.json";
         ConfigParser.parseJson(configPath, config); // עיבוד ה-JSON החדש
-
         int frameIndex = 1;
         while (true) {
             String imagePath = "src/main/resources/pieces/" + pieceDirName + "/states/" + stateFolder + "/sprites/" + frameIndex + ".png";
@@ -64,12 +63,14 @@ public class PieceImageLoader {
         }
     }
 
+
     public AnimationConfig getAnimation(char color, char type, String stateFolder) {
-        String cacheKey = color + "_" + Character.toUpperCase(type) + "_" + stateFolder;
+        String cacheKey = Character.toLowerCase(color) + "_" + Character.toUpperCase(type) + "_" + stateFolder;
         AnimationConfig config = piecesCache.get(cacheKey);
+
         // Fallback למצב ברירת מחדל idle אם האנימציה המבוקשת לא נמצאה
         if (config == null || config.frames.isEmpty()) {
-            config = piecesCache.get(color + "_" + Character.toUpperCase(type) + "_idle");
+            config = piecesCache.get(Character.toLowerCase(color) + "_" + Character.toUpperCase(type) + "_idle");
         }
         return config;
     }

@@ -20,7 +20,7 @@ public class VisualPiece {
     public long moveStartTime;  // מתי התנועה הפיזית הנוכחית (ההחלקה) התחילה
 
     private long currentMoveDurationMs = 300;
-    private static final long REST_DURATION = 500; // 500ms ל-rest states
+    private long restDurationMs = 500; // משך הREST states
 
     public VisualPiece(int startX, int startY, State engineState, State animationState, long startTime) {
         this.currentX = startX;
@@ -75,11 +75,15 @@ public class VisualPiece {
     public void updateRestTransition(long frameTime) {
         if (animationState == State.LONG_REST || animationState == State.SHORT_REST) {
             long elapsed = frameTime - stateStartTime;
-            if (elapsed >= REST_DURATION) {
+            if (elapsed >= restDurationMs) {
                 animationState = State.IDLE;
                 stateStartTime = frameTime;
             }
         }
+    }
+
+    public void setRestDurationMs(long duration) {
+        this.restDurationMs = duration;
     }
 
     public void updatePosition(long frameTime) {

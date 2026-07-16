@@ -57,6 +57,15 @@ public class ImgRenderer {
                 // בדוק transitions מREST לIDLE
                 visual.updateRestTransition(frameTime);
 
+                // אם המצב הוא REST, עדכן את משך ה-REST לפי הקונפיג
+                if (visual.animationState == State.LONG_REST || visual.animationState == State.SHORT_REST) {
+                    GenericFrameState fs = getFrameStateHelper(visual.animationState);
+                    AnimationConfig cfg = imageLoader.getAnimation(snapshot.color(), snapshot.type(), fs.getFolderName());
+                    if (cfg != null) {
+                        visual.setRestDurationMs(cfg.getTotalDuration());
+                    }
+                }
+
                 if (visual.targetX != targetX || visual.targetY != targetY) {
                     GenericFrameState fs = getFrameStateHelper(visual.animationState);
                     AnimationConfig cfg = imageLoader.getAnimation(snapshot.color(), snapshot.type(), fs.getFolderName());
@@ -71,6 +80,7 @@ public class ImgRenderer {
 
 
     public Img drawGame(GameSnapshot snapshot) {
+
         Img frameCanvas = new Img().read(boardPath);
         long frameTime = System.currentTimeMillis();
 
@@ -80,6 +90,7 @@ public class ImgRenderer {
         // 2. רינדור הכלים
         for (PieceSnapshot piece : snapshot.pieces()) {
             VisualPiece visual = activeVisualPieces.get(piece.id());
+
 
             // אם הכלי עבר לסטייט פנימי כמו LONG_REST, נשתמש בסטייט הויזואלי הנוכחי שלו
             State currentState =
@@ -99,6 +110,8 @@ public class ImgRenderer {
 
                 frameCanvas.putText(currentState.toString(), x + 5, y + cellSize - 5, 0.8f, Color.RED, 1);
             }
+            // בתוך הלולאה ב-drawGame:
+
         }
         return frameCanvas;
     }

@@ -194,6 +194,37 @@ public class GameEngine {
         }
     }
 
+    /**
+     * פונקציית עזר המעתיקה את מצב הלוח הנוכחי למבנה נתונים קבוע לצורך ציור בטוח
+     */
+    public GameSnapshot getSnapshot() {
+        List<PieceSnapshot> pieces = new ArrayList<>();
+
+        for (int r = 0; r < board.getHeight(); r++) {
+            for (int c = 0; c < board.getWidth(); c++) {
+                Position pos = new Position(r, c);
+                Piece piece = getPieceAt(pos);
+                if (piece != null) {
+                    Position targetPos = pos; // כברירת מחדל, היעד הוא המיקום הנוכחי
+                    if (rta.getMovingPiece(piece.getId()) != null) {
+                        // בדיקה: אם יש כרגע כלי פעיל ב-MovingPiece ב-RTA, והוא הכלי הנוכחי שלנו// נשלוף את משבצת היעד האמיתית מתוך ה-MovingPiece!
+                        targetPos = rta.getMovingPiece(piece.getId()).getDestination();
+                    }
+                    pieces.add(new PieceSnapshot(
+                            piece.getId(),
+                            piece.getType(),
+                            piece.getColor(),
+                            pos,
+                            targetPos,
+                            piece.getState()
+                    ));
+                }
+            }
+        }
+
+        return new GameSnapshot(pieces, isGameOver);
+    }
+
     // 1. רשימה שמחזיקה את כל מי שמאזין למהלכים
     private final List<MoveListener> moveListeners = new ArrayList<>();
 

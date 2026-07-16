@@ -51,14 +51,14 @@ public class Main {
         Thread gameLoop = new Thread(() -> {
             try {
                 // תיקון: שימוש ב-getSnapshot(gameEngine) המקומי במקום gameEngine.snapshot()
-                while (!getSnapshot(board, gameEngine, rta).isGameOver()) {
+                while (!gameEngine.getSnapshot().isGameOver()) {
                     long startTime = System.currentTimeMillis();
 
                     // עדכון לוגיקת המשחק
                     controller.wait_(TICK_MS);
 
                     // תיקון: שימוש ב-getSnapshot(gameEngine) המקומי
-                    GameSnapshot snapshot = getSnapshot(board, gameEngine, rta);
+                    GameSnapshot snapshot = gameEngine.getSnapshot();
                     Img frame = composer.composeFrame(snapshot);
 
                     // עדכון החלון בצורה בטוחה
@@ -108,39 +108,6 @@ public class Main {
             System.err.println("Error loading board from CSV: " + e.getMessage());
             e.printStackTrace();
         }
-    }
-
-
-
-    /**
-     * פונקציית עזר המעתיקה את מצב הלוח הנוכחי למבנה נתונים קבוע לצורך ציור בטוח
-     */
-    private static GameSnapshot getSnapshot(Board board, GameEngine engine, RealTimeArbiter rta) {
-        List<PieceSnapshot> pieces = new ArrayList<>();
-
-        for (int r = 0; r < board.getHeight(); r++) {
-            for (int c = 0; c < board.getWidth(); c++) {
-                Position pos = new Position(r, c);
-                Piece piece = engine.getPieceAt(pos);
-                if (piece != null) {
-                    Position targetPos = pos; // כברירת מחדל, היעד הוא המיקום הנוכחי
-                    if (rta.getMovingPiece(piece.getId()) != null) {
-                        // בדיקה: אם יש כרגע כלי פעיל ב-MovingPiece ב-RTA, והוא הכלי הנוכחי שלנו// נשלוף את משבצת היעד האמיתית מתוך ה-MovingPiece!
-                        targetPos = rta.getMovingPiece(piece.getId()).getDestination();
-                    }
-                    pieces.add(new PieceSnapshot(
-                            piece.getId(),
-                            piece.getType(),
-                            piece.getColor(),
-                            pos,
-                            targetPos,
-                            piece.getState()
-                    ));
-                }
-            }
-        }
-
-        return new GameSnapshot(pieces, engine.isGameOver());
     }
 
 }

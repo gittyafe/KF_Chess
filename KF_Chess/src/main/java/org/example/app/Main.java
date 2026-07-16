@@ -54,15 +54,13 @@ public class Main {
         gameEngine.addMoveListener(historyManager);
 
         // פרטי שחקנים לתצוגה (שם + ניקוד) - top מוצג מעל הלוח (Black), bottom מתחתיו (White).
-        PlayerInfo topPlayer = new PlayerInfo("Chicko Miko");    // Black
-        PlayerInfo bottomPlayer = new PlayerInfo("Musti Shusti"); // White
 
         // ScoreManager מאזין לאירועי אכילה ומעדכן את הניקוד של השחקן שאכל,
         // לפי ערכי כלים סטנדרטיים (פרש/רץ=3, צריח=5, מלכה=9, חייל=1, מלך=0).
-        ScoreManager scoreManager = new ScoreManager(bottomPlayer, topPlayer); // (white, black)
+        ScoreManager scoreManager = new ScoreManager(); // (white, black)
         gameEngine.addCaptureListener(scoreManager);
 
-        GameFrameComposer composer = new GameFrameComposer(boardRenderer, historyManager, geometry, topPlayer, bottomPlayer);
+        GameFrameComposer composer = new GameFrameComposer(boardRenderer, historyManager, geometry,scoreManager);
 
         // BOARD_X/BOARD_Y/MASTER_WIDTH/MASTER_HEIGHT כבר לא שדות ציבוריים -
         // נגישים דרך static getters ב-GameFrameComposer, שהוא מקור האמת

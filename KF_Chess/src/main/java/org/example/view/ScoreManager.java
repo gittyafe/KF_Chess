@@ -1,34 +1,38 @@
 package org.example.view;
 
 /**
- * מאזין שמעדכן את הניקוד המוצג (PlayerInfo) בכל פעם שכלי נאכל,
- * לפי ערכי הכלים ב-PieceValues. הניקוד מתווסף לשחקן שביצע את האכילה.
+ * מאזין ומנהל הניקוד של המשחק (מקור האמת הבלעדי לניקוד).
+ * שומר על הניקוד של שני הצדדים ומעדכן אותו בכל אכילה.
  */
 public class ScoreManager implements CaptureListener {
-    private final PlayerInfo whitePlayer;
-    private final PlayerInfo blackPlayer;
+    private int whiteScore = 0;
+    private int blackScore = 0;
 
+    public int getWhiteScore() {
+        return whiteScore;
+    }
 
-    public ScoreManager(PlayerInfo whitePlayer, PlayerInfo blackPlayer) {
-        this.whitePlayer = whitePlayer;
-        this.blackPlayer = blackPlayer;
+    public int getBlackScore() {
+        return blackScore;
     }
 
     @Override
     public void onPieceCaptured(char capturedType, char capturingColor) {
         int points = getValue(capturedType);
         if (points <= 0) {
-            return; // אכילת מלך לא מוסיפה ניקוד - המשחק ממילא מסתיים
+            return;
         }
 
-        if (capturingColor == 'w') {
-            whitePlayer.score += points;
-        } else if (capturingColor == 'b') {
-            blackPlayer.score += points;
+        // שימוש ב-Character.toLowerCase כדי למנוע באגים של אותיות רישיות/קטנות מהמנוע
+        char color = Character.toLowerCase(capturingColor);
+        if (color == 'w') {
+            whiteScore += points;
+        } else if (color == 'b') {
+            blackScore += points;
         }
     }
 
-    public int getValue(char pieceType) {
+    private int getValue(char pieceType) {
         pieceType = Character.toLowerCase(pieceType);
         switch (pieceType) {
             case 'p': return 1;   // רגלי
@@ -36,8 +40,7 @@ public class ScoreManager implements CaptureListener {
             case 'b': return 3;   // רץ
             case 'r': return 5;   // צריח
             case 'q': return 9;   // מלכה
-            case 'k': return 0;   // מלך (אין ערך)
-            default: return 0;    // סוג לא מוכר
+            default: return 0;
         }
     }
 }

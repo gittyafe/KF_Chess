@@ -66,16 +66,14 @@ public class GameFrameComposer {
     private final ImgRenderer boardRenderer;
     private final GameHistoryManager historyManager;
     private final BoardGeometry geometry;
-    private final PlayerInfo topPlayer;    // Black
-    private final PlayerInfo bottomPlayer; // White
+    private final ScoreManager scoreManager;
 
     public GameFrameComposer(ImgRenderer boardRenderer, GameHistoryManager historyManager,
-                             BoardGeometry geometry, PlayerInfo topPlayer, PlayerInfo bottomPlayer) {
+                             BoardGeometry geometry,ScoreManager scoreManager) {
         this.boardRenderer = boardRenderer;
         this.historyManager = historyManager;
         this.geometry = geometry;
-        this.topPlayer = topPlayer;
-        this.bottomPlayer = bottomPlayer;
+        this.scoreManager = scoreManager;
     }
 
     public static int getMasterWidth() {
@@ -113,14 +111,14 @@ public class GameFrameComposer {
         drawRowLabels(masterFrame, boardSize);
 
         // 2. פאנל שמאלי - שחקן שחור (Black)
-        drawPlayerPanelHeader(masterFrame, topPlayer.name, "Black", BLACK_PANEL_X);
+        drawPlayerPanelHeader(masterFrame, "BLACK","Black", BLACK_PANEL_X);
         drawHistoryTable(masterFrame, historyManager.blackMoves, BLACK_PANEL_X, TABLE_Y);
-        drawPlayerScoreBox(masterFrame, topPlayer.score, BLACK_PANEL_X, TABLE_Y + TABLE_HEIGHT + 15);
+        drawPlayerScoreBox(masterFrame,scoreManager.getBlackScore(), BLACK_PANEL_X, TABLE_Y + TABLE_HEIGHT + 15);
 
         // 3. פאנל ימני - שחקן לבן (White)
-        drawPlayerPanelHeader(masterFrame, bottomPlayer.name, "White", WHITE_PANEL_X);
+        drawPlayerPanelHeader(masterFrame, "WHITE","White", WHITE_PANEL_X);
         drawHistoryTable(masterFrame, historyManager.whiteMoves, WHITE_PANEL_X, TABLE_Y);
-        drawPlayerScoreBox(masterFrame, bottomPlayer.score, WHITE_PANEL_X, TABLE_Y + TABLE_HEIGHT + 15);
+        drawPlayerScoreBox(masterFrame, scoreManager.getWhiteScore(), WHITE_PANEL_X, TABLE_Y + TABLE_HEIGHT + 15);
 
         return masterFrame;
     }
@@ -209,7 +207,7 @@ public class GameFrameComposer {
         int rightX = BOARD_X + boardSize + (ROW_LABEL_GAP - 15);
 
         for (int row = 0; row < geometry.getRows(); row++) {
-            int label = geometry.getRows() - row;
+            int label = row+1;
             String text = String.valueOf(label);
             int cellCenterY = BOARD_Y + row * cellSize + cellSize / 2 + 6;
 

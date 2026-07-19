@@ -12,8 +12,6 @@ import org.example.models.Position;
 import org.example.models.State;
 import org.example.realtime.MotionValidity;
 import org.example.realtime.RealTimeArbiter;
-import org.example.view.CaptureListener;
-import org.example.view.MoveListener;
 
 /**
  * Main game engine that orchestrates board state and game flow

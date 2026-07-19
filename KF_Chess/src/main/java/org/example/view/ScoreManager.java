@@ -1,5 +1,7 @@
 package org.example.view;
 
+import org.example.engines.CaptureListener;
+
 /**
  * מאזין ומנהל הניקוד של המשחק (מקור האמת הבלעדי לניקוד).
  * שומר על הניקוד של שני הצדדים ומעדכן אותו בכל אכילה.

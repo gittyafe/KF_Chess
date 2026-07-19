@@ -6,14 +6,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * טוענת ומטמינה (cache) את אנימציות הכלים.
- *
- * שינוי מרכזי בריפקטור: גודל תמונות הכלים נגזר מ-BoardGeometry (שהוא גם
- * מה ש-ImgRenderer משתמש בו לטעינת תמונת הלוח), במקום מ-cellSize מקומי
- * שחושב בנפרד (cellSize - 20). כך מובטח שתמונות הכלים תמיד יתאימו בדיוק
- * לגודל המשבצת בפועל בלוח - גם אם מקטינים/מגדילים את הלוח.
- */
 public class PieceImageLoader {
     private static final char[] PIECE_TYPES = {'P', 'R', 'N', 'B', 'Q', 'K'};
     private static final char[] COLORS = {'w', 'b'};
@@ -31,9 +23,8 @@ public class PieceImageLoader {
         Dimension targetSize = geometry.getPieceTargetSize();
 
         for (char color : COLORS) {
-            char colorUpper = Character.toUpperCase(color);
             for (char type : PIECE_TYPES) {
-                String pieceDirName = "" + Character.toUpperCase(type) + colorUpper;
+                String pieceDirName = "" + Character.toUpperCase(type) + Character.toLowerCase(color);
                 for (String stateFolder : STATE_FOLDERS) {
                     preloadState(pieceDirName, color, type, stateFolder, targetSize);
                 }
@@ -43,48 +34,51 @@ public class PieceImageLoader {
 
     private void preloadState(String pieceDirName, char color, char type, String stateFolder, Dimension targetSize) {
         AnimationConfig config = new AnimationConfig();
-
         String stateDir = PIECES_ROOT + "/" + pieceDirName + "/states/" + stateFolder;
+
+        if (!new File(stateDir).exists()) return;
+
         ConfigParser.parseJson(stateDir + "/config.json", config);
 
         int frameIndex = 1;
         while (true) {
             String imagePath = stateDir + "/sprites/" + frameIndex + ".png";
-            if (!new File(imagePath).exists()) {
-                break;
-            }
-            Img img = loadFrame(imagePath, targetSize);
-            if (img == null) {
-                break;
-            }
-            config.frames.add(img);
+            if (!new File(imagePath).exists()) break;
+
+            Img img = new Img().read(imagePath, null, false, null);
+            if (img == null) break;
+
+            config.getFrames().add(img);
             frameIndex++;
         }
 
-        if (!config.frames.isEmpty()) {
+        if (!config.getFrames().isEmpty()) {
             piecesCache.put(cacheKey(color, type, stateFolder), config);
         }
     }
 
-    private Img loadFrame(String imagePath, Dimension targetSize) {
-        try {
-            return new Img().read(imagePath, targetSize, true, null);
-        } catch (Exception e) {
-            System.err.println("Failed to load piece sprite: " + imagePath + " (" + e.getMessage() + ")");
-            return null;
-        }
-    }
-
+    /**
+     * מחזיר את קונפיגורציית האנימציה של כלי/מצב נתון.
+     *
+     * <p>לפני התיקון, כל קריאה (שקורית לכל כלי, בכל פריים - עשרות פעמים
+     * בשנייה) יצרה אובייקט AnimationConfig חדש והעתיקה את רשימת הפריימים
+     * שלו ל-ArrayList חדש. זה לא היה נחוץ: לאחר ה-preload, האובייקטים
+     * במטמון הם read-only לחלוטין - אף אחד לא קורא להם setters יותר. לכן
+     * אפשר וכדאי להחזיר את אותו מופע משותף ישירות, מה שחוסך המון allocation
+     * מיותר על ה-thread של לולאת המשחק ותורם לחלקות בזמן שינוי גודל.</p>
+     */
     public AnimationConfig getAnimation(char color, char type, String stateFolder) {
-        AnimationConfig config = piecesCache.get(cacheKey(color, type, stateFolder));
+        String key = cacheKey(color, type, stateFolder);
+        AnimationConfig cachedConfig = piecesCache.get(key);
 
-        if (config == null || config.frames.isEmpty()) {
-            config = piecesCache.get(cacheKey(color, type, "idle"));
+        if (cachedConfig == null || cachedConfig.getFrames().isEmpty()) {
+            cachedConfig = piecesCache.get(cacheKey(color, type, "idle"));
         }
-        return config;
+
+        return cachedConfig;
     }
 
     private String cacheKey(char color, char type, String stateFolder) {
-        return Character.toLowerCase(color) + "_" + Character.toUpperCase(type) + "_" + stateFolder;
+        return Character.toLowerCase(color) + "_" + Character.toUpperCase(type) + "_" + stateFolder.toLowerCase();
     }
 }

@@ -2,64 +2,59 @@ package org.example.view;
 
 import org.example.models.State;
 
-/**
- * מחלקה זו מייצגת כלי בעולם הגרפי עם החלקה חלקה (Linear interpolation with ease-out).
- * שינויים: הגנה מפני חלוקה באפס בחישוב ההתקדמות.
- */
 public class VisualPiece {
-    public double currentX;
-    public double currentY;
+    public State state;
+    public long stateStartTime;
 
-    public int startX;
-    public int startY;
-    public int targetX;
-    public int targetY;
+    // זמני האנימציה
+    public long startTime;
+    public long duration;
 
-    public State state;      // המצב הנוכחי שהמנוע שלח
+    // קואורדינטות לוגיות (לוח משחק - שורות ועמודות)
+    public double currentCol;
+    public double currentRow;
 
-    public long stateStartTime; // מתי הסטייט התחיל
-    public long moveStartTime;  // מתי התנועה הפיזית הנוכחית התחילה
+    public int startCol, startRow;
+    public int targetCol, targetRow;
 
-    private long currentMoveDurationMs = 300;
-
-    public VisualPiece(int startX, int startY, State state, long startTime) {
-        this.currentX = startX;
-        this.currentY = startY;
-        this.startX = startX;
-        this.startY = startY;
-        this.targetX = startX;
-        this.targetY = startY;
+    public VisualPiece(int col, int row, State state, long frameTime) {
         this.state = state;
-        this.stateStartTime = startTime;
-        this.moveStartTime = startTime;
+        this.stateStartTime = frameTime;
+        this.startTime = frameTime;
+        this.duration = 0;
+
+        this.startCol = col;
+        this.startRow = row;
+        this.targetCol = col;
+        this.targetRow = row;
+
+        this.currentCol = col;
+        this.currentRow = row;
     }
 
-    public void setNewTarget(int newTargetX, int newTargetY, long durationMs, long frameTime) {
-        this.startX = (int) this.currentX;
-        this.startY = (int) this.currentY;
-        this.targetX = newTargetX;
-        this.targetY = newTargetY;
-        // ביטחון כפול: מניעת משך תנועה לא חוקי
-        this.currentMoveDurationMs = Math.max(50, durationMs);
-        this.moveStartTime = frameTime;
+    public void setNewTarget(int fromCol, int fromRow, int toCol, int toRow, long duration, long frameTime) {
+        this.startTime = frameTime;
+        this.duration = duration;
+
+        this.startCol = fromCol;
+        this.startRow = fromRow;
+        this.targetCol = toCol;
+        this.targetRow = toRow;
     }
 
     public void updatePosition(long frameTime) {
-        long elapsed = frameTime - moveStartTime;
-
-        if (elapsed >= currentMoveDurationMs) {
-            currentX = targetX;
-            currentY = targetY;
-        } else {
-            double progress = (double) elapsed / currentMoveDurationMs;
-            // הגבלת הטווח של progress בין 0 ל-1 למניעת עיוותים
-            progress = Math.max(0.0, Math.min(1.0, progress));
-
-            // נוסחת ה-Ease-Out (ריכוך לקראת העצירה)
-            progress = 1 - Math.pow(1 - progress, 3);
-
-            currentX = startX + (targetX - startX) * progress;
-            currentY = startY + (targetY - startY) * progress;
+        if (duration <= 0) {
+            currentCol = targetCol;
+            currentRow = targetRow;
+            return;
         }
+
+        // חישוב אחוז התקדמות טהור בזמן
+        double progress = (double) (frameTime - startTime) / duration;
+        progress = Math.max(0.0, Math.min(1.0, progress));
+
+        // אינטרפולציה ליניארית (אלגוריתם Lerp) על בסיס משבצות לוגיות
+        currentCol = startCol + (targetCol - startCol) * progress;
+        currentRow = startRow + (targetRow - startRow) * progress;
     }
 }

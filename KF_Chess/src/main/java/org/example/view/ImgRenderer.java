@@ -1,6 +1,9 @@
 package org.example.view;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,10 +15,6 @@ import org.example.engines.GameSnapshot;
 import org.example.engines.PieceSnapshot;
 import org.example.models.State;
 
-/**
- * גרסה מתוקנת וממוטבת של מחלקת ImgRenderer.
- * פותרת את בעיית שיגור הכלים ומחילה את האנימציות כראוי.
- */
 public class ImgRenderer {
     private static final long DEFAULT_ANIMATION_DURATION_MS = 300;
     private static final float STATE_LABEL_FONT_SIZE = 0.8f;
@@ -23,7 +22,14 @@ public class ImgRenderer {
     private final String boardPath;
     private final BoardGeometry geometry;
     private final PieceImageLoader imageLoader;
-    private final Map<Integer, VisualPiece> activeVisualPieces = new HashMap<>();
+    private final Map<Integer, LogicalAnimation> activeAnimations = new HashMap<>();
+
+    // מטמון תמונת הלוח הבסיסית - נטענת/מרוסקלת מחדש רק כשהגודל באמת משתנה,
+    // במקום בכל פריים (30ms). זה קורא IO ורסקול-תמונה שקודם קרו ~33 פעם/שנייה
+    // בזמן גרירת שינוי גודל, וגרמו לפריימים "לפגר" אחרי הגודל האמיתי -
+    // מה שנתן תחושה של לוח/כלים שלא תואמים למיקום הלחיצה בפועל.
+    private BufferedImage cachedBaseBoard;
+    private int cachedBoardSize = -1;
 
     public ImgRenderer(String boardPath, BoardGeometry geometry, PieceImageLoader imageLoader) {
         this.boardPath = boardPath;
@@ -32,116 +38,195 @@ public class ImgRenderer {
     }
 
     public Img drawGame(GameSnapshot snapshot) {
-        Img frameCanvas = loadBoardCanvas();
         long frameTime = System.currentTimeMillis();
 
-        updateVisualPieces(snapshot.pieces(), frameTime);
-
-        for (PieceSnapshot piece : snapshot.pieces()) {
-            renderPiece(frameCanvas, piece, frameTime);
-        }
-        return frameCanvas;
-    }
-
-    private Img loadBoardCanvas() {
         int size = geometry.getBoardSizePx();
-        return new Img().read(boardPath, new java.awt.Dimension(size, size), false, null);
-    }
+        BufferedImage isolatedBuffer = isolatedBoardCopy(size);
+        Graphics2D g2d = isolatedBuffer.createGraphics();
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-    private void renderPiece(Img frameCanvas, PieceSnapshot piece, long frameTime) {
-        VisualPiece visual = activeVisualPieces.get(piece.id());
-        State currentState = piece.state();
-        long startTime = (visual != null) ? visual.stateStartTime : frameTime;
+        // 2. עדכון מצבי האנימציות הלוגיות
+        updateAnimations(snapshot.pieces(), frameTime);
 
-        GenericFrameState frameState = getFrameStateHelper(currentState);
-        AnimationConfig config = imageLoader.getAnimation(piece.color(), piece.type(), frameState.getFolderName());
+        // 3. ציור הכלים ישירות על הבאפר המבודד
+        for (PieceSnapshot piece : snapshot.pieces()) {
+            LogicalAnimation anim = activeAnimations.get(piece.id());
+            long startTime = (anim != null) ? anim.stateStartTime : frameTime;
 
-        Img pieceImg = frameState.getFrame(config, startTime, frameTime);
-        if (pieceImg == null) {
-            return;
+            String folderName = mapStateToFolderName(piece.state());
+            AnimationConfig config = imageLoader.getAnimation(piece.color(), piece.type(), folderName);
+
+            if (config == null || config.getFrames().isEmpty()) continue;
+            Img pieceImg = config.getCurrentFrame(startTime, frameTime);
+            if (pieceImg == null) continue;
+
+            // שינוי גודל של תמונת הכלי
+            java.awt.Dimension targetSize = geometry.getPieceTargetSize();
+            Img resizedPieceImg = scaleImage(pieceImg, targetSize.width, targetSize.height);
+
+            // חישוב מיקום יחסי רספונסיבי מדויק (לפי משבצות לוגיות)
+            double col = (anim != null) ? anim.currentCol : piece.position().getColumn();
+            double row = (anim != null) ? anim.currentRow : piece.position().getRow();
+
+            int x = (int) (col * geometry.getCellSize()) + (geometry.getCellSize() - targetSize.width) / 2;
+            int y = (int) (row * geometry.getCellSize()) + (geometry.getCellSize() - targetSize.height) / 2;
+
+            // מניעת חריגה מגבולות הבאפר
+            int maxAllowedX = size - targetSize.width;
+            int maxAllowedY = size - targetSize.height;
+            x = Math.max(0, Math.min(x, maxAllowedX));
+            y = Math.max(0, Math.min(y, maxAllowedY));
+
+            // ציור הכלי על ה-Graphics המבודד של הפריים הנוכחי
+            g2d.drawImage(resizedPieceImg.get(), x, y, null);
+
+            // ציור הטקסט של המצב
+            g2d.setColor(Color.RED);
+            g2d.setFont(g2d.getFont().deriveFont(12.0f));
+            g2d.drawString(piece.state().toString(), x + 5, y + geometry.getCellSize() - 5);
         }
 
-        int x = resolveX(visual, piece);
-        int y = resolveY(visual, piece);
+        g2d.dispose();
 
-        pieceImg.drawOn(frameCanvas, x, y);
-        frameCanvas.putText(currentState.toString(), x + 5, y + geometry.getCellSize() - 5,
-                STATE_LABEL_FONT_SIZE, Color.RED, 1);
-    }
-
-    private int resolveX(VisualPiece visual, PieceSnapshot piece) {
-        return (visual != null) ? (int) visual.currentX : geometry.pixelX(piece.position().getColumn());
-    }
-
-    private int resolveY(VisualPiece visual, PieceSnapshot piece) {
-        return (visual != null) ? (int) visual.currentY : geometry.pixelY(piece.position().getRow());
+        // 4. עטיפת הבאפר המבודד והסופי באובייקט Img והחזרתו
+        Img finalFrame = new Img();
+        finalFrame.set(isolatedBuffer);
+        return finalFrame;
     }
 
     /**
-     * תיקון הבאג המרכזי:
-     * 1. אתחול הכלים במיקום ההתחלתי שלהם (מתוך snapshot.position()) במקום ישר ביעד.
-     * 2. ביטול ה-continue המוקדם שגרם לדילוג על תחילת התנועה.
-     * 3. הוספת Fallback לזמן תנועה תקין (מינימום 100 מילישניות).
+     * מחזיר עותק "מבודד" (isolated) של תמונת הלוח בגודל הנתון, לציור הפריים
+     * הנוכחי עליו. הלוח הבסיסי עצמו נטען מהדיסק ומרוסקל רק כשהגודל משתנה
+     * לעומת הפעם הקודמת - לא בכל קריאה. העתקת הבאפר במטמון היא זולה
+     * (זיכרון בלבד) לעומת קריאת קובץ + רסקול שהיו קורים כאן קודם בכל פריים.
      */
-    private void updateVisualPieces(List<PieceSnapshot> snapshots, long frameTime) {
+    private BufferedImage isolatedBoardCopy(int size) {
+        if (cachedBaseBoard == null || cachedBoardSize != size) {
+            Img baseBoard = new Img().read(boardPath, new java.awt.Dimension(size, size), false, null);
+            BufferedImage fresh = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = fresh.createGraphics();
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.drawImage(baseBoard.get(), 0, 0, null);
+            g.dispose();
+            cachedBaseBoard = fresh;
+            cachedBoardSize = size;
+        }
+
+        BufferedImage copy = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = copy.createGraphics();
+        g.drawImage(cachedBaseBoard, 0, 0, null);
+        g.dispose();
+        return copy;
+    }
+
+    private void updateAnimations(List<PieceSnapshot> snapshots, long frameTime) {
         Set<Integer> activeIds = new HashSet<>();
 
         for (PieceSnapshot snapshot : snapshots) {
             int id = snapshot.id();
             activeIds.add(id);
 
-            // נקודת המוצא הנוכחית בפיקסלים
-            int startX = geometry.pixelX(snapshot.position().getColumn());
-            int startY = geometry.pixelY(snapshot.position().getRow());
+            LogicalAnimation anim = activeAnimations.get(id);
 
-            // נקודת היעד הסופית בפיקסלים
-            int targetX = geometry.pixelX(snapshot.targetPosition().getColumn());
-            int targetY = geometry.pixelY(snapshot.targetPosition().getRow());
-
-            VisualPiece visual = activeVisualPieces.get(id);
-            if (visual == null) {
-                // יוצרים את הכלי החדש במיקום המוצא שלו (ולא ביעד)
-                visual = new VisualPiece(startX, startY, snapshot.state(), frameTime);
-                activeVisualPieces.put(id, visual);
-                // לא עושים continue, אלא ממשיכים לבדוק אם הוא צריך לזוז ליעד חדש
+            if (anim == null) {
+                anim = new LogicalAnimation(snapshot.position().getColumn(), snapshot.position().getRow(), snapshot.state(), frameTime);
+                activeAnimations.put(id, anim);
             }
 
-            if (visual.state != snapshot.state()) {
-                visual.state = snapshot.state();
-                visual.stateStartTime = frameTime;
+            if (anim.state != snapshot.state()) {
+                anim.state = snapshot.state();
+                anim.stateStartTime = frameTime;
             }
 
-            // עדכון היעד יתבצע רק אם חל שינוי אמיתי בקואורדינטות היעד
-            if (visual.targetX != targetX || visual.targetY != targetY) {
+            int targetCol = snapshot.targetPosition().getColumn();
+            int targetRow = snapshot.targetPosition().getRow();
+
+            if (anim.targetCol != targetCol || anim.targetRow != targetRow) {
                 long duration = getDurationForState(snapshot);
-
-                // מניעת באג משך תנועה אפסי (Zero Duration Bug)
-                if (duration <= 10) {
-                    duration = DEFAULT_ANIMATION_DURATION_MS;
-                }
-
-                visual.setNewTarget(targetX, targetY, duration, frameTime);
+                if (duration <= 10) duration = DEFAULT_ANIMATION_DURATION_MS;
+                anim.setNewTarget(snapshot.position().getColumn(), snapshot.position().getRow(), targetCol, targetRow, duration, frameTime);
             }
 
-            visual.updatePosition(frameTime);
+            anim.update(frameTime);
         }
-        activeVisualPieces.keySet().retainAll(activeIds);
+
+        activeAnimations.keySet().retainAll(activeIds);
+    }
+
+    private Img scaleImage(Img original, int targetWidth, int targetHeight) {
+        if (original.get().getWidth() == targetWidth && original.get().getHeight() == targetHeight) {
+            return original;
+        }
+        Img newImg = new Img().createEmpty(targetWidth, targetHeight, true);
+        Graphics2D g = newImg.get().createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(original.get(), 0, 0, targetWidth, targetHeight, null);
+        g.dispose();
+        return newImg;
     }
 
     private long getDurationForState(PieceSnapshot snapshot) {
-        GenericFrameState fs = getFrameStateHelper(snapshot.state());
-        AnimationConfig cfg = imageLoader.getAnimation(snapshot.color(), snapshot.type(), fs.getFolderName());
+        String folderName = mapStateToFolderName(snapshot.state());
+        AnimationConfig cfg = imageLoader.getAnimation(snapshot.color(), snapshot.type(), folderName);
         return (cfg != null) ? cfg.getTotalDuration() : DEFAULT_ANIMATION_DURATION_MS;
     }
 
-    private GenericFrameState getFrameStateHelper(State state) {
-        switch (state) {
-            case JUMPING:    return new GenericFrameState("jump");
-            case MOVING:     return new GenericFrameState("move");
-            case LONG_REST:  return new GenericFrameState("long_rest");
-            case SHORT_REST: return new GenericFrameState("short_rest");
-            case IDLE:
-            default:         return new GenericFrameState("idle");
+    private String mapStateToFolderName(State state) {
+        return switch (state) {
+            case JUMPING -> "jump";
+            case MOVING -> "move";
+            case LONG_REST -> "long_rest";
+            case SHORT_REST -> "short_rest";
+            case IDLE -> "idle";
+            default -> "idle";
+        };
+    }
+
+    private static class LogicalAnimation {
+        public State state;
+        public long stateStartTime;
+        public long startTime;
+        public long duration;
+
+        public double currentCol;
+        public double currentRow;
+
+        public int startCol, startRow;
+        public int targetCol, targetRow;
+
+        public LogicalAnimation(int col, int row, State state, long frameTime) {
+            this.state = state;
+            this.stateStartTime = frameTime;
+            this.startTime = frameTime;
+            this.duration = 0;
+            this.startCol = col;
+            this.startRow = row;
+            this.targetCol = col;
+            this.targetRow = row;
+            this.currentCol = col;
+            this.currentRow = row;
+        }
+
+        public void setNewTarget(int fromCol, int fromRow, int toCol, int toRow, long duration, long frameTime) {
+            this.startTime = frameTime;
+            this.duration = duration;
+            this.startCol = fromCol;
+            this.startRow = fromRow;
+            this.targetCol = toCol;
+            this.targetRow = toRow;
+        }
+
+        public void update(long frameTime) {
+            if (duration <= 0) {
+                currentCol = targetCol;
+                currentRow = targetRow;
+                return;
+            }
+            double progress = (double) (frameTime - startTime) / duration;
+            progress = Math.max(0.0, Math.min(1.0, progress));
+
+            currentCol = startCol + (targetCol - startCol) * progress;
+            currentRow = startRow + (targetRow - startRow) * progress;
         }
     }
 }

@@ -1,4 +1,5 @@
-package org.example.view;
+package org.example.engines;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +10,10 @@ public class GameHistoryManager implements MoveListener {
     @Override
     public void onMoveAdded(String time, String move, char color) {
         MoveEntry entry = new MoveEntry(time, move);
-        if (color == 'w') whiteMoves.add(entry);
-        else blackMoves.add(entry);
+        if (Character.toLowerCase(color) == 'w') {
+            whiteMoves.add(entry);
+        } else {
+            blackMoves.add(entry);
+        }
     }
 }

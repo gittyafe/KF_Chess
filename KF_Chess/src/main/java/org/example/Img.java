@@ -166,4 +166,9 @@ public class Img {
         graphics.drawLine(x1, y1, x2, y2);
         graphics.dispose();
     }
+
+    public void set(BufferedImage isolatedBuffer) {
+        // השדה הפנימי שמחזיק את ה-BufferedImage בתוך מחלקת Img שלך (בדרך כלל נקרא image או img)
+        this.img = isolatedBuffer;
+    }
 }

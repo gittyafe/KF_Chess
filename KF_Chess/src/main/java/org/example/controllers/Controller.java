@@ -2,13 +2,11 @@ package org.example.controllers;
 
 import org.example.models.MoveRequest;
 import org.example.models.Position;
-import org.example.controllers.BoardMapper;
 import org.example.engines.GameEngine;
 
 /**
- * Manages piece selection and move initiation
+ * Manages piece selection and move initiation.
  */
-
 public class Controller {
 
     private boolean isSelected = false;
@@ -20,16 +18,14 @@ public class Controller {
     }
 
     /**
-     * Process a click at pixel coordinates and either select a piece or attempt a
-     * move.
+     * Process a click at a logical board cell and either select a piece or
+     * attempt a move.
      *
-     * @param x horizontal pixel coordinate
-     * @param y vertical pixel coordinate
+     * @param col logical column index on the board (0-based)
+     * @param row logical row index on the board (0-based)
      */
-    public void click(int x, int y) {
-        int targetRow = BoardMapper.pixelToCell(y);
-        int targetCol = BoardMapper.pixelToCell(x);
-        Position targetPosition = new Position(targetRow, targetCol);
+    public void click(int col, int row) {
+        Position targetPosition = new Position(row, col);
 
         if (!isSelected) {
             if (gameEngine.getPieceAt(targetPosition) != null) {
@@ -64,14 +60,12 @@ public class Controller {
     }
 
     /**
-     * Start a jump action for the piece at the clicked location.
+     * Start a jump action for the piece at the given logical board cell.
      *
-     * @param x horizontal pixel coordinate
-     * @param y vertical pixel coordinate
+     * @param col logical column index on the board (0-based)
+     * @param row logical row index on the board (0-based)
      */
-    public void jump(int x, int y) {
-        int row = BoardMapper.pixelToCell(y);
-        int col = BoardMapper.pixelToCell(x);
+    public void jump(int col, int row) {
         gameEngine.jumpRequest(new Position(row, col));
     }
 

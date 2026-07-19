@@ -1,4 +1,4 @@
-package org.example.view;
+package org.example.engines;
 
 public interface MoveListener {
     void onMoveAdded(String time, String move, char color);

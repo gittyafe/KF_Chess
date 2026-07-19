@@ -1,4 +1,4 @@
-package org.example.view;
+package org.example.engines;
 
 /**
  * מאזין להתרחשות של אכילת כלי (capture). מאפשר לשכבת התצוגה (ניקוד וכו')

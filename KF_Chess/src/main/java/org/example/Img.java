@@ -120,7 +120,14 @@ public class Img {
         return this;
     }
 
-    /* ----------- draw rectangle (filled or outline) ----------- */
+    /**
+     * Draws a rectangle OUTLINE (stroke only). Despite the old comment on this
+     * method ("filled or outline"), it never actually fills - it always calls
+     * {@code Graphics2D.drawRect}, never {@code fillRect}. Any caller that
+     * wanted a solid painted area (a background, a panel, a header strip...)
+     * and used this method got an empty outlined box instead. Use
+     * {@link #fillRect} for solid fills; this method is for actual outlines.
+     */
     public void drawRect(int x, int y, int width, int height, Color color) {
         float thickness = 2.0f; // ערך ברירת מחדל
         if (this.img == null) {
@@ -132,6 +139,48 @@ public class Img {
         graphics.setStroke(new BasicStroke(thickness)); // [cite: 96]
         graphics.drawRect(x, y, width, height); // [cite: 96]
         graphics.dispose(); // [cite: 96]
+    }
+
+    /** Draws a solid, filled rectangle - the "paint a background/panel" operation {@link #drawRect} does not do. */
+    public void fillRect(int x, int y, int width, int height, Color color) {
+        if (this.img == null) {
+            throw new IllegalStateException("Image not loaded.");
+        }
+
+        Graphics2D graphics = this.img.createGraphics();
+        graphics.setColor(color);
+        graphics.fillRect(x, y, width, height);
+        graphics.dispose();
+    }
+
+    /**
+     * Returns a new, independently-scaled {@link Img} of this image at the
+     * given size (bilinear interpolation). This image itself is left
+     * untouched, which matters for callers holding on to a shared/cached
+     * source image (e.g. a piece's animation frame reused across draws).
+     */
+    public Img resize(int width, int height) {
+        if (this.img == null) {
+            throw new IllegalStateException("Image not loaded.");
+        }
+        if (this.img.getWidth() == width && this.img.getHeight() == height) {
+            return this;
+        }
+
+        BufferedImage dst = new BufferedImage(
+                width, height,
+                this.img.getColorModel().hasAlpha()
+                        ? BufferedImage.TYPE_INT_ARGB
+                        : BufferedImage.TYPE_INT_RGB);
+
+        Graphics2D g = dst.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(this.img, 0, 0, width, height, null);
+        g.dispose();
+
+        Img result = new Img();
+        result.img = dst;
+        return result;
     }
 
     public Img copy() {

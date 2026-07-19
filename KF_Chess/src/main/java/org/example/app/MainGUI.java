@@ -15,7 +15,7 @@ import org.example.view.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
-public class Main {
+public class MainGUI {
     private static final int BOARD_COLS = 8;
     private static final int BOARD_ROWS = 8;
     private static final int BOARD_SIZE_PX = 650; // אפשר לשנות לכל גודל חופשי!

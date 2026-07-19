@@ -1,46 +1,73 @@
 package org.example.view;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+/**
+ * Reads a per-state {@code config.json} file (frame rate, loop flag, speed,
+ * next-state-when-finished, duration) into an {@link AnimationConfig}.
+ *
+ * <p>Previously this stripped all quotes/spaces from the whole file and used
+ * {@code indexOf(key)} to locate each value - see {@link MiniJson} for why
+ * that was fragile. This version parses proper JSON and reads named fields
+ * out of the resulting map.</p>
+ */
 public class ConfigParser {
+    private static final Logger LOGGER = Logger.getLogger(ConfigParser.class.getName());
 
     public static void parseJson(String path, AnimationConfig config) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line.trim());
-            }
-            String json = sb.toString().replace(" ", "").replace("\"", "");
-
-            if (json.contains("speed_m_per_sec"))
-                config.setSpeedMPerSec(Double.parseDouble(extractValue(json, "speed_m_per_sec")));
-            if (json.contains("next_state_when_finished"))
-                config.setNextStateWhenFinished(extractValue(json, "next_state_when_finished"));
-            if (json.contains("frames_per_sec")) {
-                int fps = Integer.parseInt(extractValue(json, "frames_per_sec"));
-                if (fps > 0) config.setFrameDuration(1000 / fps);
-            }
-            if (json.contains("is_loop"))
-                config.setLoop(Boolean.parseBoolean(extractValue(json, "is_loop")));
-            if (json.contains("duration_ms"))
-                config.setDurationMs(Long.parseLong(extractValue(json, "duration_ms")));
-
-        } catch (Exception ignored) {
-            // כשל בטעינה ישאיר ערכי ברירת מחדל בטוחים
+        String content;
+        try {
+            content = Files.readString(Path.of(path));
+        } catch (IOException e) {
+            // Missing/unreadable config is expected for states without overrides;
+            // AnimationConfig's defaults are safe to fall back on.
+            return;
         }
+
+        Map<String, Object> json;
+        try {
+            json = MiniJson.parseObject(content);
+        } catch (RuntimeException e) {
+            LOGGER.log(Level.WARNING, "Malformed animation config at " + path + " - using defaults", e);
+            return;
+        }
+
+        readDouble(json, "speed_m_per_sec").ifPresent(config::setSpeedMPerSec);
+        readString(json, "next_state_when_finished").ifPresent(config::setNextStateWhenFinished);
+        readInt(json, "frames_per_sec").ifPresent(fps -> {
+            if (fps > 0) config.setFrameDuration(1000 / fps);
+        });
+        readBoolean(json, "is_loop").ifPresent(config::setLoop);
+        readLong(json, "duration_ms").ifPresent(config::setDurationMs);
     }
 
-    private static String extractValue(String json, String key) {
-        int keyIndex = json.indexOf(key);
-        int colonIndex = json.indexOf(":", keyIndex);
-        int commaIndex = json.indexOf(",", colonIndex);
-        int closeBraceIndex = json.indexOf("}", colonIndex);
+    private static java.util.Optional<Double> readDouble(Map<String, Object> json, String key) {
+        Object v = json.get(key);
+        return v instanceof Number n ? java.util.Optional.of(n.doubleValue()) : java.util.Optional.empty();
+    }
 
-        if (commaIndex == -1 || commaIndex > closeBraceIndex) {
-            commaIndex = closeBraceIndex;
-        }
-        return json.substring(colonIndex + 1, commaIndex).trim();
+    private static java.util.Optional<Integer> readInt(Map<String, Object> json, String key) {
+        Object v = json.get(key);
+        return v instanceof Number n ? java.util.Optional.of(n.intValue()) : java.util.Optional.empty();
+    }
+
+    private static java.util.Optional<Long> readLong(Map<String, Object> json, String key) {
+        Object v = json.get(key);
+        return v instanceof Number n ? java.util.Optional.of(n.longValue()) : java.util.Optional.empty();
+    }
+
+    private static java.util.Optional<String> readString(Map<String, Object> json, String key) {
+        Object v = json.get(key);
+        return v instanceof String s ? java.util.Optional.of(s) : java.util.Optional.empty();
+    }
+
+    private static java.util.Optional<Boolean> readBoolean(Map<String, Object> json, String key) {
+        Object v = json.get(key);
+        return v instanceof Boolean b ? java.util.Optional.of(b) : java.util.Optional.empty();
     }
 }

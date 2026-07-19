@@ -10,11 +10,6 @@ import java.util.logging.Logger;
 /**
  * Reads a per-state {@code config.json} file (frame rate, loop flag, speed,
  * next-state-when-finished, duration) into an {@link AnimationConfig}.
- *
- * <p>Previously this stripped all quotes/spaces from the whole file and used
- * {@code indexOf(key)} to locate each value - see {@link MiniJson} for why
- * that was fragile. This version parses proper JSON and reads named fields
- * out of the resulting map.</p>
  */
 public class ConfigParser {
     private static final Logger LOGGER = Logger.getLogger(ConfigParser.class.getName());
@@ -24,8 +19,6 @@ public class ConfigParser {
         try {
             content = Files.readString(Path.of(path));
         } catch (IOException e) {
-            // Missing/unreadable config is expected for states without overrides;
-            // AnimationConfig's defaults are safe to fall back on.
             return;
         }
 

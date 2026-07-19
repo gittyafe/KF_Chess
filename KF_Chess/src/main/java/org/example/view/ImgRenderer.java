@@ -3,7 +3,6 @@ package org.example.view;
 import java.awt.Color;
 import java.awt.Dimension;
 
-import org.example.Img;
 import org.example.engines.GameSnapshot;
 import org.example.engines.PieceSnapshot;
 import org.example.models.State;
@@ -11,15 +10,8 @@ import org.example.models.State;
 /**
  * Draws one frame of the board: the cached background plus every piece at
  * its current (possibly mid-animation) position.
- *
- * <p>Animation bookkeeping and board-image caching live in
- * {@link PieceAnimationTracker} and {@link BoardImageCache} respectively, so
- * this class only turns a {@link GameSnapshot} into pixels - exclusively
- * through {@link Img}'s own API ({@code resize}, {@code drawOn}, {@code putText}).
- * It never touches {@code Graphics2D} or {@code BufferedImage} directly.</p>
  */
 public class ImgRenderer {
-    /** fontSize passed to Img.putText, which internally scales it by 12 - so 1.0f ~= a 12px label. */
     private static final float STATE_LABEL_FONT_SIZE = 1.0f;
     private static final int STATE_LABEL_TEXT_MARGIN_PX = 5;
 

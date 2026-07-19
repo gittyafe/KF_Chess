@@ -2,10 +2,6 @@ package org.example.view;
 
 import org.example.engines.CaptureListener;
 
-/**
- * מאזין ומנהל הניקוד של המשחק (מקור האמת הבלעדי לניקוד).
- * שומר על הניקוד של שני הצדדים ומעדכן אותו בכל אכילה.
- */
 public class ScoreManager implements CaptureListener {
     private int whiteScore = 0;
     private int blackScore = 0;
@@ -25,7 +21,6 @@ public class ScoreManager implements CaptureListener {
             return;
         }
 
-        // שימוש ב-Character.toLowerCase כדי למנוע באגים של אותיות רישיות/קטנות מהמנוע
         char color = Character.toLowerCase(capturingColor);
         if (color == 'w') {
             whiteScore += points;

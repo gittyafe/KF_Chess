@@ -1,6 +1,5 @@
 package org.example.view;
 
-import org.example.Img;
 import java.awt.Dimension;
 import java.io.File;
 import java.util.HashMap;
@@ -57,16 +56,6 @@ public class PieceImageLoader {
         }
     }
 
-    /**
-     * מחזיר את קונפיגורציית האנימציה של כלי/מצב נתון.
-     *
-     * <p>לפני התיקון, כל קריאה (שקורית לכל כלי, בכל פריים - עשרות פעמים
-     * בשנייה) יצרה אובייקט AnimationConfig חדש והעתיקה את רשימת הפריימים
-     * שלו ל-ArrayList חדש. זה לא היה נחוץ: לאחר ה-preload, האובייקטים
-     * במטמון הם read-only לחלוטין - אף אחד לא קורא להם setters יותר. לכן
-     * אפשר וכדאי להחזיר את אותו מופע משותף ישירות, מה שחוסך המון allocation
-     * מיותר על ה-thread של לולאת המשחק ותורם לחלקות בזמן שינוי גודל.</p>
-     */
     public AnimationConfig getAnimation(char color, char type, String stateFolder) {
         String key = cacheKey(color, type, stateFolder);
         AnimationConfig cachedConfig = piecesCache.get(key);

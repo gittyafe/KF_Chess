@@ -1,16 +1,11 @@
 package org.example.view;
 
-import org.example.Img;
 import org.example.engines.GameHistoryManager;
 import org.example.engines.GameSnapshot;
 
 /**
  * Composes one full window frame: background, board, coordinate labels and
  * both player panels.
- *
- * <p>Thin orchestrator: asks {@link BoardLayoutCalculator} for sizing, then
- * hands off to {@link ImgRenderer} (the board itself) and {@link FrameRenderer}
- * (everything around it).</p>
  */
 public class GameFrameComposer {
     private final ImgRenderer boardRenderer;

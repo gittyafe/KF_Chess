@@ -3,7 +3,6 @@ package org.example.view;
 import java.awt.Color;
 import java.util.List;
 
-import org.example.Img;
 import org.example.engines.MoveEntry;
 
 import static org.example.view.LayoutConstants.*;
@@ -12,14 +11,6 @@ import static org.example.view.LayoutConstants.*;
  * Draws everything around the board that isn't the board itself: page
  * background, outer border, coordinate labels, and both player panels
  * (name / score / move history).
- *
- * <p>This used to be four separate classes ({@code FrameBackgroundRenderer},
- * {@code BoardLabelRenderer}, {@code PlayerPanelRenderer}, {@code ImgDrawUtils}).
- * They didn't share any state and each only had one or two small methods -
- * splitting "static frame furniture" into four files bought isolation the
- * problem didn't need and cost more file-hopping than it saved. One class
- * with clearly named private methods gives the same readability with less
- * ceremony.</p>
  */
 public class FrameRenderer {
     private final BoardGeometry geometry;

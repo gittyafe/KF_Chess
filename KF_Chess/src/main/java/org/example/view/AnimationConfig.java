@@ -1,6 +1,5 @@
 package org.example.view;
 
-import org.example.Img;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,9 +28,6 @@ public class AnimationConfig {
         return durationMs > 0 ? durationMs : (long) frames.size() * frameDuration;
     }
 
-    /**
-     * מחזירה את הפריים המדויק לזמן הנתון מבלי לייצר אובייקטי מצב זמניים
-     */
     public Img getCurrentFrame(long startTime, long currentTime) {
         if (frames.isEmpty()) return null;
 

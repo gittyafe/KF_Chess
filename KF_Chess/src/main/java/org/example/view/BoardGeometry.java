@@ -3,21 +3,10 @@ package org.example.view;
 import java.awt.Dimension;
 
 /**
- * גיאומטריית הלוח - אחראית על תרגום בין קואורדינטות לוגיות (עמודה/שורה)
- * לקואורדינטות פיקסלים, ולהפך.
- *
- * <p><b>בטיחות תהליכונים (Thread Safety):</b> האובייקט מעודכן מה-thread של
- * לולאת המשחק (בכל פריים, לפי גודל החלון הנוכחי) ונקרא הן מאותו thread והן
- * מ-EDT (בזמן טיפול בלחיצות עכבר, כדי לתרגם פיקסל -> משבצת). כשהיו כאן שני
- * שדות int נפרדים (boardSizePx, cellSize) בלי volatile, יכול היה להיווצר
- * מצב שבו thread אחר קורא את אחד השדות "ישן" ואת השני "חדש" (torn read) -
- * בדיוק בזמן שינוי גודל, מה שמסביר תרגום שגוי של לחיצה לכלי הלא נכון.
- * הפתרון: כל הערכים המחושבים ביחד ארוזים בתמונת מצב (snapshot) בלתי ניתנת
- * לשינוי, שמתפרסמת אטומית דרך שדה volatile יחיד.</p>
+ * translating between logical board coordinates (row/col) and pixel coordinates on the screen.
  */
 public class BoardGeometry {
 
-    /** תמונת מצב אטומית ובלתי ניתנת לשינוי של כל הגדלים המחושבים יחד */
     private record Snapshot(int boardSizePx, int cellSize) {}
 
     private final int cols;
@@ -36,8 +25,7 @@ public class BoardGeometry {
     }
 
     /**
-     * מעדכן את גודל הלוח בעקבות שינוי גודל חלון. בטוח לקרוא מכל thread -
-     * כל הערכים הנגזרים (boardSizePx, cellSize) מתפרסמים יחד, אטומית.
+     * Updates the size of the board based on the new window size.
      */
     public void updateSize(int newBoardSizePx) {
         int newCellSize = newBoardSizePx / cols;
@@ -64,12 +52,6 @@ public class BoardGeometry {
         return (row * s.boardSizePx()) / rows + pieceMarginPx;
     }
 
-    /**
-     * ממיר פיקסל X (יחסית לפינת הלוח, כלומר אחרי הפחתת boardX) לאינדקס
-     * עמודה לוגי. זו הדרך הבטוחה היחידה לתרגם לחיצת עכבר לעמודה - כי היא
-     * קוראת snapshot אחד עקבי במקום לחשב לפי cellSize שנקרא בנפרד.
-     * מחזיר -1 אם הפיקסל מחוץ לגבולות הלוח.
-     */
     public int columnAt(int pixelXRelativeToBoard) {
         Snapshot s = snapshot;
         if (s.cellSize() <= 0) return -1;
@@ -77,7 +59,6 @@ public class BoardGeometry {
         return (col >= 0 && col < cols) ? col : -1;
     }
 
-    /** מקביל ל-columnAt, עבור ציר ה-Y. מחזיר -1 אם הפיקסל מחוץ לגבולות. */
     public int rowAt(int pixelYRelativeToBoard) {
         Snapshot s = snapshot;
         if (s.cellSize() <= 0) return -1;

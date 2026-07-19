@@ -12,13 +12,6 @@ import org.example.models.State;
 /**
  * Owns the animation state of every piece and advances it, frame by frame,
  * to stay in sync with the latest {@link PieceSnapshot} list from the engine.
- *
- * <p>This used to live inside {@code ImgRenderer} (as {@code activeAnimations}
- * plus a private {@code updateAnimations} method), duplicated almost exactly
- * by an unused top-level class called {@code VisualPiece}. Both are now one
- * thing: this tracker owns the state, and the per-piece state itself
- * ({@link VisualPieceState}) is nested here privately since nothing outside
- * this tracker ever needs to touch it directly.</p>
  */
 public class PieceAnimationTracker {
     private static final long DEFAULT_ANIMATION_DURATION_MS = 300;

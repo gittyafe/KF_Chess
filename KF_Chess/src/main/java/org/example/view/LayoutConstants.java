@@ -4,12 +4,6 @@ import java.awt.Color;
 
 /**
  * Named values for the game frame's layout and palette.
- *
- * <p>All of these used to be inline literals in {@code GameFrameComposer}
- * (e.g. {@code Math.min((int)(width * 0.55), height - 160)}), which meant
- * every reviewer had to reverse-engineer what "0.55" or "160" meant, and any
- * two places that needed to agree on a value (say, panel width) could drift
- * apart silently.</p>
  */
 public final class LayoutConstants {
     private LayoutConstants() {}

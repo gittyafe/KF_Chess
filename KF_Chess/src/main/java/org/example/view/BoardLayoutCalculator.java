@@ -4,11 +4,6 @@ import static org.example.view.LayoutConstants.*;
 
 /**
  * Computes where the board and side panels go for a given window size.
- *
- * <p>A pure function: takes a window size, returns a {@link Metrics}, no
- * drawing, no side effects. Kept separate from the renderers so the sizing
- * math (the fiddliest part of the old {@code composeFrame}) is readable and
- * testable on its own, without touching {@code Img} at all.</p>
  */
 public class BoardLayoutCalculator {
 

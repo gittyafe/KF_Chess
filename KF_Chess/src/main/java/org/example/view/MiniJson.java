@@ -5,21 +5,6 @@ import java.util.Map;
 
 /**
  * A small, dependency-free recursive-descent JSON parser.
- *
- * <p>This replaces the previous approach in {@code ConfigParser}, which
- * stripped all quotes and spaces from the whole file and then located values
- * with {@code indexOf("key")} / {@code indexOf(",")} / {@code indexOf("}")}.
- * That approach silently breaks on: a key name that is a substring of another
- * key, a string value containing a comma or brace, nested objects/arrays,
- * or numbers using scientific notation - none of which raise an error, they
- * just produce a wrong value or a wrong default. A real (if minimal) parser
- * removes that whole class of bug and fails loudly on malformed input
- * instead of guessing.</p>
- *
- * <p>Only the subset needed for animation config files is supported: a JSON
- * object at the top level with string/number/boolean/null values. Nested
- * objects and arrays are parsed (so parsing doesn't derail) but returned as
- * opaque {@link Map} / {@link java.util.List} instances rather than flattened.</p>
  */
 final class MiniJson {
     private final String src;

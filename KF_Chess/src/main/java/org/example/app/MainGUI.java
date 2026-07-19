@@ -1,6 +1,6 @@
 package org.example.app;
 
-import org.example.Img;
+import org.example.view.Img;
 import org.example.engines.GameEngine;
 import org.example.engines.GameHistoryManager;
 import org.example.engines.GameSnapshot;

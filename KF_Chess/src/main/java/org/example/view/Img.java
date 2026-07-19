@@ -1,4 +1,4 @@
-package org.example;
+package org.example.view;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -7,9 +7,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * Lightweight image‑utility class using only standard JDK APIs.
- */
 public class Img {
 
     private BufferedImage img;
@@ -120,14 +117,6 @@ public class Img {
         return this;
     }
 
-    /**
-     * Draws a rectangle OUTLINE (stroke only). Despite the old comment on this
-     * method ("filled or outline"), it never actually fills - it always calls
-     * {@code Graphics2D.drawRect}, never {@code fillRect}. Any caller that
-     * wanted a solid painted area (a background, a panel, a header strip...)
-     * and used this method got an empty outlined box instead. Use
-     * {@link #fillRect} for solid fills; this method is for actual outlines.
-     */
     public void drawRect(int x, int y, int width, int height, Color color) {
         float thickness = 2.0f; // ערך ברירת מחדל
         if (this.img == null) {
@@ -141,7 +130,6 @@ public class Img {
         graphics.dispose(); // [cite: 96]
     }
 
-    /** Draws a solid, filled rectangle - the "paint a background/panel" operation {@link #drawRect} does not do. */
     public void fillRect(int x, int y, int width, int height, Color color) {
         if (this.img == null) {
             throw new IllegalStateException("Image not loaded.");
@@ -153,12 +141,6 @@ public class Img {
         graphics.dispose();
     }
 
-    /**
-     * Returns a new, independently-scaled {@link Img} of this image at the
-     * given size (bilinear interpolation). This image itself is left
-     * untouched, which matters for callers holding on to a shared/cached
-     * source image (e.g. a piece's animation frame reused across draws).
-     */
     public Img resize(int width, int height) {
         if (this.img == null) {
             throw new IllegalStateException("Image not loaded.");
@@ -210,14 +192,9 @@ public class Img {
 
         Graphics2D graphics = this.img.createGraphics();
         graphics.setColor(color);
-        // ניתן להגדיר עובי קו אם רוצים, נשתמש ב-1.0f כברירת מחדל
         graphics.setStroke(new BasicStroke(1.0f));
         graphics.drawLine(x1, y1, x2, y2);
         graphics.dispose();
     }
 
-    public void set(BufferedImage isolatedBuffer) {
-        // השדה הפנימי שמחזיק את ה-BufferedImage בתוך מחלקת Img שלך (בדרך כלל נקרא image או img)
-        this.img = isolatedBuffer;
-    }
 }

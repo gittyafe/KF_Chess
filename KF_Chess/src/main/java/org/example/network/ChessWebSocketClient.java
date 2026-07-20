@@ -24,6 +24,7 @@ public class ChessWebSocketClient implements WebSocket.Listener {
 
     // שמירת הנתונים במקרה והחיבור אסינכרוני וטרם נפתח ה-Socket
     private volatile String pendingUsername;
+    private volatile String pendingPassword;
     private volatile String pendingRoomId;
 
     public ChessWebSocketClient() {
@@ -49,23 +50,25 @@ public class ChessWebSocketClient implements WebSocket.Listener {
     }
 
     /**
-     * בקשת הצטרפות לחדר (JOIN).
+     * בקשת הצטרפות לחדר (JOIN) הכוללת שם משתמש, סיסמה ו-Room ID.
      * אם החיבור טרם הושלם, הנתונים יישמרו ויישלחו אוטומטית ב-onOpen.
      */
-    public void sendJoin(String username, String roomId) {
+    public void sendJoin(String username, String password, String roomId) {
         if (webSocket != null) {
-            doSendJoin(username, roomId);
+            doSendJoin(username, password, roomId);
         } else {
             this.pendingUsername = username;
+            this.pendingPassword = password;
             this.pendingRoomId = roomId;
         }
     }
 
-    private void doSendJoin(String username, String roomId) {
+    private void doSendJoin(String username, String password, String roomId) {
         try {
             Map<String, String> joinPayload = Map.of(
                     "type", "JOIN",
                     "username", username,
+                    "password", password,
                     "roomId", roomId
             );
             webSocket.sendText(objectMapper.writeValueAsString(joinPayload), true);
@@ -80,12 +83,16 @@ public class ChessWebSocketClient implements WebSocket.Listener {
         this.webSocket = webSocket;
 
         // אם חיכו פקודות join בזמן שהסוקט התחבר, זה הזמן לשלוח אותן
-        if (pendingUsername != null && pendingRoomId != null) {
+        if (pendingUsername != null && pendingPassword != null && pendingRoomId != null) {
             String username = pendingUsername;
+            String password = pendingPassword;
             String roomId = pendingRoomId;
+
             pendingUsername = null;
+            pendingPassword = null;
             pendingRoomId = null;
-            doSendJoin(username, roomId);
+
+            doSendJoin(username, password, roomId);
         }
 
         WebSocket.Listener.super.onOpen(webSocket);
@@ -113,7 +120,7 @@ public class ChessWebSocketClient implements WebSocket.Listener {
                         return null;
                     }
 
-                    // 🔥 שליחת ה-Snapshot הגולמי ל-Bus ללא שום קשר או ידע על ה-UI
+                    // שליחת ה-Snapshot הגולמי ל-Bus
                     GameEventBus.getInstance().publish("BOARD_UPDATE_RECEIVED", snapshot);
                 }
                 else if ("MOVE_LOGGED".equals(msgType)) {
@@ -136,8 +143,9 @@ public class ChessWebSocketClient implements WebSocket.Listener {
                 else if ("JOIN_ACCEPTED".equals(msgType)) {
                     String username = (String) root.get("username");
                     char color = ((String) root.get("color")).charAt(0);
+                    int rating = ((Number) root.get("rating")).intValue();
 
-                    Object[] joinPayload = new Object[]{ username, color };
+                    Object[] joinPayload = new Object[]{ username, color, rating };
                     GameEventBus.getInstance().publish("JOIN_ACCEPTED", joinPayload);
                 }
                 else if ("JOIN_REJECTED".equals(msgType)) {

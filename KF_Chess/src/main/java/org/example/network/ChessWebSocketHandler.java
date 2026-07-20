@@ -11,13 +11,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ChessWebSocketHandler extends TextWebSocketHandler {
 
-    // מפה שמחזיקה את כל החדרים הפעילים לפי מפתח ה-Room ID
     private final Map<String, GameRoom> rooms = new ConcurrentHashMap<>();
-
-    // מפות קישור מהירות כדי לדעת מאיזה סשן הגענו לאיזה חדר/שחקן
     private final Map<WebSocketSession, GameRoom> sessionToRoom = new ConcurrentHashMap<>();
     private final Map<WebSocketSession, PlayerInfo> players = new ConcurrentHashMap<>();
+
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final AuthHandler authHandler = new AuthHandler(objectMapper); // המחלקה החדשה
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
@@ -25,72 +24,24 @@ public class ChessWebSocketHandler extends TextWebSocketHandler {
 
         if (payload == null || payload.isEmpty()) return;
 
-        // טיפול בבקשות JSON (כמו התחברות לחדר)
+        // 1. טיפול בבקשת הצטרפות/התחברות JSON דרך ה-AuthHandler
         if (payload.charAt(0) == '{') {
-            handleJoin(session, payload);
+            authHandler.processJoinRequest(session, payload, rooms, sessionToRoom, players);
             return;
         }
 
-        // וידוא שהשחקן רשום בחדר כלשהו
+        // 2. וידוא שהשחקן מחובר לחדר פעיל
         PlayerInfo player = players.get(session);
         GameRoom room = sessionToRoom.get(session);
         if (player == null || room == null || !room.isStarted()) {
             return;
         }
 
+        // 3. ניתוק פקודות תנועה וקפיצה
         if (Character.toUpperCase(payload.charAt(0)) == 'J') {
             handleJumpCommand(room, player, payload);
         } else {
             handleMoveCommand(room, player, payload);
-        }
-    }
-
-    private void handleJoin(WebSocketSession session, String payload) {
-        try {
-            Map<String, Object> root = objectMapper.readValue(payload, Map.class);
-            if (!"JOIN".equals(root.get("type"))) return;
-
-            String username = (String) root.get("username");
-            String roomId = (String) root.get("roomId"); // נשלח מהלקוח
-
-            if (username == null || username.isBlank() || roomId == null || roomId.isBlank()) {
-                sendSafe(session, "{\"type\":\"JOIN_REJECTED\",\"reason\":\"Missing data\"}");
-                return;
-            }
-
-            // יצירת חדר חדש אם אינו קיים, או שליפה של קיים
-            GameRoom room = rooms.computeIfAbsent(roomId, id -> new GameRoom(id));
-
-            synchronized (room) {
-                char color = room.getSessions().isEmpty() ? 'W' : 'B'; // ראשון לבן, שני שחור
-
-                boolean success = room.addPlayer(session, username);
-                if (!success) {
-                    sendSafe(session, "{\"type\":\"JOIN_REJECTED\",\"reason\":\"Room is full\"}");
-                    return;
-                }
-
-                PlayerInfo playerInfo = new PlayerInfo(username, color);
-                players.put(session, playerInfo);
-                sessionToRoom.put(session, room);
-
-                System.out.println("User " + username + " joined Room " + roomId + " as " + color);
-                sendSafe(session, "{\"type\":\"JOIN_ACCEPTED\",\"username\":\"" + username + "\",\"color\":\"" + color + "\"}");
-
-                // אם החדר התמלא והמשחק יכול להתחיל
-                if (room.isStarted()) {
-                    String gameStartedPayload = String.format(
-                            "{\"type\":\"GAME_STARTED\",\"data\":[\"%s\",\"%s\"]}",
-                            room.getWhiteUsername(), room.getBlackUsername()
-                    );
-                    room.broadcast(gameStartedPayload);
-
-                    // הפעלת לולאת ה-Tick הייחודית לחדר זה
-                    room.startLoop();
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("Error processing join: " + e.getMessage());
         }
     }
 
@@ -154,14 +105,6 @@ public class ChessWebSocketHandler extends TextWebSocketHandler {
         return new Position(row, col);
     }
 
-    private void sendSafe(WebSocketSession session, String messageText) {
-        try {
-            if (session.isOpen()) session.sendMessage(new TextMessage(messageText));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public void afterConnectionClosed(WebSocketSession session, org.springframework.web.socket.CloseStatus status) throws Exception {
         PlayerInfo player = players.remove(session);
@@ -171,12 +114,12 @@ public class ChessWebSocketHandler extends TextWebSocketHandler {
             synchronized (room) {
                 room.getSessions().remove(session);
                 if (room.getSessions().isEmpty()) {
-                    rooms.remove(room.getSessions()); // ניקוי חדר ריק
+                    rooms.values().remove(room);
                 }
             }
         }
         if (player != null) {
-            System.out.println("Player disconnected: " + player.getUsername());
+            System.out.println("🔌 Player disconnected: " + player.getUsername());
         }
     }
 }

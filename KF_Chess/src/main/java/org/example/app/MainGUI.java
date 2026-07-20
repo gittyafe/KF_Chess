@@ -26,6 +26,7 @@ public class MainGUI {
         // 1. קלט משתמש בשילוב ולידציה בסיסית
         Scanner scanner = new Scanner(System.in);
         String username = promptForInput(scanner, "Enter your username: ", "Username can't be empty.");
+        String password = promptForInput(scanner,"Enter your password: ", "Password can't be empty." );
         String roomId = promptForInput(scanner, "Enter Room ID to join/create: ", "Room ID can't be empty.");
 
         // 2. אתחול משאבים גרפיים קבועים (Asset Preloading)
@@ -46,7 +47,7 @@ public class MainGUI {
 
         // 5. יצירת החיבור הפיזי והצטרפות לחדר
         networkClient.connect(SERVER_URL);
-        networkClient.sendJoin(username, roomId);
+        networkClient.sendJoin(username, password, roomId);
 
         // 🛑 החזקת ה-Thread הראשי בחיים שלא יסגר מיד אחרי השליחה לרשת
         try {

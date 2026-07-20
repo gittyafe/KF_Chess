@@ -128,6 +128,7 @@ public class PieceAnimationTracker {
             }
             double progress = (double) (frameTime - moveStartTime) / moveDurationMs;
             progress = Math.max(0.0, Math.min(1.0, progress));
+            progress = 1 - Math.pow(1 - progress, 3);
 
             currentCol = startCol + (targetCol - startCol) * progress;
             currentRow = startRow + (targetRow - startRow) * progress;

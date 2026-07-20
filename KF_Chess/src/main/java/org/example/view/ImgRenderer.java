@@ -28,7 +28,10 @@ public class ImgRenderer {
     }
 
     public Img drawGame(GameSnapshot snapshot) {
-        long frameTime = System.currentTimeMillis();
+        return drawGame(snapshot, System.currentTimeMillis());
+    }
+
+    public Img drawGame(GameSnapshot snapshot, long frameTime) {
         int size = geometry.getBoardSizePx();
 
         animationTracker.update(snapshot.pieces(), frameTime);
@@ -36,20 +39,23 @@ public class ImgRenderer {
         Img boardFrame = boardImageCache.isolatedCopy(size);
 
         for (PieceSnapshot piece : snapshot.pieces()) {
-            drawPiece(boardFrame, piece, size);
+            drawPiece(boardFrame, piece, size, frameTime);
         }
 
         return boardFrame;
     }
 
     private void drawPiece(Img boardFrame, PieceSnapshot piece, int boardSizePx) {
-        long now = System.currentTimeMillis();
-        long stateStartTime = animationTracker.stateStartTimeOf(piece.id(), now);
+        drawPiece(boardFrame, piece, boardSizePx, System.currentTimeMillis());
+    }
+
+    private void drawPiece(Img boardFrame, PieceSnapshot piece, int boardSizePx, long frameTime) {
+        long stateStartTime = animationTracker.stateStartTimeOf(piece.id(), frameTime);
 
         AnimationConfig config = imageLoader.getAnimation(piece.color(), piece.type(), folderFor(piece.state()));
         if (config == null || config.getFrames().isEmpty()) return;
 
-        Img pieceFrame = config.getCurrentFrame(stateStartTime, now);
+        Img pieceFrame = config.getCurrentFrame(stateStartTime, frameTime);
         if (pieceFrame == null) return;
 
         Dimension targetSize = geometry.getPieceTargetSize();

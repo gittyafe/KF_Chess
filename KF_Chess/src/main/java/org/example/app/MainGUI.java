@@ -1,6 +1,5 @@
 package org.example.app;
 
-import org.example.view.Img;
 import org.example.engines.GameEngine;
 import org.example.engines.GameHistoryManager;
 import org.example.engines.GameSnapshot;
@@ -8,9 +7,14 @@ import org.example.models.Board;
 import org.example.models.Piece;
 import org.example.models.PieceFactory;
 import org.example.models.Position;
+import org.example.network.ChessWebSocketClient;
 import org.example.realtime.RealTimeArbiter;
 import org.example.controllers.Controller;
 import org.example.view.*;
+import org.example.bus.GameEventBus;
+import org.example.bus.CaptureBusAdapter;
+import org.example.bus.MoveBusAdapter;
+import org.example.bus.GameWindowBusBridge;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -41,14 +45,22 @@ public class MainGUI {
 
         ImgRenderer boardRenderer = new ImgRenderer(BOARD_IMAGE, geometry, imageLoader);
         GameHistoryManager historyManager = new GameHistoryManager();
-        gameEngine.addMoveListener(historyManager);
-
         ScoreManager scoreManager = new ScoreManager();
-        gameEngine.addCaptureListener(scoreManager);
+
+        gameEngine.addMoveListener(new MoveBusAdapter());
+        gameEngine.addCaptureListener(new CaptureBusAdapter());
 
         GameFrameComposer composer = new GameFrameComposer(boardRenderer, historyManager, geometry, scoreManager);
 
         GameWindow window = new GameWindow("Kung Fu Chess", 1400, 780, geometry);        window.init(controller);
+
+        // Replaces the old direct window.updateFrame(...) call at the end of
+        // every tick below - the bridge listens for FRAME_READY and drives
+        // GameWindow's existing public methods itself.
+        new GameWindowBusBridge(window, composer);
+
+        ChessWebSocketClient client = new ChessWebSocketClient(window);
+        client.connect("ws://localhost:8080/chess");
 
         new Thread(() -> {
             while (true) {
@@ -60,17 +72,14 @@ public class MainGUI {
 
                     controller.wait_(TICK_MS);
 
-                    // שליפת snapshot טרי אחרי ההמתנה, לפריים שבאמת יצויר
                     snapshot = gameEngine.getSnapshot();
 
-                    // שליפת מידות פעם אחת בלבד - נעילה מוחלטת לפריים הנוכחי
                     final int winWidth = window.getWidth();
                     final int winHeight = window.getHeight();
 
-                    Img frame = composer.composeFrame(snapshot, winWidth, winHeight);
-
-                    window.updateBoardOffsets(composer.getBoardX(), composer.getBoardY());
-                    window.updateFrame(frame);
+                    // Always publish local updates
+                    GameEventBus.getInstance().publish("BOARD_UPDATE",
+                            new GameFrameComposer.BoardUpdatePayload(snapshot, winWidth, winHeight));
 
                     long elapsed = System.currentTimeMillis() - startTime;
                     Thread.sleep(Math.max(5, TICK_MS - elapsed));
@@ -78,16 +87,6 @@ public class MainGUI {
                     System.out.println("Game loop interrupted.");
                     break;
                 } catch (Exception e) {
-                    // *** תיקון הגנתי חשוב ***
-                    // לפני התיקון, ה-try/catch עטף את כל ה-while מבחוץ ותפס
-                    // רק InterruptedException. כל חריגה אחרת (למשל משהו
-                    // שנשבר רגעית על גודל קיצוני בזמן גרירת resize) הייתה
-                    // הורגת את כל ה-thread *בשקט* - המסך פשוט "קופא" בלי
-                    // שום הודעת שגיאה גלויה. עכשיו כל פריים בודד עטוף
-                    // בנפרד: אם משהו נכשל, מדלגים על הפריים הזה בלבד וממשיכים
-                    // ללולאה הבאה, והשגיאה גם מודפסת לקונסולה - כך שאם עדיין
-                    // יש קריסה, נדע בדיוק איפה ולמה (ואם זה יקרה, תשלחי לי
-                    // את הפלט מהקונסולה).
                     System.err.println("Error in game loop (frame skipped): " + e);
                     e.printStackTrace();
                 }

@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * A small, dependency-free recursive-descent JSON parser.
  */
-final class MiniJson {
+public final class MiniJson {
     private final String src;
     private int pos;
 
@@ -14,7 +14,7 @@ final class MiniJson {
         this.src = src;
     }
 
-    static Map<String, Object> parseObject(String json) {
+    public static Map<String, Object> parseObject(String json) {
         MiniJson parser = new MiniJson(json);
         parser.skipWhitespace();
         Object value = parser.parseValue();

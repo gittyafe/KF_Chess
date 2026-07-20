@@ -19,13 +19,18 @@ public class GameFrameComposer {
 
     private volatile BoardLayoutCalculator.Metrics lastLayout;
 
+    private final String username1;
+    private final String username2;
+
     public GameFrameComposer(ImgRenderer boardRenderer, GameHistoryManager historyManager,
-                              BoardGeometry geometry, ScoreManager scoreManager) {
+                              BoardGeometry geometry, ScoreManager scoreManager, String username1, String username2) {
         this.boardRenderer = boardRenderer;
         this.historyManager = historyManager;
         this.geometry = geometry;
         this.scoreManager = scoreManager;
         this.frameRenderer = new FrameRenderer(geometry);
+        this.username1 = username1;
+        this.username2 = username2;
 
         // א. אירוע: מצב הלוח השתנה -> מרכיבים פריים חדש מלא (לוח+פאנלים) ומפרסמים אותו.
         // ה-composer לא מכיר את GameWindow בכלל - הוא רק שם על ה-bus את התוצאה המוכנה.
@@ -98,9 +103,9 @@ public class GameFrameComposer {
         frameRenderer.drawColumnLabels(masterFrame, layout, false);
         frameRenderer.drawRowLabels(masterFrame, layout);
 
-        frameRenderer.drawPlayerPanel(masterFrame, "BLACK", scoreManager.getBlackScore(), historyManager.getBlackMoves(),
+        frameRenderer.drawPlayerPanel(masterFrame, username2, scoreManager.getBlackScore(), historyManager.getBlackMoves(),
                 layout.leftPanelX(), layout.boardY(), layout.boardSize(), layout.panelWidth());
-        frameRenderer.drawPlayerPanel(masterFrame, "WHITE", scoreManager.getWhiteScore(), historyManager.getWhiteMoves(),
+        frameRenderer.drawPlayerPanel(masterFrame, username1, scoreManager.getWhiteScore(), historyManager.getWhiteMoves(),
                 layout.rightPanelX(), layout.boardY(), layout.boardSize(), layout.panelWidth());
 
         return masterFrame;

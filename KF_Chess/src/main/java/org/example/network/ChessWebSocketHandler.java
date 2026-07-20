@@ -1,138 +1,144 @@
 package org.example.network;
 
-import org.example.engines.GameEngine;
-import org.example.engines.GameSnapshot;
 import org.example.models.Position;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ChessWebSocketHandler extends TextWebSocketHandler {
 
-    private final List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
+    // מפה שמחזיקה את כל החדרים הפעילים לפי מפתח ה-Room ID
+    private final Map<String, GameRoom> rooms = new ConcurrentHashMap<>();
+
+    // מפות קישור מהירות כדי לדעת מאיזה סשן הגענו לאיזה חדר/שחקן
+    private final Map<WebSocketSession, GameRoom> sessionToRoom = new ConcurrentHashMap<>();
+    private final Map<WebSocketSession, PlayerInfo> players = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    // הזרקה או אתחול של ה-GameEngine שלך (כאן הוא מנוהל בשרת)
-    private final GameEngine gameEngine;
-
-    public ChessWebSocketHandler(GameEngine gameEngine) {
-        this.gameEngine = gameEngine;
-
-        // נרשמים לאירועים של המנוע כדי להפיץ אותם לרשת ברגע שהם קורים!
-        this.gameEngine.addCaptureListener((capturedType, capturingColor) -> {
-            broadcastSafe("{\"type\":\"PIECE_CAPTURED\",\"data\":[\"" + capturedType + "\",\"" + capturingColor + "\"]}");
-        });
-
-        this.gameEngine.addMoveListener((time, moveNotation, color) -> {
-            broadcastSafe("{\"type\":\"MOVE_LOGGED\",\"data\":[\"" + time + "\",\"" + moveNotation + "\",\"" + color + "\"]}");
-        });
-    }
-
-    @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        sessions.add(session);
-        // שולחים מיד את מצב הלוח הנוכחי לשחקן שהתחבר
-        sendGameState(session);
-    }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        String command = message.getPayload(); // move: "WQe2e5"  |  jump: "JWe4"
+        String payload = message.getPayload();
 
-        if (command == null || command.isEmpty()) {
-            System.err.println("פקודה ריקה מהלקוח, מתעלמים.");
+        if (payload == null || payload.isEmpty()) return;
+
+        // טיפול בבקשות JSON (כמו התחברות לחדר)
+        if (payload.charAt(0) == '{') {
+            handleJoin(session, payload);
             return;
         }
 
-        if (Character.toUpperCase(command.charAt(0)) == 'J') {
-            handleJumpCommand(command);
+        // וידוא שהשחקן רשום בחדר כלשהו
+        PlayerInfo player = players.get(session);
+        GameRoom room = sessionToRoom.get(session);
+        if (player == null || room == null || !room.isStarted()) {
+            return;
+        }
+
+        if (Character.toUpperCase(payload.charAt(0)) == 'J') {
+            handleJumpCommand(room, player, payload);
         } else {
-            handleMoveCommand(command);
+            handleMoveCommand(room, player, payload);
         }
     }
 
-    private void handleMoveCommand(String command) {
-        if (!isWellFormedMoveCommand(command)) {
-            System.err.println("פקודת מהלך לא תקינה מהלקוח, מתעלמים: " + command);
-            return;
+    private void handleJoin(WebSocketSession session, String payload) {
+        try {
+            Map<String, Object> root = objectMapper.readValue(payload, Map.class);
+            if (!"JOIN".equals(root.get("type"))) return;
+
+            String username = (String) root.get("username");
+            String roomId = (String) root.get("roomId"); // נשלח מהלקוח
+
+            if (username == null || username.isBlank() || roomId == null || roomId.isBlank()) {
+                sendSafe(session, "{\"type\":\"JOIN_REJECTED\",\"reason\":\"Missing data\"}");
+                return;
+            }
+
+            // יצירת חדר חדש אם אינו קיים, או שליפה של קיים
+            GameRoom room = rooms.computeIfAbsent(roomId, id -> new GameRoom(id));
+
+            synchronized (room) {
+                char color = room.getSessions().isEmpty() ? 'W' : 'B'; // ראשון לבן, שני שחור
+
+                boolean success = room.addPlayer(session, username);
+                if (!success) {
+                    sendSafe(session, "{\"type\":\"JOIN_REJECTED\",\"reason\":\"Room is full\"}");
+                    return;
+                }
+
+                PlayerInfo playerInfo = new PlayerInfo(username, color);
+                players.put(session, playerInfo);
+                sessionToRoom.put(session, room);
+
+                System.out.println("User " + username + " joined Room " + roomId + " as " + color);
+                sendSafe(session, "{\"type\":\"JOIN_ACCEPTED\",\"username\":\"" + username + "\",\"color\":\"" + color + "\"}");
+
+                // אם החדר התמלא והמשחק יכול להתחיל
+                if (room.isStarted()) {
+                    String gameStartedPayload = String.format(
+                            "{\"type\":\"GAME_STARTED\",\"data\":[\"%s\",\"%s\"]}",
+                            room.getWhiteUsername(), room.getBlackUsername()
+                    );
+                    room.broadcast(gameStartedPayload);
+
+                    // הפעלת לולאת ה-Tick הייחודית לחדר זה
+                    room.startLoop();
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error processing join: " + e.getMessage());
         }
+    }
+
+    private void handleMoveCommand(GameRoom room, PlayerInfo player, String command) {
+        if (!isWellFormedMoveCommand(command)) return;
 
         try {
-            char colorChar = command.charAt(0); // 'W' / 'B'
             Position from = parseNotation(command.substring(2, 4));
             Position to = parseNotation(command.substring(4, 6));
 
-            // 🔒 אכיפת בעלות: מוודאים שהכלי ב"from" באמת שייך לצבע שהחתום על הפקודה,
-            // כדי שלקוח אחד לא יוכל להזיז כלים של יריב.
-            org.example.models.Piece piece = gameEngine.getPieceAt(from);
-            char expectedColor = Character.toUpperCase(colorChar) == 'W' ? 'w' : 'b';
-            if (piece == null || piece.getColor() != expectedColor) {
-                System.err.println("ניסיון להזיז כלי שלא שייך לשולח, מתעלמים: " + command);
-                return;
-            }
+            org.example.models.Piece piece = room.getGameEngine().getPieceAt(from);
+            char expectedColor = player.getColor() == 'W' ? 'w' : 'b';
 
-            // הפעלת המהלך האמיתי בתוך ה-GameEngine שלך!
-            gameEngine.requestMove(from, to);
+            if (piece == null || piece.getColor() != expectedColor) return;
+
+            room.getGameEngine().requestMove(from, to);
         } catch (Exception e) {
-            System.err.println("שגיאה בעיבוד פקודת מהלך '" + command + "': " + e.getMessage());
+            System.err.println("Error executing move: " + e.getMessage());
         }
-
-        // 🛑 Don't send state here - let the game loop handle it
-        // שליחת ה-Snapshot המעודכן לכולם
-        // sendGameStateToAll();
     }
 
-    private void handleJumpCommand(String command) {
-        if (!isWellFormedJumpCommand(command)) {
-            System.err.println("פקודת קפיצה לא תקינה מהלקוח, מתעלמים: " + command);
-            return;
-        }
+    private void handleJumpCommand(GameRoom room, PlayerInfo player, String command) {
+        if (!isWellFormedJumpCommand(command)) return;
 
         try {
-            char colorChar = command.charAt(1); // 'W' / 'B'
             Position destination = parseNotation(command.substring(2, 4));
 
-            // 🔒 אותה אכיפת בעלות כמו במהלך רגיל - אי אפשר לגרום לכלי של היריב לקפוץ.
-            org.example.models.Piece piece = gameEngine.getPieceAt(destination);
-            char expectedColor = Character.toUpperCase(colorChar) == 'W' ? 'w' : 'b';
-            if (piece == null || piece.getColor() != expectedColor) {
-                System.err.println("ניסיון להקפיץ כלי שלא שייך לשולח, מתעלמים: " + command);
-                return;
-            }
+            org.example.models.Piece piece = room.getGameEngine().getPieceAt(destination);
+            char expectedColor = player.getColor() == 'W' ? 'w' : 'b';
 
-            gameEngine.jumpRequest(destination);
+            if (piece == null || piece.getColor() != expectedColor) return;
+
+            room.getGameEngine().jumpRequest(destination);
         } catch (Exception e) {
-            System.err.println("שגיאה בעיבוד פקודת קפיצה '" + command + "': " + e.getMessage());
+            System.err.println("Error executing jump: " + e.getMessage());
         }
     }
 
-    // בדיקת תקינות בסיסית למהלך: 6 תווים, קוד צבע תקין,
-    // ושתי משבצות בפורמט אות(a-h)+ספרה(1-8).
     private boolean isWellFormedMoveCommand(String command) {
-        if (command.length() != 6) {
-            return false;
-        }
+        if (command.length() != 6) return false;
         char colorChar = Character.toUpperCase(command.charAt(0));
-        if (colorChar != 'W' && colorChar != 'B') {
-            return false;
-        }
-        return isValidSquare(command.substring(2, 4)) && isValidSquare(command.substring(4, 6));
+        return (colorChar == 'W' || colorChar == 'B') && isValidSquare(command.substring(2, 4)) && isValidSquare(command.substring(4, 6));
     }
 
-    // בדיקת תקינות בסיסית לקפיצה: 4 תווים - 'J' + קוד צבע + משבצת.
     private boolean isWellFormedJumpCommand(String command) {
-        if (command.length() != 4) {
-            return false;
-        }
+        if (command.length() != 4) return false;
         char colorChar = Character.toUpperCase(command.charAt(1));
-        if (colorChar != 'W' && colorChar != 'B') {
-            return false;
-        }
-        return isValidSquare(command.substring(2, 4));
+        return (colorChar == 'W' || colorChar == 'B') && isValidSquare(command.substring(2, 4));
     }
 
     private boolean isValidSquare(String square) {
@@ -142,48 +148,35 @@ public class ChessWebSocketHandler extends TextWebSocketHandler {
         return file >= 'a' && file <= 'h' && rank >= '1' && rank <= '8';
     }
 
-    public void sendGameStateToAll() throws Exception {
-        // שימוש במתודה המקורית שלך מהקוד!
-        GameSnapshot snapshot = gameEngine.getSnapshot();
-        String snapshotJson = objectMapper.writeValueAsString(snapshot);
-        String response = "{\"type\":\"BOARD_UPDATE\",\"snapshot\":" + snapshotJson + "}";
-
-        for (WebSocketSession session : sessions) {
-            if (session.isOpen()) {
-                session.sendMessage(new TextMessage(response));
-            }
-        }
-    }
-
-    private void sendGameState(WebSocketSession session) throws Exception {
-        GameSnapshot snapshot = gameEngine.getSnapshot();
-        String snapshotJson = objectMapper.writeValueAsString(snapshot);
-        String response = "{\"type\":\"BOARD_UPDATE\",\"snapshot\":" + snapshotJson + "}";
-        if (session.isOpen()) {
-            session.sendMessage(new TextMessage(response));
-        }
-    }
-
-    private void broadcastSafe(String messageText) {
-        TextMessage msg = new TextMessage(messageText);
-        for (WebSocketSession session : sessions) {
-            try {
-                if (session.isOpen()) session.sendMessage(msg);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    // פונקציית עזר להפיכת תו כמו 'e2' ל-Position(row, col) לפי לוח שחמט סטנדרטי
     private Position parseNotation(String notation) {
-        int col = notation.charAt(0) - 'a';            // 'e' -> 4
-        int row = 8 - Character.getNumericValue(notation.charAt(1)); // '2' -> שורה 6 (תלוי במבנה הלוח שלך)
+        int col = notation.charAt(0) - 'a';
+        int row = 8 - Character.getNumericValue(notation.charAt(1));
         return new Position(row, col);
+    }
+
+    private void sendSafe(WebSocketSession session, String messageText) {
+        try {
+            if (session.isOpen()) session.sendMessage(new TextMessage(messageText));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, org.springframework.web.socket.CloseStatus status) throws Exception {
-        sessions.remove(session);
+        PlayerInfo player = players.remove(session);
+        GameRoom room = sessionToRoom.remove(session);
+
+        if (room != null) {
+            synchronized (room) {
+                room.getSessions().remove(session);
+                if (room.getSessions().isEmpty()) {
+                    rooms.remove(room.getSessions()); // ניקוי חדר ריק
+                }
+            }
+        }
+        if (player != null) {
+            System.out.println("Player disconnected: " + player.getUsername());
+        }
     }
 }

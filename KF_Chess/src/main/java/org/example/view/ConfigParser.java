@@ -30,6 +30,28 @@ public class ConfigParser {
             return;
         }
 
+        // Handle nested structure: physics { speed_m_per_sec, next_state_when_finished }
+        Object physicsObj = json.get("physics");
+        if (physicsObj instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> physics = (Map<String, Object>) physicsObj;
+            readDouble(physics, "speed_m_per_sec").ifPresent(config::setSpeedMPerSec);
+            readString(physics, "next_state_when_finished").ifPresent(config::setNextStateWhenFinished);
+        }
+
+        // Handle nested structure: graphics { frames_per_sec, is_loop, duration_ms }
+        Object graphicsObj = json.get("graphics");
+        if (graphicsObj instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> graphics = (Map<String, Object>) graphicsObj;
+            readInt(graphics, "frames_per_sec").ifPresent(fps -> {
+                if (fps > 0) config.setFrameDuration(1000 / fps);
+            });
+            readBoolean(graphics, "is_loop").ifPresent(config::setLoop);
+            readLong(graphics, "duration_ms").ifPresent(config::setDurationMs);
+        }
+
+        // Also support flat structure for backward compatibility
         readDouble(json, "speed_m_per_sec").ifPresent(config::setSpeedMPerSec);
         readString(json, "next_state_when_finished").ifPresent(config::setNextStateWhenFinished);
         readInt(json, "frames_per_sec").ifPresent(fps -> {

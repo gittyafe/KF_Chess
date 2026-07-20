@@ -41,20 +41,105 @@ public class ChessWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        String command = message.getPayload(); // למשל: "WQe2e5"
+        String command = message.getPayload(); // move: "WQe2e5"  |  jump: "JWe4"
 
-        if (command.length() == 6) {
-            // תרגום המחרוזת (e2, e5) למיקומי לוח (שורות ועמודות)
+        if (command == null || command.isEmpty()) {
+            System.err.println("פקודה ריקה מהלקוח, מתעלמים.");
+            return;
+        }
+
+        if (Character.toUpperCase(command.charAt(0)) == 'J') {
+            handleJumpCommand(command);
+        } else {
+            handleMoveCommand(command);
+        }
+    }
+
+    private void handleMoveCommand(String command) {
+        if (!isWellFormedMoveCommand(command)) {
+            System.err.println("פקודת מהלך לא תקינה מהלקוח, מתעלמים: " + command);
+            return;
+        }
+
+        try {
+            char colorChar = command.charAt(0); // 'W' / 'B'
             Position from = parseNotation(command.substring(2, 4));
             Position to = parseNotation(command.substring(4, 6));
 
+            // 🔒 אכיפת בעלות: מוודאים שהכלי ב"from" באמת שייך לצבע שהחתום על הפקודה,
+            // כדי שלקוח אחד לא יוכל להזיז כלים של יריב.
+            org.example.models.Piece piece = gameEngine.getPieceAt(from);
+            char expectedColor = Character.toUpperCase(colorChar) == 'W' ? 'w' : 'b';
+            if (piece == null || piece.getColor() != expectedColor) {
+                System.err.println("ניסיון להזיז כלי שלא שייך לשולח, מתעלמים: " + command);
+                return;
+            }
+
             // הפעלת המהלך האמיתי בתוך ה-GameEngine שלך!
             gameEngine.requestMove(from, to);
+        } catch (Exception e) {
+            System.err.println("שגיאה בעיבוד פקודת מהלך '" + command + "': " + e.getMessage());
         }
 
         // 🛑 Don't send state here - let the game loop handle it
         // שליחת ה-Snapshot המעודכן לכולם
         // sendGameStateToAll();
+    }
+
+    private void handleJumpCommand(String command) {
+        if (!isWellFormedJumpCommand(command)) {
+            System.err.println("פקודת קפיצה לא תקינה מהלקוח, מתעלמים: " + command);
+            return;
+        }
+
+        try {
+            char colorChar = command.charAt(1); // 'W' / 'B'
+            Position destination = parseNotation(command.substring(2, 4));
+
+            // 🔒 אותה אכיפת בעלות כמו במהלך רגיל - אי אפשר לגרום לכלי של היריב לקפוץ.
+            org.example.models.Piece piece = gameEngine.getPieceAt(destination);
+            char expectedColor = Character.toUpperCase(colorChar) == 'W' ? 'w' : 'b';
+            if (piece == null || piece.getColor() != expectedColor) {
+                System.err.println("ניסיון להקפיץ כלי שלא שייך לשולח, מתעלמים: " + command);
+                return;
+            }
+
+            gameEngine.jumpRequest(destination);
+        } catch (Exception e) {
+            System.err.println("שגיאה בעיבוד פקודת קפיצה '" + command + "': " + e.getMessage());
+        }
+    }
+
+    // בדיקת תקינות בסיסית למהלך: 6 תווים, קוד צבע תקין,
+    // ושתי משבצות בפורמט אות(a-h)+ספרה(1-8).
+    private boolean isWellFormedMoveCommand(String command) {
+        if (command.length() != 6) {
+            return false;
+        }
+        char colorChar = Character.toUpperCase(command.charAt(0));
+        if (colorChar != 'W' && colorChar != 'B') {
+            return false;
+        }
+        return isValidSquare(command.substring(2, 4)) && isValidSquare(command.substring(4, 6));
+    }
+
+    // בדיקת תקינות בסיסית לקפיצה: 4 תווים - 'J' + קוד צבע + משבצת.
+    private boolean isWellFormedJumpCommand(String command) {
+        if (command.length() != 4) {
+            return false;
+        }
+        char colorChar = Character.toUpperCase(command.charAt(1));
+        if (colorChar != 'W' && colorChar != 'B') {
+            return false;
+        }
+        return isValidSquare(command.substring(2, 4));
+    }
+
+    private boolean isValidSquare(String square) {
+        if (square.length() != 2) return false;
+        char file = Character.toLowerCase(square.charAt(0));
+        char rank = square.charAt(1);
+        return file >= 'a' && file <= 'h' && rank >= '1' && rank <= '8';
     }
 
     public void sendGameStateToAll() throws Exception {

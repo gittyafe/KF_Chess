@@ -93,6 +93,15 @@ public class ChessWebSocketClient implements WebSocket.Listener {
                     Object[] movePayload = new Object[]{ time, moveNotation, color };
                     GameEventBus.getInstance().publish("MOVE_LOGGED", movePayload);
                 }
+                else if ("PIECE_CAPTURED".equals(msgType)) {
+                    List<Object> dataList = (List<Object>) root.get("data");
+                    char capturedType = ((String) dataList.get(0)).charAt(0);
+                    char capturingColor = ((String) dataList.get(1)).charAt(0);
+
+                    // אותה צורה בדיוק ש-GameFrameComposer מצפה לה מ-CaptureBusAdapter
+                    Object[] capturePayload = new Object[]{ capturedType, capturingColor };
+                    GameEventBus.getInstance().publish("PIECE_CAPTURED", capturePayload);
+                }
 
             } catch (Exception e) {
                 System.err.println("שגיאה בעיבוד הודעת רשת: " + e.getMessage());

@@ -27,11 +27,11 @@ public class GameEngine {
         this.rta = rta;
     }
 
-    public boolean isGameOver() {
+    public synchronized boolean isGameOver() {
         return isGameOver;
     }
 
-    public Piece getPieceAt(Position position) {
+    public synchronized Piece getPieceAt(Position position) {
         return board.queryPieceAt(position);
     }
 
@@ -42,7 +42,7 @@ public class GameEngine {
      * @param to   destination position
      * @return move request result with validation status
      */
-    public MoveRequest requestMove(Position from, Position to) {
+    public synchronized MoveRequest requestMove(Position from, Position to) {
         Piece piece = board.queryPieceAt(from);
 
         MoveRequest moveResult = validateMove(piece, from, to);
@@ -93,6 +93,12 @@ public class GameEngine {
             return new MoveRequest(MoveStatus.OUT_OF_BOUNDS, false);
         }
 
+        // 🛑 אין כלי במשבצת המקור - אין מה לוודא/להזיז. בלי הבדיקה הזו כל שאר
+        // הקוד למטה מניח piece != null ומתרסק ב-NullPointerException.
+        if (piece == null) {
+            return new MoveRequest(MoveStatus.INVALID_MOVE, false);
+        }
+
         Piece targetPiece = board.queryPieceAt(to);
         if (targetPiece != null && targetPiece.getColor() == piece.getColor()) {
             return new MoveRequest(MoveStatus.SAME_COLOR_OCCUPIED, false);
@@ -110,7 +116,7 @@ public class GameEngine {
      *
      * @param ms number of milliseconds to advance
      */
-    public void wait_(long ms) {
+    public synchronized void wait_(long ms) {
         List<MovingPiece> finishedThisTick = rta.updateTime(ms);
 
         for (MovingPiece finished : finishedThisTick) {
@@ -125,7 +131,7 @@ public class GameEngine {
         }
     }
 
-    public void arrivedPiece(MovingPiece finished) {
+    public synchronized void arrivedPiece(MovingPiece finished) {
         Piece piece = finished.getPiece();
 
         // ייתכן שהכלי הזה כבר נאכל (הוסר מהלוח) ע"י arrivedPiece אחר
@@ -169,7 +175,7 @@ public class GameEngine {
      * @param destination target position for jump selection
      * @return move status result
      */
-    public MoveStatus jumpRequest(Position destination) {
+    public synchronized MoveStatus jumpRequest(Position destination) {
         if (isGameOver)
             return MoveStatus.GAME_OVER;
         if (!board.isInsideBounds(destination))
@@ -204,7 +210,7 @@ public class GameEngine {
     /**
      * פונקציית עזר המעתיקה את מצב הלוח הנוכחי למבנה נתונים קבוע לצורך ציור בטוח
      */
-    public GameSnapshot getSnapshot() {
+    public synchronized GameSnapshot getSnapshot() {
         List<PieceSnapshot> pieces = new ArrayList<>();
 
         for (int r = 0; r < board.getHeight(); r++) {

@@ -126,6 +126,6 @@ public class Board {
     }
 
     public List<Piece> getPieces() {
-        return pieces;
+        return java.util.Collections.unmodifiableList(pieces);
     }
 }

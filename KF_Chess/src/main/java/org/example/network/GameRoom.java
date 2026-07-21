@@ -1,59 +1,59 @@
 package org.example.network;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.engines.GameEngine;
 import org.example.engines.GameSnapshot;
 import org.example.models.Board;
 import org.example.models.Piece;
 import org.example.models.PieceFactory;
 import org.example.models.Position;
+import org.example.network.NetworkDTOs.GameStartedResponse;
+import org.example.network.NetworkDTOs.SimpleEventResponse;
 import org.example.realtime.RealTimeArbiter;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
-import java.util.ArrayList;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.*;
 
 public class GameRoom {
+
     private final String roomId;
-    private final List<WebSocketSession> sessions = new ArrayList<>();
+    private final List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
     private final GameEngine gameEngine;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private final ScheduledExecutorService gameLoopExecutor = Executors.newSingleThreadScheduledExecutor();
 
     private WebSocketSession whiteSession;
     private String whiteUsername;
     private WebSocketSession blackSession;
     private String blackUsername;
-    private boolean isStarted = false;
+    private volatile boolean isStarted = false;
+    private ScheduledFuture<?> loopHandle;
 
     public GameRoom(String roomId) {
         this.roomId = roomId;
 
-        // יצירת מנוע נפרד לכל חדר
         Board board = new Board(8, 8);
         RealTimeArbiter rta = new RealTimeArbiter();
-        loadBoardFromCSV(board, "src/main/resources/board.csv");
+        loadBoardFromClasspath(board, "/board.csv");
         this.gameEngine = new GameEngine(board, rta);
 
-        // רישום מאזינים מקומיים לחדר זה בלבד
         this.gameEngine.addCaptureListener((capturedType, capturingColor) -> {
-            broadcast("{\"type\":\"PIECE_CAPTURED\",\"data\":[\"" + capturedType + "\",\"" + capturingColor + "\"]}");
+            broadcastEvent("PIECE_CAPTURED", List.of(capturedType, capturingColor));
         });
 
         this.gameEngine.addMoveListener((time, moveNotation, color) -> {
-            broadcast("{\"type\":\"MOVE_LOGGED\",\"data\":[\"" + time + "\",\"" + moveNotation + "\",\"" + color + "\"]}");
+            broadcastEvent("MOVE_LOGGED", List.of(time, moveNotation, color));
         });
     }
 
-    /**
-     * הוספת משתמש לחדר:
-     * - משתמש 1 -> שחקן לבן
-     * - משתמש 2 -> שחקן שחור (מזניק את המשחק)
-     * - משתמש 3+ -> צופה (Spectator)
-     */
     public synchronized boolean addPlayer(WebSocketSession session, String username) {
         sessions.add(session);
 
@@ -71,85 +71,88 @@ public class GameRoom {
             startLoop();
         } else {
             System.out.println("👁️ Spectator joined room [" + roomId + "]: " + username);
-
-            // אם המשחק כבר פעיל, שולחים לצופה את המצב הנוכחי באופן מיידי
             if (isStarted) {
                 sendGameStateToSession(session);
             }
         }
-
         return true;
     }
 
     private void broadcastGameStarted() {
         try {
-            String message = objectMapper.writeValueAsString(Map.of(
-                    "type", "GAME_STARTED",
-                    "data", List.of(whiteUsername, blackUsername)
-            ));
-            broadcast(message);
+            GameStartedResponse response = new GameStartedResponse(whiteUsername, blackUsername);
+            broadcast(objectMapper.writeValueAsString(response));
         } catch (Exception e) {
             System.err.println("Error broadcasting GAME_STARTED: " + e.getMessage());
         }
     }
 
-    /**
-     * שליחת תמונת מצב ראשונית לצופה שנכנס באמצע המשחק
-     */
     private void sendGameStateToSession(WebSocketSession session) {
-        new Thread(() -> {
+        CompletableFuture.runAsync(() -> {
             try {
-                // 1. שליחת הודעת GAME_STARTED לצופה כדי שיפתח אצלו חלון המשחק
-                String gameStartedJson = objectMapper.writeValueAsString(Map.of(
-                        "type", "GAME_STARTED",
-                        "data", List.of(whiteUsername, blackUsername)
-                ));
+                String gameStartedJson = objectMapper.writeValueAsString(new GameStartedResponse(whiteUsername, blackUsername));
                 session.sendMessage(new TextMessage(gameStartedJson));
 
-                // השהיה קצרה (100ms) המבטיחה שהלקוח יסיים ליזום את החלון לפני קבלת ה-Snapshot
                 Thread.sleep(100);
 
-                // 2. שליחת תמונת הלוח העדכנית
                 GameSnapshot snapshot = gameEngine.getSnapshot();
-                String snapshotJson = objectMapper.writeValueAsString(snapshot);
-                session.sendMessage(new TextMessage("{\"type\":\"BOARD_UPDATE\",\"snapshot\":" + snapshotJson + "}"));
+                String snapshotJson = objectMapper.writeValueAsString(Map.of("type", "BOARD_UPDATE", "snapshot", snapshot));
+                session.sendMessage(new TextMessage(snapshotJson));
             } catch (Exception e) {
                 System.err.println("Error sending state to spectator: " + e.getMessage());
             }
-        }).start();
+        });
     }
 
-    public void startLoop() {
-        new Thread(() -> {
-            System.out.println("🚀 Room [" + roomId + "] Game Loop Started!");
-            while (!gameEngine.isGameOver() && isRoomActive()) {
-                try {
-                    Thread.sleep(30);
-                    gameEngine.wait_(30);
-                    sendGameStateToAll();
-                } catch (Exception e) {
-                    System.err.println("Error in room loop [" + roomId + "]: " + e.getMessage());
+    public synchronized void startLoop() {
+        if (loopHandle != null && !loopHandle.isDone()) return;
+
+        System.out.println("🚀 Room [" + roomId + "] Game Loop Started!");
+        loopHandle = gameLoopExecutor.scheduleAtFixedRate(() -> {
+            try {
+                if (gameEngine.isGameOver() || !isRoomActive()) {
+                    stopLoop();
+                    return;
                 }
+                gameEngine.wait_(30);
+                sendGameStateToAll();
+            } catch (Exception e) {
+                System.err.println("Error in room loop [" + roomId + "]: " + e.getMessage());
             }
+        }, 0, 30, TimeUnit.MILLISECONDS);
+    }
+
+    public void stopLoop() {
+        if (loopHandle != null) {
+            loopHandle.cancel(false);
+            gameLoopExecutor.shutdown();
             System.out.println("🏁 Room [" + roomId + "] Game Loop Ended.");
-        }, "Loop-Room-" + roomId).start();
+        }
     }
 
     public void sendGameStateToAll() throws Exception {
         GameSnapshot snapshot = gameEngine.getSnapshot();
-        String snapshotJson = objectMapper.writeValueAsString(snapshot);
-        broadcast("{\"type\":\"BOARD_UPDATE\",\"snapshot\":" + snapshotJson + "}");
+        String json = objectMapper.writeValueAsString(Map.of("type", "BOARD_UPDATE", "snapshot", snapshot));
+        broadcast(json);
+    }
+
+    public void broadcastEvent(String type, List<Object> data) {
+        try {
+            SimpleEventResponse response = new SimpleEventResponse(type, data);
+            broadcast(objectMapper.writeValueAsString(response));
+        } catch (Exception e) {
+            System.err.println("Error broadcasting event " + type + ": " + e.getMessage());
+        }
     }
 
     public void broadcast(String messageText) {
         TextMessage msg = new TextMessage(messageText);
-        // יצירת העתק של הרשימה למניעת ConcurrentModificationException
-        for (WebSocketSession session : new ArrayList<>(sessions)) {
+        for (WebSocketSession session : sessions) {
             try {
-                if (session.isOpen()) session.sendMessage(msg);
-            } catch (Exception e) {
-                // התעלמות משגיאות שליחה לסשן ספציפי שנותק
-            }
+                if (session.isOpen()) {
+                    session.sendMessage(msg);
+                }
+            } catch (Exception ignored) {}
         }
     }
 
@@ -157,31 +160,36 @@ public class GameRoom {
         return (whiteSession != null && whiteSession.isOpen()) || (blackSession != null && blackSession.isOpen());
     }
 
-    private void loadBoardFromCSV(Board board, String csvPath) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(csvPath))) {
-            String line;
-            int rowIndex = 0;
-            while ((line = reader.readLine()) != null && rowIndex < board.getHeight()) {
-                String[] cells = line.split(",", -1);
-                int colIndex = 0;
-                for (String cell : cells) {
-                    if (colIndex >= board.getWidth()) break;
-                    String trimmed = cell.trim();
-                    if (!trimmed.isEmpty() && trimmed.length() == 2) {
-                        Position pos = new Position(rowIndex, colIndex);
-                        Piece piece = PieceFactory.createPiece(trimmed.charAt(0), trimmed.charAt(1), pos);
-                        board.addPiece(piece);
+    private void loadBoardFromClasspath(Board board, String resourcePath) {
+        try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
+            if (is == null) {
+                System.err.println("❌ CSV File not found in classpath: " + resourcePath);
+                return;
+            }
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                String line;
+                int rowIndex = 0;
+                while ((line = reader.readLine()) != null && rowIndex < board.getHeight()) {
+                    String[] cells = line.split(",", -1);
+                    int colIndex = 0;
+                    for (String cell : cells) {
+                        if (colIndex >= board.getWidth()) break;
+                        String trimmed = cell.trim();
+                        if (trimmed.length() == 2) {
+                            Position pos = new Position(rowIndex, colIndex);
+                            Piece piece = PieceFactory.createPiece(trimmed.charAt(0), trimmed.charAt(1), pos);
+                            board.addPiece(piece);
+                        }
+                        colIndex++;
                     }
-                    colIndex++;
+                    rowIndex++;
                 }
-                rowIndex++;
             }
         } catch (Exception e) {
-            System.err.println("Error loading CSV: " + e.getMessage());
+            System.err.println("Error loading board CSV: " + e.getMessage());
         }
     }
 
-    // Getters
     public GameEngine getGameEngine() { return gameEngine; }
     public boolean isStarted() { return isStarted; }
     public String getWhiteUsername() { return whiteUsername; }

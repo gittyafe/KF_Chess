@@ -27,32 +27,20 @@ public class ChessWebSocketClient implements WebSocket.Listener {
     private volatile String pendingPassword;
     private volatile String pendingRoomId;
 
-    public ChessWebSocketClient() {
-        // בנאי נקי ומשוחרר מכל תלות ב-UI (ארכיטקטורה מבוססת אירועים)
-    }
+    public ChessWebSocketClient() {}
 
-    /**
-     * פתיחת חיבור אסינכרוני לשרת ה-WebSocket
-     */
     public void connect(String serverUrl) {
         HttpClient.newHttpClient().newWebSocketBuilder()
                 .buildAsync(URI.create(serverUrl), this)
                 .thenAccept(ws -> this.webSocket = ws);
     }
 
-    /**
-     * שליחת פקודת תנועה גולמית לשרת
-     */
     public void sendMoveCommand(String command) {
         if (webSocket != null && !webSocket.isOutputClosed()) {
             webSocket.sendText(command, true);
         }
     }
 
-    /**
-     * בקשת הצטרפות לחדר (JOIN) הכוללת שם משתמש, סיסמה ו-Room ID.
-     * אם החיבור טרם הושלם, הנתונים יישמרו ויישלחו אוטומטית ב-onOpen.
-     */
     public void sendJoin(String username, String password, String roomId) {
         if (webSocket != null) {
             doSendJoin(username, password, roomId);

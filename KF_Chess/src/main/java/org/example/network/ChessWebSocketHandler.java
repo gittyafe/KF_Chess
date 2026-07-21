@@ -1,10 +1,12 @@
 package org.example.network;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.models.Piece;
 import org.example.models.Position;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,29 +18,24 @@ public class ChessWebSocketHandler extends TextWebSocketHandler {
     private final Map<WebSocketSession, PlayerInfo> players = new ConcurrentHashMap<>();
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final AuthHandler authHandler = new AuthHandler(objectMapper); // המחלקה החדשה
+    private final AuthHandler authHandler = new AuthHandler(objectMapper);
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
         String payload = message.getPayload();
+        if (payload == null || payload.isBlank()) return;
 
-        if (payload == null || payload.isEmpty()) return;
-
-        // 1. טיפול בבקשת הצטרפות/התחברות JSON דרך ה-AuthHandler
-        if (payload.charAt(0) == '{') {
+        if (payload.startsWith("{")) {
             authHandler.processJoinRequest(session, payload, rooms, sessionToRoom, players);
             return;
         }
 
-        // 2. וידוא שהשחקן מחובר לחדר פעיל
         PlayerInfo player = players.get(session);
         GameRoom room = sessionToRoom.get(session);
-        if (player == null || room == null || !room.isStarted()) {
-            return;
-        }
+        if (player == null || room == null || !room.isStarted()) return;
 
-        // 3. ניתוק פקודות תנועה וקפיצה
-        if (Character.toUpperCase(payload.charAt(0)) == 'J') {
+        char firstChar = Character.toUpperCase(payload.charAt(0));
+        if (firstChar == 'J') {
             handleJumpCommand(room, player, payload);
         } else {
             handleMoveCommand(room, player, payload);
@@ -52,12 +49,12 @@ public class ChessWebSocketHandler extends TextWebSocketHandler {
             Position from = parseNotation(command.substring(2, 4));
             Position to = parseNotation(command.substring(4, 6));
 
-            org.example.models.Piece piece = room.getGameEngine().getPieceAt(from);
-            char expectedColor = player.getColor() == 'W' ? 'w' : 'b';
+            Piece piece = room.getGameEngine().getPieceAt(from);
+            char expectedColor = player.color() == 'W' ? 'w' : 'b';
 
-            if (piece == null || piece.getColor() != expectedColor) return;
-
-            room.getGameEngine().requestMove(from, to);
+            if (piece != null && piece.getColor() == expectedColor) {
+                room.getGameEngine().requestMove(from, to);
+            }
         } catch (Exception e) {
             System.err.println("Error executing move: " + e.getMessage());
         }
@@ -69,12 +66,12 @@ public class ChessWebSocketHandler extends TextWebSocketHandler {
         try {
             Position destination = parseNotation(command.substring(2, 4));
 
-            org.example.models.Piece piece = room.getGameEngine().getPieceAt(destination);
-            char expectedColor = player.getColor() == 'W' ? 'w' : 'b';
+            Piece piece = room.getGameEngine().getPieceAt(destination);
+            char expectedColor = player.color() == 'W' ? 'w' : 'b';
 
-            if (piece == null || piece.getColor() != expectedColor) return;
-
-            room.getGameEngine().jumpRequest(destination);
+            if (piece != null && piece.getColor() == expectedColor) {
+                room.getGameEngine().jumpRequest(destination);
+            }
         } catch (Exception e) {
             System.err.println("Error executing jump: " + e.getMessage());
         }
@@ -83,7 +80,9 @@ public class ChessWebSocketHandler extends TextWebSocketHandler {
     private boolean isWellFormedMoveCommand(String command) {
         if (command.length() != 6) return false;
         char colorChar = Character.toUpperCase(command.charAt(0));
-        return (colorChar == 'W' || colorChar == 'B') && isValidSquare(command.substring(2, 4)) && isValidSquare(command.substring(4, 6));
+        return (colorChar == 'W' || colorChar == 'B')
+                && isValidSquare(command.substring(2, 4))
+                && isValidSquare(command.substring(4, 6));
     }
 
     private boolean isWellFormedJumpCommand(String command) {
@@ -106,7 +105,7 @@ public class ChessWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, org.springframework.web.socket.CloseStatus status) throws Exception {
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         PlayerInfo player = players.remove(session);
         GameRoom room = sessionToRoom.remove(session);
 
@@ -114,12 +113,13 @@ public class ChessWebSocketHandler extends TextWebSocketHandler {
             synchronized (room) {
                 room.getSessions().remove(session);
                 if (room.getSessions().isEmpty()) {
-                    rooms.values().remove(room);
+                    room.stopLoop();
+                    rooms.remove(room.getWhiteUsername()); // הסרה בטוחה
                 }
             }
         }
         if (player != null) {
-            System.out.println("🔌 Player disconnected: " + player.getUsername());
+            System.out.println("🔌 Player disconnected: " + player.username());
         }
     }
 }

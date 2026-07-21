@@ -103,9 +103,9 @@ public class GameFrameComposer {
         frameRenderer.drawColumnLabels(masterFrame, layout, false);
         frameRenderer.drawRowLabels(masterFrame, layout);
 
-        frameRenderer.drawPlayerPanel(masterFrame, username2, scoreManager.getBlackScore(), historyManager.getBlackMoves(),
+        frameRenderer.drawPlayerPanel(masterFrame, username2+" - Black", scoreManager.getBlackScore(), historyManager.getBlackMoves(),
                 layout.leftPanelX(), layout.boardY(), layout.boardSize(), layout.panelWidth());
-        frameRenderer.drawPlayerPanel(masterFrame, username1, scoreManager.getWhiteScore(), historyManager.getWhiteMoves(),
+        frameRenderer.drawPlayerPanel(masterFrame, username1+" - White", scoreManager.getWhiteScore(), historyManager.getWhiteMoves(),
                 layout.rightPanelX(), layout.boardY(), layout.boardSize(), layout.panelWidth());
 
         return masterFrame;

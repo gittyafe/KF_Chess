@@ -1,6 +1,6 @@
 package controllers;
 
-import org.example.controllers.Controller;
+import org.example.controllers.LocalController;
 import org.example.engines.GameEngine;
 import org.example.models.MoveRequest;
 import org.example.models.MoveStatus;
@@ -24,7 +24,7 @@ class ControllerTest {
     private GameEngine gameEngine;
 
     @InjectMocks
-    private Controller controller;
+    private LocalController controller;
 
     @Nested
     @DisplayName("Click and Selection Flow")

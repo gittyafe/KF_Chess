@@ -1,7 +1,7 @@
 package org.example.textIO;
 
+import org.example.controllers.LocalController;
 import org.example.models.Board;
-import org.example.controllers.Controller;
 import org.example.engines.GameEngine;
 import org.example.realtime.RealTimeArbiter;
 
@@ -15,7 +15,7 @@ public class ScriptRunner {
     private StringBuilder boardString = new StringBuilder();
     private boolean readingBoard = false;
     private GameEngine gameEngine;
-    private Controller controller;
+    private LocalController controller;
     private RealTimeArbiter rta;
 
     /**
@@ -33,7 +33,7 @@ public class ScriptRunner {
             board = BoardParser.parse(boardString.toString());
             rta = new RealTimeArbiter();
             gameEngine = new GameEngine(board, rta);
-            controller = new Controller(gameEngine);
+            controller = new LocalController(gameEngine);
             readingBoard = false;
             return;
         }

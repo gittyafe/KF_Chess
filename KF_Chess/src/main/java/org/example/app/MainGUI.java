@@ -3,7 +3,7 @@ package org.example.app;
 import org.example.engines.GameHistoryManager;
 import org.example.engines.GameSnapshot;
 import org.example.network.ChessWebSocketClient;
-import org.example.controllers.Controller;
+import org.example.controllers.NetworkController;
 import org.example.view.*;
 import org.example.bus.GameEventBus;
 import org.example.bus.GameWindowBusBridge;
@@ -40,7 +40,7 @@ public class MainGUI {
 
         // 3. אתחול שכבת התקשורת והשליטה (בלי שום הכרה של חלונות UI)
         ChessWebSocketClient networkClient = new ChessWebSocketClient();
-        Controller controller = new Controller(networkClient);
+        NetworkController controller = new NetworkController(networkClient);
 
         // 4. רישום מאזינים גלובליים למחזור חיי המשחק (Lifecycle Listeners)
         setupLifecycleListeners(roomId, geometry, boardRenderer, historyManager, scoreManager, controller);
@@ -82,7 +82,7 @@ public class MainGUI {
             ImgRenderer boardRenderer,
             GameHistoryManager historyManager,
             ScoreManager scoreManager,
-            Controller controller) {
+            NetworkController controller) {
 
         GameEventBus eventBus = GameEventBus.getInstance();
 

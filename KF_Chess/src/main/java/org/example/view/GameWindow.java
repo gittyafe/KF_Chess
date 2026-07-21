@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import org.example.controllers.Controller;
+import org.example.controllers.NetworkController;
 
 public class GameWindow {
     private final JFrame frame;
@@ -27,7 +27,7 @@ public class GameWindow {
         frame.add(imageLabel);
     }
 
-    public void init(Controller controller) {
+    public void init(NetworkController controller) {
         imageLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {

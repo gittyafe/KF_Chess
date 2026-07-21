@@ -1,6 +1,6 @@
 package textIO;
 
-import org.example.controllers.Controller;
+import org.example.controllers.LocalController;
 import org.example.textIO.ScriptRunner;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,7 @@ import static org.mockito.Mockito.*;
 class ScriptRunnerTest {
 
     @Mock
-    private Controller mockController;
+    private LocalController mockController;
 
     @InjectMocks
     private ScriptRunner scriptRunner;

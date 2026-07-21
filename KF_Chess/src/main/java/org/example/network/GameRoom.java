@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class GameRoom {
     private final String roomId;
@@ -47,19 +48,75 @@ public class GameRoom {
         });
     }
 
+    /**
+     * הוספת משתמש לחדר:
+     * - משתמש 1 -> שחקן לבן
+     * - משתמש 2 -> שחקן שחור (מזניק את המשחק)
+     * - משתמש 3+ -> צופה (Spectator)
+     */
     public synchronized boolean addPlayer(WebSocketSession session, String username) {
-        if (sessions.size() >= 2) return false;
-
         sessions.add(session);
+
         if (whiteSession == null) {
             whiteSession = session;
             whiteUsername = username;
-        } else {
+            System.out.println("👤 Player 1 (White) joined room [" + roomId + "]: " + username);
+        } else if (blackSession == null) {
             blackSession = session;
             blackUsername = username;
-            isStarted = true; // יש 2 שחקנים - המשחק מוכן לצאת לדרך
+            isStarted = true;
+            System.out.println("👤 Player 2 (Black) joined room [" + roomId + "]: " + username);
+
+            broadcastGameStarted();
+            startLoop();
+        } else {
+            System.out.println("👁️ Spectator joined room [" + roomId + "]: " + username);
+
+            // אם המשחק כבר פעיל, שולחים לצופה את המצב הנוכחי באופן מיידי
+            if (isStarted) {
+                sendGameStateToSession(session);
+            }
         }
+
         return true;
+    }
+
+    private void broadcastGameStarted() {
+        try {
+            String message = objectMapper.writeValueAsString(Map.of(
+                    "type", "GAME_STARTED",
+                    "data", List.of(whiteUsername, blackUsername)
+            ));
+            broadcast(message);
+        } catch (Exception e) {
+            System.err.println("Error broadcasting GAME_STARTED: " + e.getMessage());
+        }
+    }
+
+    /**
+     * שליחת תמונת מצב ראשונית לצופה שנכנס באמצע המשחק
+     */
+    private void sendGameStateToSession(WebSocketSession session) {
+        new Thread(() -> {
+            try {
+                // 1. שליחת הודעת GAME_STARTED לצופה כדי שיפתח אצלו חלון המשחק
+                String gameStartedJson = objectMapper.writeValueAsString(Map.of(
+                        "type", "GAME_STARTED",
+                        "data", List.of(whiteUsername, blackUsername)
+                ));
+                session.sendMessage(new TextMessage(gameStartedJson));
+
+                // השהיה קצרה (100ms) המבטיחה שהלקוח יסיים ליזום את החלון לפני קבלת ה-Snapshot
+                Thread.sleep(100);
+
+                // 2. שליחת תמונת הלוח העדכנית
+                GameSnapshot snapshot = gameEngine.getSnapshot();
+                String snapshotJson = objectMapper.writeValueAsString(snapshot);
+                session.sendMessage(new TextMessage("{\"type\":\"BOARD_UPDATE\",\"snapshot\":" + snapshotJson + "}"));
+            } catch (Exception e) {
+                System.err.println("Error sending state to spectator: " + e.getMessage());
+            }
+        }).start();
     }
 
     public void startLoop() {
@@ -86,11 +143,12 @@ public class GameRoom {
 
     public void broadcast(String messageText) {
         TextMessage msg = new TextMessage(messageText);
-        for (WebSocketSession session : sessions) {
+        // יצירת העתק של הרשימה למניעת ConcurrentModificationException
+        for (WebSocketSession session : new ArrayList<>(sessions)) {
             try {
                 if (session.isOpen()) session.sendMessage(msg);
             } catch (Exception e) {
-                // שגיאת שליחה לסשן ספציפי
+                // התעלמות משגיאות שליחה לסשן ספציפי שנותק
             }
         }
     }
@@ -123,7 +181,7 @@ public class GameRoom {
         }
     }
 
-    // גטרים
+    // Getters
     public GameEngine getGameEngine() { return gameEngine; }
     public boolean isStarted() { return isStarted; }
     public String getWhiteUsername() { return whiteUsername; }

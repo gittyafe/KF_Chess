@@ -3,17 +3,32 @@ package org.example.controllers;
 import org.example.engines.GameSnapshot;
 import org.example.engines.PieceSnapshot;
 import org.example.models.Position;
+import org.example.models.Role;
 import org.example.network.ChessWebSocketClient;
-import org.example.network.ChessProtocolUtils; // מחלקת עזר להמרת הפורמט
+import org.example.network.ChessProtocolUtils;
 
 public class NetworkController {
 
     private final ChessWebSocketClient networkClient;
     private final SelectionManager selectionManager = new SelectionManager();
     private volatile GameSnapshot latestSnapshot;
+    private volatile Role role; // 🎯 שימוש ב-Enum עבור תפקיד המשתמש
 
-    public NetworkController(ChessWebSocketClient networkClient) {
+    public NetworkController(ChessWebSocketClient networkClient, Role role) {
         this.networkClient = networkClient;
+        this.role = role != null ? role : Role.UNKNOWN;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public boolean isSpectator() {
+        return role == Role.SPECTATOR;
     }
 
     public void updateSnapshot(GameSnapshot snapshot) {
@@ -21,9 +36,13 @@ public class NetworkController {
     }
 
     public void click(int col, int row) {
+        // 🛑 צופים לא יכולים לבצע לחיצות/מהלכים
+        if (isSpectator()) {
+            return;
+        }
+
         Position targetPosition = new Position(row, col);
 
-        // 1. אם לא נבחר כלי עדיין - בודקים אם לחצו על כלי כלשהו
         if (!selectionManager.isSelected()) {
             if (findPieceAt(targetPosition) != null) {
                 selectionManager.select(targetPosition);
@@ -31,32 +50,31 @@ public class NetworkController {
             return;
         }
 
-        // 2. כלי כבר נבחר בעבר
         Position selectedPos = selectionManager.getSelectedPosition();
         PieceSnapshot selectedPiece = findPieceAt(selectedPos);
 
-        // אם הכלי הנבחר נעלם מלוח המשחק בזמן שחיכינו (למשל נלכד ע"י השחקן השני)
         if (selectedPiece == null) {
             selectionManager.clear();
             return;
         }
 
-        // 3. אם לחצו על כלי אחר באותו צבע - מעבירים את הבחירה אליו
         PieceSnapshot targetPiece = findPieceAt(targetPosition);
         if (targetPiece != null && targetPiece.color() == selectedPiece.color()) {
             selectionManager.select(targetPosition);
             return;
         }
 
-        // 4. במידה ולחצו על משבצת יעד חוקית כביכול - שולחים פקודה לשרת
         String command = ChessProtocolUtils.buildMoveCommand(selectedPiece, targetPosition);
         networkClient.sendMoveCommand(command);
 
-        // מאפסים את הבחירה המקומית ומחכים לעדכון השרת ב-updateSnapshot
         selectionManager.clear();
     }
 
     public void jump(int col, int row) {
+        if (isSpectator()) {
+            return;
+        }
+
         Position position = new Position(row, col);
         PieceSnapshot piece = findPieceAt(position);
         if (piece != null) {
@@ -75,5 +93,9 @@ public class NetworkController {
             }
         }
         return null;
+    }
+
+    public GameSnapshot getLatestSnapshot() {
+        return latestSnapshot;
     }
 }

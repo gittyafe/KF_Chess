@@ -10,8 +10,8 @@ import org.example.bus.GameEventBus;
 import org.example.bus.GameWindowBusBridge;
 
 import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainGUI {
     private static final int BOARD_COLS = 8;
@@ -23,6 +23,9 @@ public class MainGUI {
 
     private static final Object lock = new Object();
     private static volatile GameWindow activeWindow = null;
+
+    // 🟢 1. הגדרת המשתנה למניעת הצפת תור ה-EDT
+    private static final AtomicBoolean isRendering = new AtomicBoolean(false);
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -88,23 +91,31 @@ public class MainGUI {
             System.exit(0);
         });
 
-        // 🟢 הרשמה גלובלית מוקדמת לעדכוני הלוח כדי למנוע אובדן אירועים
+        // 🟢 2. פתרון 2 מיושם כאן: הוספת בקרת הקצב לאירועי הלוח
         eventBus.subscribe("BOARD_UPDATE_RECEIVED", rawSnapshot -> {
             GameSnapshot snapshot = (GameSnapshot) rawSnapshot;
             controller.updateSnapshot(snapshot);
 
             GameWindow window = activeWindow;
             if (window != null) {
-                GameFrameComposer.BoardUpdatePayload payload = new GameFrameComposer.BoardUpdatePayload(
-                        snapshot,
-                        window.getWidth(),
-                        window.getHeight()
-                );
-                SwingUtilities.invokeLater(() -> eventBus.publish("BOARD_UPDATE", payload));
+                // בדיקה אם ה-EDT פנוי. אם הוא עדיין מרנדר את הפריים הקודם - נדלג על השליחה
+                if (isRendering.compareAndSet(false, true)) {
+                    SwingUtilities.invokeLater(() -> {
+                        try {
+                            GameFrameComposer.BoardUpdatePayload payload = new GameFrameComposer.BoardUpdatePayload(
+                                    snapshot,
+                                    window.getWidth(),
+                                    window.getHeight()
+                            );
+                            eventBus.publish("BOARD_UPDATE", payload);
+                        } finally {
+                            isRendering.set(false); // שחרור הדגל
+                        }
+                    });
+                }
             }
         });
 
-        // ⚔️ פתיחת חלון המשחק (עבור שחקן או צופה)
         eventBus.subscribe("GAME_STARTED", data -> {
             Object[] players = (Object[]) data;
             String whiteUser = (String) players[0];
@@ -124,7 +135,7 @@ public class MainGUI {
             controller.setRole(userRole);
 
             SwingUtilities.invokeLater(() -> {
-                if (activeWindow != null) return; // מניעת פתיחה כפולה של החלון
+                if (activeWindow != null) return;
 
                 GameWindow window = new GameWindow("Kung Fu Chess - Room: " + roomId, 1400, 780, geometry);
                 activeWindow = window;
@@ -135,7 +146,6 @@ public class MainGUI {
                 GameFrameComposer composer = new GameFrameComposer(boardRenderer, historyManager, geometry, scoreManager, whiteUser, blackUser);
                 new GameWindowBusBridge(window, composer);
 
-                // דחיפה ראשונית אם כבר קיים snapshot ב-controller
                 if (controller.getLatestSnapshot() != null) {
                     GameFrameComposer.BoardUpdatePayload payload = new GameFrameComposer.BoardUpdatePayload(
                             controller.getLatestSnapshot(),

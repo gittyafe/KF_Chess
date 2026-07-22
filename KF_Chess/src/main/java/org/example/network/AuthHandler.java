@@ -121,4 +121,44 @@ public class AuthHandler {
             System.err.println("❌ שגיאה בשליחת הודעה לקוח: " + e.getMessage());
         }
     }
+
+// בתוך AuthHandler.java
+
+    public void processLoginRequest(
+            WebSocketSession session,
+            String payload,
+            Map<WebSocketSession, PlayerInfo> players) { // 👈 הוסיפי את players לפרמטרים!
+        try {
+            LoginRequest loginReq = objectMapper.readValue(payload, LoginRequest.class);
+
+            if (isInvalid(loginReq.username()) || isInvalid(loginReq.password())) {
+                sendJsonResponse(session, new LoginRejectedResponse("Missing username or password"));
+                return;
+            }
+
+            int rating = DatabaseManager.authenticateOrRegister(loginReq.username(), loginReq.password());
+
+            if (rating == -1) {
+                sendJsonResponse(session, new LoginRejectedResponse("Invalid password or database error"));
+                return;
+            }
+
+            // 🟢 1. שמירת המשתמש ישירות ב-players Map של השרת!
+            // ה-'W' הוא צבע זמני בלבד, עד שמוצאים יריב ב-Matchmaking
+            PlayerInfo playerInfo = new PlayerInfo(loginReq.username(), 'W');
+            players.put(session, playerInfo);
+
+            // 🟢 2. שמירה גיבוי ב-Session attributes
+            session.getAttributes().put("username", loginReq.username());
+            session.getAttributes().put("rating", rating);
+
+            System.out.printf("🔑 User %s (%d ELO) logged in successfully%n", loginReq.username(), rating);
+
+            sendJsonResponse(session, new LoginSuccessResponse(loginReq.username(), rating));
+
+        } catch (Exception e) {
+            System.err.println("❌ שגיאה בעיבוד בקשת התחברות: " + e.getMessage());
+            sendJsonResponse(session, new LoginRejectedResponse("Invalid JSON format"));
+        }
+    }
 }

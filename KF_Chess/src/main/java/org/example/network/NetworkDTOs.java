@@ -25,4 +25,16 @@ public class NetworkDTOs {
     }
 
     public record SimpleEventResponse(String type, List<Object> data) {}
+
+    public record LoginRequest(String type, String username, String password) {}
+    public record LoginSuccessResponse(String type, String username, int rating) {
+        public LoginSuccessResponse(String username, int rating) {
+            this("LOGIN_SUCCESS", username, rating);
+        }
+    }
+    public record LoginRejectedResponse(String type, String reason) {
+        public LoginRejectedResponse(String reason) {
+            this("LOGIN_REJECTED", reason);
+        }
+    }
 }

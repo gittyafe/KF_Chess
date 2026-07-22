@@ -19,6 +19,7 @@ public class NetworkController {
         this.role = role != null ? role : Role.UNKNOWN;
     }
 
+
     public Role getRole() {
         return role;
     }
@@ -36,7 +37,6 @@ public class NetworkController {
     }
 
     public void click(int col, int row) {
-        // 🛑 צופים לא יכולים לבצע לחיצות/מהלכים
         if (isSpectator()) {
             return;
         }

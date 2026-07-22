@@ -60,6 +60,11 @@ public class MainGUI {
                 lifecycleManager.setCurrentRoomId(roomId);
                 networkClient.sendJoinRoom(roomId);
             }
+            @Override
+            public void onCreateRoomRequested() {
+//                lifecycleManager.setCurrentRoomId(roomName);
+//                networkClient.sendCreateRoom(roomName);
+            }
         });
 
         // 4. הצגת החלון

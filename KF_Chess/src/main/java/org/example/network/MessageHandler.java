@@ -60,7 +60,6 @@ public class MessageHandler {
                 case "JOIN_ROOM":
                     authHandler.processJoinRoomRequest(session, payload, rooms, sessionToRoom, players);
                     break;
-
                 case "JOIN_MATCH":
                     authHandler.processJoinMatchRequest(session, payload, rooms, sessionToRoom, players);
                     break;

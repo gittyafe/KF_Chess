@@ -113,7 +113,7 @@ public class DatabaseManager {
                 whiteUser, ratingW, newRatingW, blackUser, ratingB, newRatingB);
     }
 
-    private static void updateUserRating(String username, int newRating) {
+    public static void updateUserRating(String username, int newRating) {
         String sql = "UPDATE users SET rating = ? WHERE username = ?";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

@@ -159,16 +159,22 @@ public class ChessWebSocketClient implements WebSocket.Listener {
 
                     GameEventBus.getInstance().publish("BOARD_UPDATE_RECEIVED", snapshot);
                 }
+                // הוסיפי את זה בתוך onText() ב-ChessWebSocketClient.java
                 else if ("DISCONNECT_COUNTDOWN".equals(msgType)) {
                     int seconds = ((Number) root.get("seconds")).intValue();
+                    System.out.println("⚠️ Received DISCONNECT_COUNTDOWN from server: " + seconds + "s");
                     GameEventBus.getInstance().publish("DISCONNECT_COUNTDOWN", seconds);
                 }
                 else if ("DISCONNECT_CANCELLED".equals(msgType)) {
+                    System.out.println("✅ Received DISCONNECT_CANCELLED from server");
                     GameEventBus.getInstance().publish("DISCONNECT_CANCELLED", null);
                 }
-                else  if("GAME_OVER".equals(msgType)) {
+                else if ("GAME_OVER".equals(msgType)) {
                     String winner = (String) root.get("winner");
-                    GameEventBus.getInstance().publish("GAME_OVER", winner);
+                    String reason = (String) root.get("reason"); // אופציונלי: למשל "CHECKMATE" או "RESIGN_DISCONNECT"
+                    System.out.println("🏆 Game Over received. Winner: " + winner);
+                    Object[] gameOverPayload = new Object[]{ winner, reason };
+                    GameEventBus.getInstance().publish("GAME_OVER", gameOverPayload);
                 }
                 else if("CREATE_ACCEPTED".equals(msgType)) {
                     String username = (String) root.get("username");

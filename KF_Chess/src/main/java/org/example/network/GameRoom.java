@@ -45,16 +45,48 @@ public class GameRoom {
         loadBoardFromClasspath(board, "/board.csv");
         this.gameEngine = new GameEngine(board, rta);
 
-        this.gameEngine.addCaptureListener((capturedType, capturingColor) -> {
-            broadcastEvent("PIECE_CAPTURED", List.of(capturedType, capturingColor));
-            if(gameEngine.isGameOver()) {
-                String winner = capturingColor== 'W' ? blackUsername : whiteUsername;
-                broadcastEvent("GAME_OVER", List.of(winner, "CHECKMATE"));
-            }
-        });
+        addListenerCuptured();
 
         this.gameEngine.addMoveListener((time, moveNotation, color) -> {
             broadcastEvent("MOVE_LOGGED", List.of(time, moveNotation, color));
+        });
+    }
+    public void addListenerCuptured(){
+        this.gameEngine.addCaptureListener((capturedType, capturingColor) -> {
+            // 1. שידור אירוע אכילה ללקוחות (לסאונד ועדכון ניקוד UI)
+            broadcastEvent("PIECE_CAPTURED", List.of(capturedType, capturingColor));
+
+            // 2. אם המשחק הסתיים (למשל המלך נאכל / שח-מט)
+            if (gameEngine.isGameOver()) {
+                // 🟢 א. זיהוי נכון של המנצח והמפסיד
+                String winner = (capturingColor == 'W' || capturingColor == 'w') ? whiteUsername : blackUsername;
+                String loser = winner.equals(whiteUsername) ? blackUsername : whiteUsername;
+
+                System.out.println("🏆 GAME OVER in Room [" + roomId + "]! Winner: " + winner);
+
+                // 🟢 ב. עדכון ELO בבסיס הנתונים
+                try {
+                    org.example.database.DatabaseManager.updateUserRating(winner, 15);
+                    org.example.database.DatabaseManager.updateUserRating(loser, -15);
+                } catch (Exception e) {
+                    System.err.println("⚠️ Failed to update DB ratings: " + e.getMessage());
+                }
+
+                // 🟢 ג. שידור GAME_OVER בפורמט אחיד עם שם המנצח
+                try {
+                    String gameOverJson = objectMapper.writeValueAsString(Map.of(
+                            "type", "GAME_OVER",
+                            "winner", winner,
+                            "reason", "CHECKMATE"
+                    ));
+                    broadcast(gameOverJson);
+                } catch (Exception e) {
+                    System.err.println("❌ Error sending GAME_OVER: " + e.getMessage());
+                }
+
+                // 🟢 ד. עצירת ה-Game Loop בשרת
+                stopLoop();
+            }
         });
     }
 

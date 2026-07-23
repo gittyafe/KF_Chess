@@ -38,14 +38,16 @@ public class ChessWebSocketHandler extends TextWebSocketHandler {
         if (room != null) {
             synchronized (room) {
                 room.getSessions().remove(session);
-                if (room.getSessions().isEmpty()) {
+
+                // 🟢 אם המשחק התחיל ונשאר שחקן אחד בחדר -> מפעילים ספירה לאחור!
+                if (room.isStarted() && !room.getSessions().isEmpty()) {
+                    System.out.println("🚨 Player disconnected! Starting resign countdown...");
+                    room.handlePlayerDisconnect(session);
+                } else if (room.getSessions().isEmpty()) {
                     room.stopLoop();
-                    rooms.remove(room.getWhiteUsername()); // הסרה בטוחה
+                    rooms.remove(room.getWhiteUsername());
                 }
             }
-        }
-        if (player != null) {
-            System.out.println("🔌 Player disconnected: " + player.username());
         }
     }
 }

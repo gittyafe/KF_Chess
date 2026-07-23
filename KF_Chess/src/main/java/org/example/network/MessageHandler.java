@@ -1,5 +1,6 @@
 package org.example.network;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.models.Piece;
 import org.example.models.Position;
@@ -53,8 +54,15 @@ public class MessageHandler {
                 case "LOGIN":
                     authHandler.processLoginRequest(session, payload, players);
                     break;
-                case "JOIN":
-                    authHandler.processJoinRequest(session, payload, rooms, sessionToRoom, players);
+                case "CREATE_ROOM":
+                    processCreateRoomRequest(session, root, rooms, sessionToRoom, players);
+                    break;
+                case "JOIN_ROOM":
+                    authHandler.processJoinRoomRequest(session, payload, rooms, sessionToRoom, players);
+                    break;
+
+                case "JOIN_MATCH":
+                    authHandler.processJoinMatchRequest(session, payload, rooms, sessionToRoom, players);
                     break;
                 case "FIND_MATCH":
                     handleFindMatchRequest(session, players);
@@ -69,6 +77,46 @@ public class MessageHandler {
         } catch (Exception e) {
             System.err.println("❌ Error parsing JSON message: " + e.getMessage());
         }
+    }
+
+    private void processCreateRoomRequest(
+            WebSocketSession session,
+            Map<String, Object> root,
+            Map<String, GameRoom> rooms,
+            Map<WebSocketSession, GameRoom> sessionToRoom,
+            Map<WebSocketSession, PlayerInfo> players) {
+
+        String roomId = root.get("roomId") != null ? root.get("roomId").toString().trim() : "";
+        String username = root.get("username") != null ? root.get("username").toString().trim() : "";
+
+        // 1. בדיקת תקינות הקלט
+        if (roomId.isEmpty()) {
+            sendResponse(session, "{\"type\":\"CREATE_REJECTED\",\"message\":\"Room ID cannot be empty\"}");
+            return;
+        }
+
+        // 2. בדיקה האם החדר כבר קיים בשרת
+        if (rooms.containsKey(roomId)) {
+            System.out.println("⚠️ Room creation failed: " + roomId + " already exists!");
+            sendResponse(session, "{\"type\":\"CREATE_REJECTED\",\"message\":\"Room ID '" + roomId + "' is already taken. Choose another name.\"}");
+            return;
+        }
+
+        // 3. יצירת החדר, הוספתו למפות וחיבור היוצר כ-Player 1 (White)
+        GameRoom newRoom = new GameRoom(roomId);
+        rooms.put(roomId, newRoom);
+        sessionToRoom.put(session, newRoom);
+
+        // שמירת מידע השחקן היוצר כ-White ('W')
+        players.put(session, new PlayerInfo(username, 'W'));
+
+        // הוספת השחקן ל-GameRoom
+        newRoom.addPlayer(session, username);
+
+        System.out.println("✅ Room created successfully: [" + roomId + "] by user: " + username);
+
+        // 4. החזרת תשובת CREATE_ACCEPTED ליוצר החדר
+        sendResponse(session, "{\"type\":\"CREATE_ACCEPTED\",\"roomId\":\"" + roomId + "\",\"message\":\"Room created successfully. Waiting for opponent.\"}");
     }
 
     private void handleFindMatchRequest(WebSocketSession session, Map<WebSocketSession, PlayerInfo> players) {

@@ -61,9 +61,9 @@ public class MainGUI {
                 networkClient.sendJoinRoom(roomId);
             }
             @Override
-            public void onCreateRoomRequested() {
-//                lifecycleManager.setCurrentRoomId(roomName);
-//                networkClient.sendCreateRoom(roomName);
+            public void onCreateRoomRequested(String roomName) {
+                lifecycleManager.setCurrentRoomId(roomName);
+                networkClient.sendCreateRoom(roomName);
             }
         });
 

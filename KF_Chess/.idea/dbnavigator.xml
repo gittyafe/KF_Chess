@@ -39,7 +39,9 @@
     <last-used-providers />
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
-    <open-files />
+    <open-files>
+      <object connection-id="f0cc0b71-49bc-4230-ad01-76d5a8aee450" object-ref="schemas/chess_game/tables/users" />
+    </open-files>
   </component>
   <component name="DBNavigator.Project.DatabasePrerequisiteManager">
     <prerequisites />
@@ -48,7 +50,7 @@
     <connection id="f0cc0b71-49bc-4230-ad01-76d5a8aee450" />
   </component>
   <component name="DBNavigator.Project.DatasetFilterManager">
-    <filter-actions connection-id="f0cc0b71-49bc-4230-ad01-76d5a8aee450" dataset="chess_game.users" active-filter-id="">
+    <filter-actions connection-id="f0cc0b71-49bc-4230-ad01-76d5a8aee450" dataset="chess_game.users" active-filter-id="35d08cbc-4ac8-436c-9780-ca10fd347f47">
       <filter id="35d08cbc-4ac8-436c-9780-ca10fd347f47" name="Filter" temporary="false" custom-name="false" type="basic" join-type="AND">
         <condition column="username" operator="=" value="" active="true" />
       </filter>

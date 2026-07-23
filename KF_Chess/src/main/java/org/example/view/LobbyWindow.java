@@ -12,13 +12,16 @@ public class LobbyWindow {
     private final CardLayout cardLayout;
     private final JPanel mainPanel;
 
+    // 🟢 הפניה לדיאלוג החדר הפעיל כדי לנהל אותו באופן מרכזי ולמנוע הודעות כפולות
+    private RoomDialog activeRoomDialog = null;
+
     public enum LobbyState { LOGIN, LOBBY, SEARCHING }
 
     public interface LobbyEventListener {
         void onLoginRequested(String username, String password);
         void onFindMatchRequested();
         void onCancelMatchmakingRequested();
-        void onCreateRoomRequested();
+        void onCreateRoomRequested(String roomId);
         void onJoinRoomRequested(String roomId);
     }
 
@@ -86,8 +89,8 @@ public class LobbyWindow {
         title.setForeground(TEXT_TITLE);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JTextField userField = new JTextField(15);
-        JPasswordField passField = new JPasswordField(15);
+        JTextField userField = new JTextField(10);
+        JPasswordField passField = new JPasswordField(10);
         styleField(userField);
         styleField(passField);
 
@@ -115,11 +118,9 @@ public class LobbyWindow {
     }
 
     /**
-     * Lobby screen now only exposes two choices, side by side:
+     * Lobby screen exposes two choices, side by side:
      *   - "Find Ranked Match" (unchanged behavior, restyled)
      *   - "Room" which opens the RoomDialog (Create / Join / Cancel)
-     * This replaces the old inline "room id text field + join button",
-     * which duplicated what the popup now does and cluttered the screen.
      */
     private JPanel createLobbyPanel(LobbyEventListener listener) {
         JPanel panel = new JPanel();
@@ -137,11 +138,11 @@ public class LobbyWindow {
         subtitle.setForeground(TEXT_MUTED);
         subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton btnPlay = primaryButton("⚔️  Find Ranked Match");
+        JButton btnPlay = primaryButton("Find Ranked Match");
         btnPlay.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnPlay.setMaximumSize(new Dimension(300, 46));
 
-        JButton btnRoom = secondaryButton("🚪  Room");
+        JButton btnRoom = secondaryButton("Room");
         btnRoom.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnRoom.setMaximumSize(new Dimension(300, 46));
 
@@ -154,25 +155,25 @@ public class LobbyWindow {
         panel.add(btnRoom);
 
         btnPlay.addActionListener(e -> {
-            switchState(LobbyState.SEARCHING); // מעבר מיידי למסך החיפוש
+            switchState(LobbyState.SEARCHING);
             listener.onFindMatchRequested();
         });
 
-        // Opens the standalone RoomDialog instead of inlining a text
-        // field here. The dialog owns its own Create/Join/Cancel logic
-        // and simply calls back into the listener when the user commits
-        // to one of those actions.
-        btnRoom.addActionListener(e -> new RoomDialog(frame, new RoomDialog.RoomDialogListener() {
-            @Override
-            public void onCreateRoom() {
-                listener.onCreateRoomRequested();
-            }
+        // 🟢 שומרים את הדיאלוג במיקום המרכזי activeRoomDialog בעת הפתיחה
+        btnRoom.addActionListener(e -> {
+            activeRoomDialog = new RoomDialog(frame, new RoomDialog.RoomDialogListener() {
+                @Override
+                public void onCreateRoom(String roomId) {
+                    listener.onCreateRoomRequested(roomId);
+                }
 
-            @Override
-            public void onJoinRoom(String roomId) {
-                listener.onJoinRoomRequested(roomId);
-            }
-        }).setVisible(true));
+                @Override
+                public void onJoinRoom(String roomId) {
+                    listener.onJoinRoomRequested(roomId);
+                }
+            });
+            activeRoomDialog.setVisible(true);
+        });
 
         return panel;
     }
@@ -206,33 +207,68 @@ public class LobbyWindow {
     }
 
     private void registerEventBusListeners() {
-        // אימות הצליח -> מעבר לממסך הלובי
+        // אימות הצליח -> מעבר למסך הלובי
         GameEventBus.getInstance().subscribe("LOGIN_SUCCESS", data -> {
             System.out.println("✅ Login successful! Switching to Lobby screen.");
-            switchState(LobbyState.LOBBY); // 👈 השורה הזו מקפיצה את המסך עם כפתור ה-Play!
+            switchState(LobbyState.LOBBY);
         });
+
         // אימות נכשל -> הצגת הודעה
-        GameEventBus.getInstance().subscribe("LOGIN_REJECTED", data ->
+        GameEventBus.getInstance().subscribe("LOGIN_REJECTED", data -> SwingUtilities.invokeLater(() ->
                 JOptionPane.showMessageDialog(frame, "Login Failed: " + data, "Error", JOptionPane.ERROR_MESSAGE)
-        );
-
-        GameEventBus.getInstance().subscribe("JOIN_ACCEPTED", data -> {
-            System.out.println("⚔️ Joined room successfully! Closing launcher.");
-            close();
-        });
-
-        GameEventBus.getInstance().subscribe("JOIN_REJECTED", data -> SwingUtilities.invokeLater(() ->
-                JOptionPane.showMessageDialog(frame, "Failed: " + data, "Error", JOptionPane.ERROR_MESSAGE)
         ));
 
-        GameEventBus.getInstance().subscribe("MATCH_FOUND", data -> {
+        // 🟢 הצטרפות לחדר אושרה -> סוגרים את דיאלוג החדר וסוגרים את ה-Launcher
+        GameEventBus.getInstance().subscribe("JOIN_ACCEPTED", data -> SwingUtilities.invokeLater(() -> {
+            System.out.println("⚔️ Joined room successfully! Closing launcher.");
+            if (activeRoomDialog != null) {
+                activeRoomDialog.close();
+                activeRoomDialog = null;
+            }
+            close();
+        }));
+
+        // 🟢 הצטרפות לחדר נדחתה -> מציגים הודעה יחידה בדיאלוג הקיים ומנקים את התיבה
+        GameEventBus.getInstance().subscribe("JOIN_REJECTED", data -> SwingUtilities.invokeLater(() -> {
+            if (activeRoomDialog != null && activeRoomDialog.isShowing()) {
+                String reason = data != null ? data.toString() : "Failed to join: Room does not exist";
+                activeRoomDialog.showError(reason);
+            }
+        }));
+
+        // 🟢 החדר נוצר בהצלחה -> השרת אישר שהשם פנוי!
+        GameEventBus.getInstance().subscribe("CREATE_ACCEPTED", data -> SwingUtilities.invokeLater(() -> {
+            if (activeRoomDialog != null && activeRoomDialog.isShowing()) {
+                String roomId = data != null ? data.toString() : "";
+                activeRoomDialog.showCreatedSuccess(roomId);
+            }
+        }));
+
+// 🔴 יצירת החדר נדחתה -> השם כבר תפוס בשרת!
+        GameEventBus.getInstance().subscribe("CREATE_REJECTED", data -> SwingUtilities.invokeLater(() -> {
+            if (activeRoomDialog != null && activeRoomDialog.isShowing()) {
+                String reason = data != null ? data.toString() : "Room ID already exists";
+                activeRoomDialog.showError("Cannot create room: " + reason);
+            }
+        }));
+
+// ⚔️ היריב נכנס והמשחק מתחיל -> רק עכשיו סוגרים את ה-Launcher וממשיכים למסך המשחק!
+        GameEventBus.getInstance().subscribe("GAME_STARTED", data -> SwingUtilities.invokeLater(() -> {
+            if (activeRoomDialog != null) {
+                activeRoomDialog.close();
+                activeRoomDialog = null;
+            }
+            close();
+        }));
+
+        // התאמת Matchmaking אושרה -> סגירת ה-Launcher
+        GameEventBus.getInstance().subscribe("MATCH_FOUND", data -> SwingUtilities.invokeLater(() -> {
             System.out.println("⚔️ Match found! Closing lobby...");
             close();
-        });
+        }));
 
-        GameEventBus.getInstance().subscribe("GAME_STARTED", data -> {
-            close();
-        });
+        // המשחק התחיל -> סגירת ה-Launcher
+//        GameEventBus.getInstance().subscribe("GAME_STARTED", data -> SwingUtilities.invokeLater(this::close));
     }
 
     private JPanel createFieldPanel(String labelText, JTextField field) {

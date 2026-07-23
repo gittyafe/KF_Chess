@@ -17,33 +17,93 @@ public class AuthHandler {
         this.objectMapper = objectMapper;
     }
 
-    /**
-     * פונקציה ראשיות לטיפול בבקשות הצטרפות (JOIN).
-     */
-    public void processJoinRequest(
+
+    public void processJoinRoomRequest(
             WebSocketSession session,
             String payload,
             Map<String, GameRoom> rooms,
             Map<WebSocketSession, GameRoom> sessionToRoom,
             Map<WebSocketSession, PlayerInfo> players) {
-
         try {
             JoinRequest joinReq = objectMapper.readValue(payload, JoinRequest.class);
-            if (!"JOIN".equals(joinReq.type())) return;
-
-            if (!validateInput(session, joinReq)) {
-                return;
-            }
+            if (!"JOIN_ROOM".equals(joinReq.type())) return;
+            if (!validateInput(session, joinReq)) return;
 
             int rating = authenticateUser(session, joinReq.username(), joinReq.password());
-            if (rating == -1) {
+            if (rating == -1) return;
+
+            GameRoom room = rooms.get(joinReq.roomId());
+            if (room == null) {
+                sendJsonResponse(session, new JoinRejectedResponse("Room does not exist"));
                 return;
             }
 
-            joinRoom(session, joinReq.username(), joinReq.roomId(), rating, rooms, sessionToRoom, players);
+            addUserToRoom(session, joinReq.username(), joinReq.roomId(), rating, room, sessionToRoom, players);
 
         } catch (Exception e) {
-            System.err.println("❌ שגיאה בעיבוד בקשת הצטרפות: " + e.getMessage());
+            System.err.println("❌ Error processing JOIN_ROOM request: " + e.getMessage());
+            sendJsonResponse(session, new JoinRejectedResponse("Invalid request payload"));
+        }
+    }
+
+    public void processJoinMatchRequest(
+            WebSocketSession session,
+            String payload,
+            Map<String, GameRoom> rooms,
+            Map<WebSocketSession, GameRoom> sessionToRoom,
+            Map<WebSocketSession, PlayerInfo> players) {
+        try {
+            JoinRequest joinReq = objectMapper.readValue(payload, JoinRequest.class);
+
+            if (!"JOIN_MATCH".equals(joinReq.type())) return;
+
+            if (!validateInput(session, joinReq)) return;
+
+            int rating = authenticateUser(session, joinReq.username(), joinReq.password());
+            if (rating == -1) return;
+
+            GameRoom room = rooms.computeIfAbsent(joinReq.roomId(), GameRoom::new);
+
+            addUserToRoom(session, joinReq.username(), joinReq.roomId(), rating, room, sessionToRoom, players);
+
+        } catch (Exception e) {
+            System.err.println("❌ Error processing JOIN_MATCH request: " + e.getMessage());
+            sendJsonResponse(session, new JoinRejectedResponse("Failed to join match"));
+        }
+    }
+
+    private void addUserToRoom(
+            WebSocketSession session,
+            String username,
+            String roomId,
+            int rating,
+            GameRoom room,
+            Map<WebSocketSession, GameRoom> sessionToRoom,
+            Map<WebSocketSession, PlayerInfo> players) {
+
+        synchronized (room) {
+            // הקצאת צבע: השחקן הראשון לבן ('W'), השני שחור ('B')
+            char color = room.getSessions().isEmpty() ? 'W' : 'B';
+
+            boolean success = room.addPlayer(session, username);
+            if (!success) {
+                sendJsonResponse(session, new JoinRejectedResponse("Room is full"));
+                return;
+            }
+
+            PlayerInfo playerInfo = new PlayerInfo(username, color);
+            players.put(session, playerInfo);
+            sessionToRoom.put(session, room);
+
+            System.out.printf("👤 User %s (%d ELO) joined Room %s as %c%n", username, rating, roomId, color);
+
+            // שליחת אישור הצטרפות חזרה ללקוח
+            sendJsonResponse(session, new JoinAcceptedResponse(username, color, rating));
+
+            // אם החדר התמלא והמשחק התחיל -> מודיעים לשני השחקנים
+            if (room.isStarted()) {
+                notifyGameStarted(room);
+            }
         }
     }
 
@@ -65,40 +125,6 @@ public class AuthHandler {
             sendJsonResponse(session, new JoinRejectedResponse("Invalid password or database error"));
         }
         return rating;
-    }
-
-    private void joinRoom(
-            WebSocketSession session,
-            String username,
-            String roomId,
-            int rating,
-            Map<String, GameRoom> rooms,
-            Map<WebSocketSession, GameRoom> sessionToRoom,
-            Map<WebSocketSession, PlayerInfo> players) {
-
-        GameRoom room = rooms.computeIfAbsent(roomId, GameRoom::new);
-
-        synchronized (room) {
-            char color = room.getSessions().isEmpty() ? 'W' : 'B';
-
-            boolean success = room.addPlayer(session, username);
-            if (!success) {
-                sendJsonResponse(session, new JoinRejectedResponse("Room is full"));
-                return;
-            }
-
-            PlayerInfo playerInfo = new PlayerInfo(username, color);
-            players.put(session, playerInfo);
-            sessionToRoom.put(session, room);
-
-            System.out.printf("👤 User %s (%d ELO) joined Room %s as %c%n", username, rating, roomId, color);
-
-            sendJsonResponse(session, new JoinAcceptedResponse(username, color, rating));
-
-            if (room.isStarted()) {
-                notifyGameStarted(room);
-            }
-        }
     }
 
     private void notifyGameStarted(GameRoom room) {

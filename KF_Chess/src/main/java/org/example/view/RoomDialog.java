@@ -7,34 +7,30 @@ import java.awt.*;
 /**
  * Small modal dialog that lets the user either create a brand-new room
  * or join an existing one by typing its room name / id.
- *
- * This is intentionally its own class (rather than a method inside
- * LobbyWindow) because:
- *   1. A JDialog has its own lifecycle (modal, own event loop) that is
- *      conceptually separate from the main lobby JFrame.
- *   2. It can now be reused/tested/opened from anywhere without dragging
- *      the whole LobbyWindow along with it.
- *   3. It keeps LobbyWindow focused on "which screen am I showing"
- *      instead of also owning "how does the room popup work".
  */
 public class RoomDialog extends JDialog {
 
-    /** Callback contract the dialog needs from whoever opens it. */
+    /**
+     * Callback contract the dialog needs from whoever opens it.
+     */
     public interface RoomDialogListener {
-        void onCreateRoom();
+        void onCreateRoom(String roomId);
         void onJoinRoom(String roomId);
     }
 
     // Same palette as LobbyWindow so the popup doesn't look like a
     // different app bolted onto the main window.
-    private static final Color BG            = Color.WHITE;
-    private static final Color TEXT_MUTED     = new Color(110, 118, 129);
-    private static final Color ACCENT_CREATE  = new Color(38, 166, 91);   // green: "makes something new"
-    private static final Color ACCENT_JOIN    = new Color(52, 120, 220);  // blue: matches primary lobby button
-    private static final Color ACCENT_CANCEL  = new Color(210, 213, 218); // neutral gray: least emphasis
-    private static final Font  FONT_LABEL     = new Font("Segoe UI", Font.PLAIN, 13);
-    private static final Font  FONT_FIELD     = new Font("Segoe UI", Font.PLAIN, 14);
-    private static final Font  FONT_BUTTON    = new Font("Segoe UI", Font.BOLD, 12);
+    private static final Color BG = Color.WHITE;
+    private static final Color TEXT_MUTED = new Color(110, 118, 129);
+    private static final Color ACCENT_CREATE = new Color(38, 166, 91);   // green: "makes something new"
+    private static final Color ACCENT_JOIN = new Color(52, 120, 220);  // blue: matches primary lobby button
+    private static final Color ACCENT_CANCEL = new Color(210, 213, 218); // neutral gray: least emphasis
+    private static final Font FONT_LABEL = new Font("Segoe UI", Font.PLAIN, 13);
+    private static final Font FONT_FIELD = new Font("Segoe UI", Font.PLAIN, 14);
+    private static final Font FONT_BUTTON = new Font("Segoe UI", Font.BOLD, 12);
+
+    // 🟢 הפיכת roomField לשדה של הקלאס (Field) כדי שגם showError יוכל לגשת אליו!
+    private final JTextField roomField;
 
     public RoomDialog(JFrame owner, RoomDialogListener listener) {
         super(owner, "Room", true); // true = modal, matches the screenshot's behavior
@@ -52,7 +48,8 @@ public class RoomDialog extends JDialog {
         label.setForeground(TEXT_MUTED);
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JTextField roomField = new JTextField();
+        // אתחול השדה המרכזי של הקלאס
+        this.roomField = new JTextField();
         roomField.setFont(FONT_FIELD);
         roomField.setAlignmentX(Component.LEFT_ALIGNMENT);
         roomField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
@@ -67,7 +64,7 @@ public class RoomDialog extends JDialog {
         buttonRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
 
         JButton btnCreate = flatButton("Create", ACCENT_CREATE, Color.WHITE);
-        JButton btnJoin   = flatButton("Join", ACCENT_JOIN, Color.WHITE);
+        JButton btnJoin = flatButton("Join", ACCENT_JOIN, Color.WHITE);
         JButton btnCancel = flatButton("Cancel", ACCENT_CANCEL, new Color(60, 60, 60));
 
         buttonRow.add(btnCreate);
@@ -80,16 +77,20 @@ public class RoomDialog extends JDialog {
         content.add(Box.createVerticalStrut(22));
         content.add(buttonRow);
 
-        // --- wiring ---
-        // Create doesn't need the text field: per the spec, the server
-        // generates the room id and the client just displays it once
-        // it comes back over the event bus.
+        // בתוך RoomDialog.java בלחיצה על Create:
         btnCreate.addActionListener(e -> {
-            listener.onCreateRoom();
-            dispose();
+            String roomId = roomField.getText().trim();
+            if (roomId.isEmpty()) {
+                roomField.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(214, 69, 69), 1, true),
+                        BorderFactory.createEmptyBorder(4, 8, 4, 8)
+                ));
+                roomField.requestFocusInWindow();
+                return;
+            }
+            listener.onCreateRoom(roomId); // שולחים את המזהה שהמשתמש בחר!
         });
 
-        // Join does need a non-empty id typed by the user.
         btnJoin.addActionListener(e -> {
             String roomId = roomField.getText().trim();
             if (roomId.isEmpty()) {
@@ -101,7 +102,6 @@ public class RoomDialog extends JDialog {
                 return; // don't close the dialog on invalid input
             }
             listener.onJoinRoom(roomId);
-            dispose();
         });
 
         btnCancel.addActionListener(e -> dispose());
@@ -109,7 +109,9 @@ public class RoomDialog extends JDialog {
         setContentPane(content);
     }
 
-    /** Flat, filled button matching the modern look used across the lobby. */
+    /**
+     * Flat, filled button matching the modern look used across the lobby.
+     */
     private JButton flatButton(String text, Color background, Color foreground) {
         JButton button = new JButton(text);
         button.setFont(FONT_BUTTON);
@@ -120,5 +122,37 @@ public class RoomDialog extends JDialog {
         button.setBorderPainted(false);
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         return button;
+    }
+
+    public void close() {
+        SwingUtilities.invokeLater(this::dispose);
+    }
+
+    /**
+     * 🟢 מתודה פומבית שנקראת מה-Lobby/MainGUI כשמגיעה שגיאה מהשרת.
+     * מקפיצה הודעה אחת בלבד, מנקה את הטקסט ומחזירה את הפוקוס לשדה הקלט.
+     */
+    public void showError(String message) {
+        SwingUtilities.invokeLater(() -> {
+            JOptionPane.showMessageDialog(
+                    this,
+                    message,
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            roomField.setText("");
+            roomField.requestFocusInWindow();
+        });
+    }
+
+    public void showCreatedSuccess(String roomId) {
+        SwingUtilities.invokeLater(() -> {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Room '" + roomId + "' created successfully!\nWaiting for an opponent to join...",
+                    "Room Created",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        });
     }
 }

@@ -85,7 +85,6 @@ public class MatchmakingManager {
         String matchRoomId = "match_" + UUID.randomUUID().toString().substring(0, 8);
         System.out.println("⚔️ Match found! Room: " + matchRoomId + " | " + p1.username + " vs " + p2.username);
 
-        // שליחת הודעת התאמה לשני השחקנים
         sendMessage(p1.session, String.format("{\"type\":\"MATCH_FOUND\",\"roomId\":\"%s\",\"opponent\":\"%s\"}", matchRoomId, p2.username));
         sendMessage(p2.session, String.format("{\"type\":\"MATCH_FOUND\",\"roomId\":\"%s\",\"opponent\":\"%s\"}", matchRoomId, p1.username));
     }

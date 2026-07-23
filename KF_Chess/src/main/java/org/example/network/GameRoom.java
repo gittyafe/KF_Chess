@@ -47,6 +47,10 @@ public class GameRoom {
 
         this.gameEngine.addCaptureListener((capturedType, capturingColor) -> {
             broadcastEvent("PIECE_CAPTURED", List.of(capturedType, capturingColor));
+            if(gameEngine.isGameOver()) {
+                String winner = capturingColor== 'W' ? blackUsername : whiteUsername;
+                broadcastEvent("GAME_OVER", List.of(winner, "CHECKMATE"));
+            }
         });
 
         this.gameEngine.addMoveListener((time, moveNotation, color) -> {
@@ -187,6 +191,31 @@ public class GameRoom {
             }
         } catch (Exception e) {
             System.err.println("Error loading board CSV: " + e.getMessage());
+        }
+    }
+
+    private java.util.concurrent.ScheduledFuture<?> disconnectTimer;
+
+    public synchronized void handlePlayerDisconnect(WebSocketSession session) {
+        if (!isStarted) return;
+
+        String winner = (whiteSession == session) ? blackUsername : whiteUsername;
+        broadcast("{\"type\":\"DISCONNECT_COUNTDOWN\",\"seconds\":20,\"winnerIfTimeout\":\"" + winner + "\"}");
+
+        java.util.concurrent.ScheduledExecutorService scheduler = java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
+        disconnectTimer = scheduler.schedule(() -> {
+            synchronized (this) {
+                System.out.println("⏰ Player timed out. Winner: " + winner);
+                broadcast("{\"type\":\"GAME_OVER\",\"winner\":\"" + winner + "\",\"reason\":\"RESIGN_DISCONNECT\"}");
+                stopLoop();
+            }
+        }, 20, java.util.concurrent.TimeUnit.SECONDS);
+    }
+
+    public synchronized void cancelDisconnectTimer() {
+        if (disconnectTimer != null && !disconnectTimer.isDone()) {
+            disconnectTimer.cancel(true);
+            broadcast("{\"type\":\"DISCONNECT_CANCELLED\"}");
         }
     }
 

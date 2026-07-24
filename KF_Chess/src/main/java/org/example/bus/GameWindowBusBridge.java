@@ -1,6 +1,5 @@
 package org.example.bus;
 
-import org.example.bus.GameEventBus;
 import org.example.view.GameFrameComposer;
 import org.example.view.GameWindow;
 import org.example.view.Img;
@@ -22,7 +21,7 @@ import org.example.view.Img;
 public class GameWindowBusBridge {
 
     public GameWindowBusBridge(GameWindow window, GameFrameComposer composer) {
-        GameEventBus.getInstance().subscribe("FRAME_READY", data -> {
+        GameEventBus.getInstance().subscribe(GameServerEvents.FRAME_READY, data -> {
             Img frame = (Img) data;
             // The composer just finished composing this frame (that's what
             // triggered FRAME_READY), so its board offsets are fresh.
@@ -31,4 +30,3 @@ public class GameWindowBusBridge {
         });
     }
 }
-

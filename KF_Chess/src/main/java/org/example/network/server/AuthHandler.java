@@ -1,9 +1,9 @@
-package org.example.network;
+package org.example.network.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.database.UserRepository;
-import org.example.network.GameRoom.JoinResult;
-import org.example.network.NetworkDTOs.*;
+import org.example.network.server.GameRoom.JoinResult;
+import org.example.network.protocol.NetworkDTOs.*;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 

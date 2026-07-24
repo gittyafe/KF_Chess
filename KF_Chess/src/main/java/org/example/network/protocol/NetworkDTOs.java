@@ -1,4 +1,4 @@
-package org.example.network;
+package org.example.network.protocol;
 
 import org.example.engines.GameSnapshot;
 

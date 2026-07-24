@@ -1,4 +1,4 @@
-package org.example.network;
+package org.example.network.server;
 
 import org.example.models.Piece;
 import org.example.models.Position;

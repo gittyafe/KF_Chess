@@ -1,10 +1,9 @@
 package org.example.app;
 
-import org.example.bus.GameEventBus;
 import org.example.controllers.NetworkController;
 import org.example.engines.GameHistoryManager;
 import org.example.models.Role;
-import org.example.network.ChessWebSocketClient;
+import org.example.network.client.ChessWebSocketClient;
 import org.example.view.*;
 
 public class MainGUI {

@@ -39,9 +39,7 @@
     <last-used-providers />
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
-    <open-files>
-      <object connection-id="f0cc0b71-49bc-4230-ad01-76d5a8aee450" object-ref="schemas/chess_game/tables/users" />
-    </open-files>
+    <open-files />
   </component>
   <component name="DBNavigator.Project.DatabasePrerequisiteManager">
     <prerequisites />

@@ -1,8 +1,8 @@
-package org.example.network;
+package org.example.network.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.engines.GameEngine;
-import org.example.network.NetworkDTOs.*;
+import org.example.network.protocol.NetworkDTOs.*;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 

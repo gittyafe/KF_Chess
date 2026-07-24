@@ -1,4 +1,4 @@
-package org.example.network;
+package org.example.network.server;
 
 /**
  * Immutable record of a connected session's identity and assigned seat

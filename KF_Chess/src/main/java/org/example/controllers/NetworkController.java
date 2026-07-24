@@ -4,21 +4,23 @@ import org.example.engines.GameSnapshot;
 import org.example.engines.PieceSnapshot;
 import org.example.models.Position;
 import org.example.models.Role;
-import org.example.network.ChessWebSocketClient;
-import org.example.network.ChessProtocolUtils;
+import org.example.network.client.ChessWebSocketClient;
+import org.example.network.protocol.ChessProtocolUtils;
 
+/**
+ * Translates raw board input (clicks, jumps) into network move commands.
+ */
 public class NetworkController {
 
     private final ChessWebSocketClient networkClient;
     private final SelectionManager selectionManager = new SelectionManager();
     private volatile GameSnapshot latestSnapshot;
-    private volatile Role role; // 🎯 שימוש ב-Enum עבור תפקיד המשתמש
+    private volatile Role role;
 
     public NetworkController(ChessWebSocketClient networkClient, Role role) {
         this.networkClient = networkClient;
         this.role = role != null ? role : Role.UNKNOWN;
     }
-
 
     public Role getRole() {
         return role;
@@ -36,6 +38,12 @@ public class NetworkController {
         this.latestSnapshot = snapshot;
     }
 
+    /**
+     * Handles a board click. First click on an occupied square selects it;
+     * a second click either moves the selected piece there, re-selects a
+     * different piece of the same color, or (if it's an opposing piece) is
+     * sent to the server as a capture move.
+     */
     public void click(int col, int row) {
         if (isSpectator()) {
             return;
@@ -64,19 +72,18 @@ public class NetworkController {
             return;
         }
 
-        String command = ChessProtocolUtils.buildMoveCommand(selectedPiece, targetPosition);
-        networkClient.sendMoveCommand(command);
-
+        networkClient.sendMoveCommand(ChessProtocolUtils.buildMoveCommand(selectedPiece, targetPosition));
         selectionManager.clear();
     }
 
+    /** Handles a "jump" input for whichever piece currently occupies the
+     *  given square, bypassing the select-then-target click flow above. */
     public void jump(int col, int row) {
         if (isSpectator()) {
             return;
         }
 
-        Position position = new Position(row, col);
-        PieceSnapshot piece = findPieceAt(position);
+        PieceSnapshot piece = findPieceAt(new Position(row, col));
         if (piece != null) {
             networkClient.sendMoveCommand(ChessProtocolUtils.buildJumpCommand(piece));
         }

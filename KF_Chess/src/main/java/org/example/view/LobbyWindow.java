@@ -273,8 +273,6 @@ public class LobbyWindow {
             switchState(LobbyState.LOBBY);
         }));
 
-        // המשחק התחיל -> סגירת ה-Launcher
-//        GameEventBus.getInstance().subscribe("GAME_STARTED", data -> SwingUtilities.invokeLater(this::close));
     }
 
     private JPanel createFieldPanel(String labelText, JTextField field) {

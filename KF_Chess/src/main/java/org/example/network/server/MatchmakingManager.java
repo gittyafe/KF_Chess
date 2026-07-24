@@ -1,4 +1,4 @@
-package org.example.network;
+package org.example.network.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.socket.TextMessage;

@@ -1,4 +1,4 @@
-package org.example.network;
+package org.example.network.server;
 
 import org.example.database.RatingService;
 import org.example.engines.BoardLoader;

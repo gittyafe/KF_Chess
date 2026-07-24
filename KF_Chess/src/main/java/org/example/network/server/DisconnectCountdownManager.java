@@ -1,4 +1,4 @@
-package org.example.network;
+package org.example.network.server;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;

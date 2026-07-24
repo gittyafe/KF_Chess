@@ -1,38 +1,40 @@
 package org.example.network;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.models.Piece;
-import org.example.models.Position;
+import org.example.database.UserRepository;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.Map;
 
+/**
+ * Top-level dispatcher for incoming WebSocket text frames: routes JSON
+ * control messages (login, room join, matchmaking) to AuthHandler /
+ * MatchmakingManager, and raw move/jump protocol strings to
+ * GameCommandHandler. Doesn't itself know how to authenticate, seat a
+ * player, or validate a chess move -- it only decides who does.
+ */
 public class MessageHandler {
 
     private final ObjectMapper objectMapper;
     private final AuthHandler authHandler;
     private final MatchmakingManager matchmakingManager;
+    private final UserRepository userRepository;
+    private final GameCommandHandler gameCommandHandler = new GameCommandHandler();
 
-    public MessageHandler(ObjectMapper objectMapper, AuthHandler authHandler, MatchmakingManager matchmakingManager) {
+    public MessageHandler(ObjectMapper objectMapper, AuthHandler authHandler,
+                           MatchmakingManager matchmakingManager, UserRepository userRepository) {
         this.objectMapper = objectMapper;
         this.authHandler = authHandler;
         this.matchmakingManager = matchmakingManager;
+        this.userRepository = userRepository;
     }
 
-    public void processMessage(
-            WebSocketSession session,
-            String payload,
-            Map<String, GameRoom> rooms,
-            Map<String, GameRoom> usernameToRoom,
-            Map<WebSocketSession, GameRoom> sessionToRoom,
-            Map<WebSocketSession, PlayerInfo> players) {
-
+    public void processMessage(WebSocketSession session, String payload, RoomRegistry registry) {
         if (isJsonPayload(payload)) {
-            handleJsonMessage(session, payload, rooms, usernameToRoom, sessionToRoom, players);
+            handleJsonMessage(session, payload, registry);
         } else {
-            handleGameCommand(session, payload, sessionToRoom, players);
+            handleGameCommand(session, payload, registry);
         }
     }
 
@@ -40,57 +42,31 @@ public class MessageHandler {
         return payload.trim().startsWith("{");
     }
 
-    private void handleJsonMessage(
-            WebSocketSession session,
-            String payload,
-            Map<String, GameRoom> rooms,
-            Map<String, GameRoom> usernameToRoom,
-            Map<WebSocketSession, GameRoom> sessionToRoom,
-            Map<WebSocketSession, PlayerInfo> players) {
+    private void handleJsonMessage(WebSocketSession session, String payload, RoomRegistry registry) {
         try {
             Map<String, Object> root = objectMapper.readValue(payload, Map.class);
             String type = (String) root.get("type");
             if (type == null) return;
 
             switch (type) {
-                case "LOGIN":
-                    authHandler.processLoginRequest(session, payload, usernameToRoom, sessionToRoom, players);
-                    break;
-                case "RECONNECT":
-                    authHandler.processReconnectRequest(session, payload, usernameToRoom, sessionToRoom, players);
-                    break;
-                case "CREATE_ROOM":
-                    processCreateRoomRequest(session, root, rooms, usernameToRoom, sessionToRoom, players);
-                    break;
-                case "JOIN_ROOM":
-                    authHandler.processJoinRoomRequest(session, payload, rooms, usernameToRoom, sessionToRoom, players);
-                    break;
-                case "JOIN_MATCH":
-                    authHandler.processJoinMatchRequest(session, payload, rooms, usernameToRoom, sessionToRoom, players);
-                    break;
-                case "FIND_MATCH":
-                    handleFindMatchRequest(session, players);
-                    break;
-                case "CANCEL_MATCHMAKING":
+                case "LOGIN" -> authHandler.processLoginRequest(session, payload, registry);
+                case "RECONNECT" -> authHandler.processReconnectRequest(session, payload, registry);
+                case "CREATE_ROOM" -> processCreateRoomRequest(session, root, registry);
+                case "JOIN_ROOM" -> authHandler.processJoinRoomRequest(session, payload, registry);
+                case "JOIN_MATCH" -> authHandler.processJoinMatchRequest(session, payload, registry);
+                case "FIND_MATCH" -> handleFindMatchRequest(session, registry);
+                case "CANCEL_MATCHMAKING" -> {
                     matchmakingManager.removeFromQueue(session);
                     sendResponse(session, "{\"type\":\"MATCHMAKING_CANCELLED\"}");
-                    break;
-                default:
-                    System.err.println("Unknown JSON message type: " + type);
+                }
+                default -> System.err.println("Unknown JSON message type: " + type);
             }
         } catch (Exception e) {
             System.err.println("Error parsing JSON message: " + e.getMessage());
         }
     }
 
-    private void processCreateRoomRequest(
-            WebSocketSession session,
-            Map<String, Object> root,
-            Map<String, GameRoom> rooms,
-            Map<String, GameRoom> usernameToRoom,
-            Map<WebSocketSession, GameRoom> sessionToRoom,
-            Map<WebSocketSession, PlayerInfo> players) {
-
+    private void processCreateRoomRequest(WebSocketSession session, Map<String, Object> root, RoomRegistry registry) {
         String roomId = root.get("roomId") != null ? root.get("roomId").toString().trim() : "";
         String username = root.get("username") != null ? root.get("username").toString().trim() : "";
 
@@ -99,123 +75,40 @@ public class MessageHandler {
             return;
         }
 
-        if (rooms.containsKey(roomId)) {
+        GameRoom newRoom = registry.tryCreateRoom(roomId);
+        if (newRoom == null) {
             System.out.println("Room creation failed: " + roomId + " already exists!");
             sendResponse(session, "{\"type\":\"CREATE_REJECTED\",\"message\":\"Room ID '" + roomId + "' is already taken. Choose another name.\"}");
             return;
         }
 
-        GameRoom newRoom = new GameRoom(roomId);
-        // Once this game ends for good, stop offering reconnects into it and
-        // drop it from the shared maps.
-        newRoom.setOnEnded(() -> {
-            rooms.remove(newRoom.getRoomId());
-            usernameToRoom.entrySet().removeIf(e -> e.getValue() == newRoom);
-        });
-
-        rooms.put(roomId, newRoom);
-        sessionToRoom.put(session, newRoom);
-
         // GameRoom.addPlayer is the single source of truth for color
-        // assignment (previously this line hardcoded 'W' independently).
+        // assignment; the creator is always seated as the first (white) player.
         GameRoom.JoinResult result = newRoom.addPlayer(session, username);
-        players.put(session, new PlayerInfo(username, result.color()));
-        usernameToRoom.put(username, newRoom);
+        registry.bindParticipant(session, username, newRoom, result.color());
 
         System.out.println("Room created successfully: [" + roomId + "] by user: " + username);
 
         sendResponse(session, "{\"type\":\"CREATE_ACCEPTED\",\"roomId\":\"" + roomId + "\",\"message\":\"Room created successfully. Waiting for opponent.\"}");
     }
 
-    private void handleFindMatchRequest(WebSocketSession session, Map<WebSocketSession, PlayerInfo> players) {
-        PlayerInfo player = players.get(session);
+    private void handleFindMatchRequest(WebSocketSession session, RoomRegistry registry) {
+        PlayerInfo player = registry.getPlayer(session);
         if (player != null) {
-            int rating = org.example.database.DatabaseManager.getRating(player.username());
+            int rating = userRepository.getRating(player.username());
             matchmakingManager.addToQueue(session, player.username(), rating);
         } else {
             sendResponse(session, "{\"type\":\"MATCHMAKING_REJECTED\",\"reason\":\"Must be logged in to find match\"}");
         }
     }
 
-    private void handleGameCommand(
-            WebSocketSession session,
-            String payload,
-            Map<WebSocketSession, GameRoom> sessionToRoom,
-            Map<WebSocketSession, PlayerInfo> players) {
-
-        PlayerInfo player = players.get(session);
-        GameRoom room = sessionToRoom.get(session);
+    private void handleGameCommand(WebSocketSession session, String payload, RoomRegistry registry) {
+        PlayerInfo player = registry.getPlayer(session);
+        GameRoom room = registry.getRoomForSession(session);
 
         if (player == null || room == null || !room.isStarted()) return;
 
-        char firstChar = Character.toUpperCase(payload.charAt(0));
-        if (firstChar == 'J') {
-            handleJumpCommand(room, player, payload);
-        } else {
-            handleMoveCommand(room, player, payload);
-        }
-    }
-
-    private void handleMoveCommand(GameRoom room, PlayerInfo player, String command) {
-        if (!isWellFormedMoveCommand(command)) return;
-
-        try {
-            Position from = parseNotation(command.substring(2, 4));
-            Position to = parseNotation(command.substring(4, 6));
-
-            Piece piece = room.getGameEngine().getPieceAt(from);
-            char expectedColor = player.color() == 'W' ? 'w' : 'b';
-
-            if (piece != null && piece.getColor() == expectedColor) {
-                room.getGameEngine().requestMove(from, to);
-            }
-        } catch (Exception e) {
-            System.err.println("Error executing move: " + e.getMessage());
-        }
-    }
-
-    private void handleJumpCommand(GameRoom room, PlayerInfo player, String command) {
-        if (!isWellFormedJumpCommand(command)) return;
-
-        try {
-            Position destination = parseNotation(command.substring(2, 4));
-
-            Piece piece = room.getGameEngine().getPieceAt(destination);
-            char expectedColor = player.color() == 'W' ? 'w' : 'b';
-
-            if (piece != null && piece.getColor() == expectedColor) {
-                room.getGameEngine().jumpRequest(destination);
-            }
-        } catch (Exception e) {
-            System.err.println("Error executing jump: " + e.getMessage());
-        }
-    }
-
-    private boolean isWellFormedMoveCommand(String command) {
-        if (command.length() != 6) return false;
-        char colorChar = Character.toUpperCase(command.charAt(0));
-        return (colorChar == 'W' || colorChar == 'B')
-                && isValidSquare(command.substring(2, 4))
-                && isValidSquare(command.substring(4, 6));
-    }
-
-    private boolean isWellFormedJumpCommand(String command) {
-        if (command.length() != 4) return false;
-        char colorChar = Character.toUpperCase(command.charAt(1));
-        return (colorChar == 'W' || colorChar == 'B') && isValidSquare(command.substring(2, 4));
-    }
-
-    private boolean isValidSquare(String square) {
-        if (square.length() != 2) return false;
-        char file = Character.toLowerCase(square.charAt(0));
-        char rank = square.charAt(1);
-        return file >= 'a' && file <= 'h' && rank >= '1' && rank <= '8';
-    }
-
-    private Position parseNotation(String notation) {
-        int col = notation.charAt(0) - 'a';
-        int row = 8 - Character.getNumericValue(notation.charAt(1));
-        return new Position(row, col);
+        gameCommandHandler.handle(room, player, payload);
     }
 
     private void sendResponse(WebSocketSession session, String text) {

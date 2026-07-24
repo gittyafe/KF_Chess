@@ -1,38 +1,35 @@
 package org.example.network;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.database.DatabaseManager;
+import org.example.database.RatingService;
+import org.example.engines.BoardLoader;
 import org.example.engines.GameEngine;
-import org.example.engines.GameSnapshot;
 import org.example.models.Board;
-import org.example.models.Piece;
-import org.example.models.PieceFactory;
-import org.example.models.Position;
-import org.example.network.NetworkDTOs.GameStartedResponse;
-import org.example.network.NetworkDTOs.SimpleEventResponse;
 import org.example.realtime.RealTimeArbiter;
-import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * A single chess game "table". Owns the game engine and coordinates its
+ * collaborators around one shared lifecycle, but deliberately doesn't
+ * implement any of those concerns itself:
+ *
+ *  - {@link RoomPlayers}              who is seated / connected
+ *  - {@link RoomMessenger}            what gets sent to whom
+ *  - {@link GameLoopRunner}           the periodic board tick
+ *  - {@link DisconnectCountdownManager} the reconnect grace period
+ *  - {@link RatingService}            ELO changes when the game ends
+ *
+ * This class's own job is just sequencing: e.g. "when black joins, start
+ * the loop and announce GAME_STARTED" or "when the game ends, stop the
+ * loop, update ratings, and broadcast GAME_OVER, exactly once".
+ */
 public class GameRoom {
 
-    /**
-     * Result of trying to add a session to the room. Replaces the old bare
-     * boolean return, which was always {@code true} and let AuthHandler
-     * independently (and incorrectly) guess a player's color.
-     */
     public enum JoinRole { WHITE, BLACK, SPECTATOR }
-    public static final int WINNER_ELO_CHANGE = 15;
-    public static final int LOSER_ELO_CHANGE = -15;
 
     public record JoinResult(JoinRole role, char color) {
         public static JoinResult of(JoinRole role) {
@@ -46,33 +43,25 @@ public class GameRoom {
     }
 
     private final String roomId;
-    private final List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
     private final GameEngine gameEngine;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final RoomPlayers players = new RoomPlayers();
+    private final RoomMessenger messenger;
+    private final GameLoopRunner loopRunner;
+    private final DisconnectCountdownManager disconnectManager;
+    private final RatingService ratingService = new RatingService();
 
-    // Single shared scheduler for both the game loop and the disconnect
-    // countdown. Previously each disconnect spun up a brand-new
-    // ScheduledExecutorService that was never shut down (thread leak).
+    // Shared by the tick loop and the disconnect countdown so a room only
+    // ever needs one background thread (previously each disconnect spun up
+    // its own ScheduledExecutorService that was never shut down).
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-    private WebSocketSession whiteSession;
-    private String whiteUsername;
-    private WebSocketSession blackSession;
-    private String blackUsername;
-    private volatile boolean isStarted = false;
-
     // Guards against the game being ended twice (e.g. a checkmate capture
-    // racing with a disconnect timeout) — without this, both paths could
-    // broadcast GAME_OVER and double-apply ELO changes.
+    // racing with a disconnect timeout).
     private final AtomicBoolean gameEnded = new AtomicBoolean(false);
 
-    private ScheduledFuture<?> loopHandle;
-    private ScheduledFuture<?> disconnectTimer;
-
-    // Invoked exactly once, when the game truly ends (checkmate or a
-    // disconnect timeout with no reconnect). Lets ChessWebSocketHandler
-    // clean up its `rooms` / `usernameToRoom` maps without GameRoom needing
-    // to know about them directly.
+    // Invoked exactly once, when the game truly ends. Lets whoever's
+    // tracking rooms (RoomRegistry) clean up without GameRoom needing to
+    // know about that registry directly.
     private Runnable onEndedCallback;
 
     public void setOnEnded(Runnable callback) {
@@ -83,125 +72,78 @@ public class GameRoom {
         this.roomId = roomId;
 
         Board board = new Board(8, 8);
-        RealTimeArbiter rta = new RealTimeArbiter();
-        loadBoardFromClasspath(board, "/board.csv");
-        this.gameEngine = new GameEngine(board, rta);
+        BoardLoader.loadFromClasspath(board, "/board.csv");
+        this.gameEngine = new GameEngine(board, new RealTimeArbiter());
 
-        this.gameEngine.addCaptureListener((capturedType, capturingColor) -> {
-            broadcastEvent("PIECE_CAPTURED", List.of(capturedType, capturingColor));
+        this.messenger = new RoomMessenger(players, gameEngine);
+        this.loopRunner = new GameLoopRunner(scheduler, this::tick);
+        this.disconnectManager = new DisconnectCountdownManager(scheduler, messenger,
+                (winner, loser) -> endGame(winner, loser, "RESIGN_DISCONNECT"));
+
+        gameEngine.addCaptureListener((capturedType, capturingColor) -> {
+            messenger.broadcastEvent("PIECE_CAPTURED", List.of(capturedType, capturingColor));
 
             if (gameEngine.isGameOver()) {
                 boolean whiteCaptured = (capturingColor == 'W' || capturingColor == 'w');
-                String winner = whiteCaptured ? whiteUsername : blackUsername;
-                String loser = whiteCaptured ? blackUsername : whiteUsername;
+                String winner = whiteCaptured ? players.getWhiteUsername() : players.getBlackUsername();
+                String loser = whiteCaptured ? players.getBlackUsername() : players.getWhiteUsername();
                 endGame(winner, loser, "CHECKMATE");
             }
         });
 
-        this.gameEngine.addMoveListener((time, moveNotation, color) ->
-                broadcastEvent("MOVE_LOGGED", List.of(time, moveNotation, color)));
+        gameEngine.addMoveListener((time, moveNotation, color) ->
+                messenger.broadcastEvent("MOVE_LOGGED", List.of(time, moveNotation, color)));
     }
 
     public String getRoomId() { return roomId; }
 
     /**
-     * Adds a session to the room and decides its role. This is now the
-     * single source of truth for color assignment — callers (AuthHandler)
-     * must not re-derive color themselves.
+     * Adds a session to the room and decides its role. Single source of
+     * truth for color assignment -- callers must not re-derive color
+     * themselves.
      */
     public synchronized JoinResult addPlayer(WebSocketSession session, String username) {
-        if (whiteSession == null) {
-            whiteSession = session;
-            whiteUsername = username;
-            sessions.add(session);
-            System.out.println("Player 1 (White) joined room [" + roomId + "]: " + username);
-            return JoinResult.of(JoinRole.WHITE);
-        }
+        JoinResult result = players.addPlayer(session, username, roomId);
 
-        if (blackSession == null) {
-            blackSession = session;
-            blackUsername = username;
-            sessions.add(session);
-            isStarted = true;
-            System.out.println("Player 2 (Black) joined room [" + roomId + "]: " + username);
-
-            broadcastGameStarted();
-            startLoop();
-            return JoinResult.of(JoinRole.BLACK);
-        }
-
-        // Room already has both players -> everyone else is a spectator,
-        // never a colored participant with move authority.
-        sessions.add(session);
-        System.out.println("Spectator joined room [" + roomId + "]: " + username);
-        if (isStarted) {
-            sendGameStateToSession(session);
-        }
-        return JoinResult.of(JoinRole.SPECTATOR);
-    }
-
-    private void broadcastGameStarted() {
-        try {
-            GameStartedResponse response = new GameStartedResponse(whiteUsername, blackUsername);
-            broadcast(objectMapper.writeValueAsString(response));
-        } catch (Exception e) {
-            System.err.println("Error broadcasting GAME_STARTED: " + e.getMessage());
-        }
-    }
-
-    private void sendGameStateToSession(WebSocketSession session) {
-        CompletableFuture.runAsync(() -> {
-            try {
-                String gameStartedJson = objectMapper.writeValueAsString(new GameStartedResponse(whiteUsername, blackUsername));
-                session.sendMessage(new TextMessage(gameStartedJson));
-
-                Thread.sleep(100);
-
-                GameSnapshot snapshot = gameEngine.getSnapshot();
-                String snapshotJson = objectMapper.writeValueAsString(Map.of("type", "BOARD_UPDATE", "snapshot", snapshot));
-                session.sendMessage(new TextMessage(snapshotJson));
-            } catch (Exception e) {
-                System.err.println("Error sending state to spectator: " + e.getMessage());
+        switch (result.role()) {
+            case BLACK -> {
+                messenger.broadcastGameStarted();
+                startLoop();
             }
-        });
-    }
-
-    public synchronized void startLoop() {
-        if (scheduler.isShutdown() || (loopHandle != null && !loopHandle.isDone())) return;
-
-        System.out.println("Room [" + roomId + "] Game Loop Started!");
-        loopHandle = scheduler.scheduleAtFixedRate(() -> {
-            try {
-                if (gameEngine.isGameOver() || !isRoomActive()) {
-                    return; // endGame()/disconnect path is responsible for stopping the loop
+            case SPECTATOR -> {
+                if (players.isStarted()) {
+                    messenger.sendGameStateTo(session);
                 }
-                gameEngine.wait_(30);
-                sendGameStateToAll();
-            } catch (Exception e) {
-                System.err.println("Error in room loop [" + roomId + "]: " + e.getMessage());
             }
-        }, 0, 30, TimeUnit.MILLISECONDS);
+            default -> { /* WHITE: nothing more to do until black joins */ }
+        }
+        return result;
     }
+
+    private void tick() {
+        if (gameEngine.isGameOver() || !players.isRoomActive()) {
+            return; // endGame()/disconnect path is responsible for stopping the loop
+        }
+        gameEngine.wait_(30);
+        messenger.broadcastGameState();
+    }
+
+    public void startLoop() { loopRunner.start(roomId); }
 
     /** Stops the ticking board-update loop, but leaves the shared scheduler
      *  usable so the disconnect countdown can still run on it. */
-    public synchronized void stopLoop() {
-        if (loopHandle != null) {
-            loopHandle.cancel(false);
-            System.out.println("Room [" + roomId + "] Game Loop Ended.");
-        }
-    }
+    public void stopLoop() { loopRunner.stop(roomId); }
 
-    /** Fully tears the room down — call once the room is no longer needed. */
-    public synchronized void shutdown() {
+    /** Fully tears the room down -- call once the room is no longer needed. */
+    public void shutdown() {
         stopLoop();
-        if (disconnectTimer != null) disconnectTimer.cancel(false);
+        disconnectManager.cancel();
         scheduler.shutdown();
     }
 
     /**
      * Single, idempotent path for ending a game: stops the loop, applies the
-     * ELO change exactly once, and broadcasts GAME_OVER exactly once —
+     * rating change exactly once, and broadcasts GAME_OVER exactly once --
      * regardless of whether the trigger was checkmate or a disconnect
      * timeout.
      */
@@ -211,30 +153,15 @@ public class GameRoom {
         System.out.println("GAME OVER in room [" + roomId + "]. Winner: " + winner + " (" + reason + ")");
 
         if (winner != null && loser != null) {
-            try {
-                DatabaseManager.updateRatings(whiteUsername, blackUsername, winner.equals(whiteUsername) ? 1.0 : 0.0);
-//                EloCalculator.EloResult winnerResult = EloCalculator.calculateNewRatings(DatabaseManager.getRating(winner), DatabaseManager.getRating(loser), 1.0);
-//                EloCalculator.EloResult loserResult = EloCalculator.calculateNewRatings(DatabaseManager.getRating(loser), DatabaseManager.getRating(winner), 0.0);
-//                DatabaseManager.addUserRating(winner, (int)winnerResult.newRatingA);
-//                DatabaseManager.addUserRating(loser, (int)loserResult.newRatingB);
-            } catch (Exception e) {
-                System.err.println("Failed to update DB ratings: " + e.getMessage());
-            }
+            ratingService.applyGameResult(players.getWhiteUsername(), players.getBlackUsername(),
+                    winner.equals(players.getWhiteUsername()) ? 1.0 : 0.0);
         }
 
-        try {
-            String json = objectMapper.writeValueAsString(Map.of(
-                    "type", "GAME_OVER",
-                    "winner", winner == null ? "" : winner,
-                    "reason", reason));
-            broadcast(json);
-        } catch (Exception e) {
-            System.err.println("Error sending GAME_OVER: " + e.getMessage());
-        }
+        messenger.broadcastGameOver(winner, reason);
 
-        // The game is genuinely finished now -- no more reconnecting into it,
-        // so fully tear the room down (unlike a plain disconnect, where we
-        // deliberately keep the loop/scheduler alive for a possible reconnect).
+        // The game is genuinely finished now -- no more reconnecting into
+        // it, so fully tear the room down (unlike a plain disconnect, where
+        // we deliberately keep the loop/scheduler alive for a reconnect).
         shutdown();
 
         if (onEndedCallback != null) {
@@ -246,128 +173,48 @@ public class GameRoom {
         }
     }
 
-    public void sendGameStateToAll() throws Exception {
-        GameSnapshot snapshot = gameEngine.getSnapshot();
-        String json = objectMapper.writeValueAsString(Map.of("type", "BOARD_UPDATE", "snapshot", snapshot));
-        broadcast(json);
-    }
+    public void sendGameStateToAll() { messenger.broadcastGameState(); }
 
-    public void broadcastEvent(String type, List<Object> data) {
-        try {
-            SimpleEventResponse response = new SimpleEventResponse(type, data);
-            broadcast(objectMapper.writeValueAsString(response));
-        } catch (Exception e) {
-            System.err.println("Error broadcasting event " + type + ": " + e.getMessage());
-        }
-    }
+    public void broadcastEvent(String type, List<Object> data) { messenger.broadcastEvent(type, data); }
 
-    public void broadcast(String messageText) {
-        TextMessage msg = new TextMessage(messageText);
-        for (WebSocketSession session : sessions) {
-            try {
-                if (session.isOpen()) {
-                    session.sendMessage(msg);
-                }
-            } catch (Exception ignored) {}
-        }
-    }
-
-    private boolean isRoomActive() {
-        return (whiteSession != null && whiteSession.isOpen()) || (blackSession != null && blackSession.isOpen());
-    }
-
-    private void loadBoardFromClasspath(Board board, String resourcePath) {
-        try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
-            if (is == null) {
-                System.err.println("CSV File not found in classpath: " + resourcePath);
-                return;
-            }
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-                String line;
-                int rowIndex = 0;
-                while ((line = reader.readLine()) != null && rowIndex < board.getHeight()) {
-                    String[] cells = line.split(",", -1);
-                    int colIndex = 0;
-                    for (String cell : cells) {
-                        if (colIndex >= board.getWidth()) break;
-                        String trimmed = cell.trim();
-                        if (trimmed.length() == 2) {
-                            Position pos = new Position(rowIndex, colIndex);
-                            Piece piece = PieceFactory.createPiece(trimmed.charAt(0), trimmed.charAt(1), pos);
-                            board.addPiece(piece);
-                        }
-                        colIndex++;
-                    }
-                    rowIndex++;
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("Error loading board CSV: " + e.getMessage());
-        }
-    }
+    public void broadcast(String messageText) { messenger.broadcastRaw(messageText); }
 
     public synchronized void handlePlayerDisconnect(WebSocketSession session) {
-        if (!isStarted || gameEnded.get()) return;
+        if (!players.isStarted() || gameEnded.get()) return;
 
-        String winner = (whiteSession == session) ? blackUsername : whiteUsername;
-        String loser = (whiteSession == session) ? whiteUsername : blackUsername;
-
-        broadcast("{\"type\":\"DISCONNECT_COUNTDOWN\",\"seconds\":20,\"winnerIfTimeout\":\"" + winner + "\"}");
-
-        disconnectTimer = scheduler.schedule(() -> {
-            System.out.println("Player timed out. Winner: " + winner);
-            endGame(winner, loser, "RESIGN_DISCONNECT");
-        }, 20, TimeUnit.SECONDS);
+        String winner = players.opponentUsernameFor(session);
+        String loser = players.usernameFor(session);
+        disconnectManager.startCountdown(winner, loser);
     }
 
-    /** Called by reconnectPlayer() once a disconnected player's session is
-     *  rebound, to stop the pending resign-timeout and notify clients. */
-    public synchronized void cancelDisconnectTimer() {
-        if (disconnectTimer != null && !disconnectTimer.isDone()) {
-            disconnectTimer.cancel(false);
-            broadcast("{\"type\":\"DISCONNECT_CANCELLED\"}");
-        }
-    }
+    /** Called once a disconnected player's session is rebound, to stop the pending resign-timeout. */
+    public void cancelDisconnectTimer() { disconnectManager.cancel(); }
 
     /**
      * Rebinds a fresh WebSocketSession to an existing seat in this room,
-     * identified by username. Used when a player reconnects during the
-     * disconnect countdown (or any time before the game has ended).
-     * Returns false if the username isn't a participant, or the game has
-     * already ended.
+     * identified by username. Returns false if the username isn't a
+     * participant, or the game has already ended.
      */
     public synchronized boolean reconnectPlayer(WebSocketSession newSession, String username) {
         if (isEnded()) return false;
 
-        boolean isWhite = username.equalsIgnoreCase(whiteUsername);
-        boolean isBlack = !isWhite && username.equalsIgnoreCase(blackUsername);
-        if (!isWhite && !isBlack) return false;
-
-        if (isWhite) {
-            if (whiteSession != null) sessions.remove(whiteSession);
-            whiteSession = newSession;
-        } else {
-            if (blackSession != null) sessions.remove(blackSession);
-            blackSession = newSession;
-        }
-        sessions.add(newSession);
+        boolean rebound = players.reconnect(newSession, username);
+        if (!rebound) return false;
 
         System.out.println(username + " reconnected to room [" + roomId + "]");
         cancelDisconnectTimer();
-        sendGameStateToSession(newSession);
+        messenger.sendGameStateTo(newSession);
         return true;
     }
 
-    public char getColorForUsername(String username) {
-        if (username.equalsIgnoreCase(whiteUsername)) return 'W';
-        if (username.equalsIgnoreCase(blackUsername)) return 'B';
-        return '-';
-    }
+    public char getColorForUsername(String username) { return players.getColorForUsername(username); }
+
+    public void removeSession(WebSocketSession session) { players.removeSession(session); }
 
     public GameEngine getGameEngine() { return gameEngine; }
-    public boolean isStarted() { return isStarted; }
+    public boolean isStarted() { return players.isStarted(); }
     public boolean isEnded() { return gameEnded.get(); }
-    public String getWhiteUsername() { return whiteUsername; }
-    public String getBlackUsername() { return blackUsername; }
-    public List<WebSocketSession> getSessions() { return sessions; }
+    public String getWhiteUsername() { return players.getWhiteUsername(); }
+    public String getBlackUsername() { return players.getBlackUsername(); }
+    public List<WebSocketSession> getSessions() { return players.getSessions(); }
 }

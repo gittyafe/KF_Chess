@@ -13,7 +13,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
     private final ChessWebSocketHandler chessHandler;
 
     public WebSocketConfig() {
-        // ההנדלר אינו דורש יותר GameEngine בבנאי שלו כי הוא מנווט דינמית לחדרים!
         this.chessHandler = new ChessWebSocketHandler();
     }
 

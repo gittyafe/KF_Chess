@@ -1,29 +1,23 @@
 package org.example.network;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.database.DatabaseManager;
+import org.example.database.UserRepository;
 import org.example.network.GameRoom.JoinResult;
 import org.example.network.NetworkDTOs.*;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.util.Map;
-
 public class AuthHandler {
 
     private final ObjectMapper objectMapper;
+    private final UserRepository userRepository;
 
-    public AuthHandler(ObjectMapper objectMapper) {
+    public AuthHandler(ObjectMapper objectMapper, UserRepository userRepository) {
         this.objectMapper = objectMapper;
+        this.userRepository = userRepository;
     }
 
-    public void processJoinRoomRequest(
-            WebSocketSession session,
-            String payload,
-            Map<String, GameRoom> rooms,
-            Map<String, GameRoom> usernameToRoom,
-            Map<WebSocketSession, GameRoom> sessionToRoom,
-            Map<WebSocketSession, PlayerInfo> players) {
+    public void processJoinRoomRequest(WebSocketSession session, String payload, RoomRegistry registry) {
         try {
             JoinRequest joinReq = objectMapper.readValue(payload, JoinRequest.class);
             if (!"JOIN_ROOM".equals(joinReq.type())) return;
@@ -32,13 +26,13 @@ public class AuthHandler {
             int rating = authenticateUser(session, joinReq.username(), joinReq.password());
             if (rating == -1) return;
 
-            GameRoom room = rooms.get(joinReq.roomId());
+            GameRoom room = registry.getRoom(joinReq.roomId());
             if (room == null) {
                 sendJsonResponse(session, new JoinRejectedResponse("Room does not exist"));
                 return;
             }
 
-            addUserToRoom(session, joinReq.username(), joinReq.roomId(), rating, room, usernameToRoom, sessionToRoom, players);
+            addUserToRoom(session, joinReq.username(), joinReq.roomId(), rating, room, registry);
 
         } catch (Exception e) {
             System.err.println("Error processing JOIN_ROOM request: " + e.getMessage());
@@ -46,13 +40,7 @@ public class AuthHandler {
         }
     }
 
-    public void processJoinMatchRequest(
-            WebSocketSession session,
-            String payload,
-            Map<String, GameRoom> rooms,
-            Map<String, GameRoom> usernameToRoom,
-            Map<WebSocketSession, GameRoom> sessionToRoom,
-            Map<WebSocketSession, PlayerInfo> players) {
+    public void processJoinMatchRequest(WebSocketSession session, String payload, RoomRegistry registry) {
         try {
             JoinRequest joinReq = objectMapper.readValue(payload, JoinRequest.class);
 
@@ -62,16 +50,8 @@ public class AuthHandler {
             int rating = authenticateUser(session, joinReq.username(), joinReq.password());
             if (rating == -1) return;
 
-            GameRoom room = rooms.computeIfAbsent(joinReq.roomId(), id -> {
-                GameRoom created = new GameRoom(id);
-                created.setOnEnded(() -> {
-                    rooms.remove(created.getRoomId());
-                    usernameToRoom.entrySet().removeIf(e -> e.getValue() == created);
-                });
-                return created;
-            });
-
-            addUserToRoom(session, joinReq.username(), joinReq.roomId(), rating, room, usernameToRoom, sessionToRoom, players);
+            GameRoom room = registry.getOrCreateRoom(joinReq.roomId());
+            addUserToRoom(session, joinReq.username(), joinReq.roomId(), rating, room, registry);
 
         } catch (Exception e) {
             System.err.println("Error processing JOIN_MATCH request: " + e.getMessage());
@@ -85,22 +65,15 @@ public class AuthHandler {
      * new session into it. Returns the room on success, or null if there's
      * nothing to reconnect to.
      */
-    private GameRoom tryReconnectIntoActiveGame(
-            WebSocketSession session,
-            String username,
-            Map<String, GameRoom> usernameToRoom,
-            Map<WebSocketSession, GameRoom> sessionToRoom,
-            Map<WebSocketSession, PlayerInfo> players) {
-
-        GameRoom room = usernameToRoom.get(username);
-        if (room == null || room.isEnded()) return null;
+    private GameRoom tryReconnectIntoActiveGame(WebSocketSession session, String username, RoomRegistry registry) {
+        GameRoom room = registry.getActiveRoomForUsername(username);
+        if (room == null) return null;
 
         boolean rebound = room.reconnectPlayer(session, username);
         if (!rebound) return null;
 
         char color = room.getColorForUsername(username);
-        players.put(session, new PlayerInfo(username, color));
-        sessionToRoom.put(session, room);
+        registry.bindParticipant(session, username, room, color);
 
         System.out.printf("User %s reconnected to room %s%n", username, room.getRoomId());
         return room;
@@ -110,12 +83,7 @@ public class AuthHandler {
      * Explicit RECONNECT message, used by ChessWebSocketClient's automatic
      * background retry after a socket drop within the same running client.
      */
-    public void processReconnectRequest(
-            WebSocketSession session,
-            String payload,
-            Map<String, GameRoom> usernameToRoom,
-            Map<WebSocketSession, GameRoom> sessionToRoom,
-            Map<WebSocketSession, PlayerInfo> players) {
+    public void processReconnectRequest(WebSocketSession session, String payload, RoomRegistry registry) {
         try {
             LoginRequest req = objectMapper.readValue(payload, LoginRequest.class);
 
@@ -124,13 +92,13 @@ public class AuthHandler {
                 return;
             }
 
-            int rating = DatabaseManager.authenticateOrRegister(req.username(), req.password());
+            int rating = userRepository.authenticateOrRegister(req.username(), req.password());
             if (rating == -1) {
                 sendJsonResponse(session, new ReconnectRejectedResponse("Invalid password or database error"));
                 return;
             }
 
-            GameRoom room = tryReconnectIntoActiveGame(session, req.username(), usernameToRoom, sessionToRoom, players);
+            GameRoom room = tryReconnectIntoActiveGame(session, req.username(), registry);
             if (room == null) {
                 sendJsonResponse(session, new ReconnectRejectedResponse("No active game to reconnect to"));
                 return;
@@ -144,24 +112,15 @@ public class AuthHandler {
         }
     }
 
-    private void addUserToRoom(
-            WebSocketSession session,
-            String username,
-            String roomId,
-            int rating,
-            GameRoom room,
-            Map<String, GameRoom> usernameToRoom,
-            Map<WebSocketSession, GameRoom> sessionToRoom,
-            Map<WebSocketSession, PlayerInfo> players) {
+    private void addUserToRoom(WebSocketSession session, String username, String roomId, int rating,
+                                GameRoom room, RoomRegistry registry) {
 
         JoinResult result = room.addPlayer(session, username);
 
-        PlayerInfo playerInfo = new PlayerInfo(username, result.color());
-        players.put(session, playerInfo);
-        sessionToRoom.put(session, room);
-
         if (result.role() != GameRoom.JoinRole.SPECTATOR) {
-            usernameToRoom.put(username, room);
+            registry.bindParticipant(session, username, room, result.color());
+        } else {
+            registry.bindSpectator(session, username, room);
         }
 
         System.out.printf("User %s (%d ELO) joined Room %s as %s%n", username, rating, roomId, result.role());
@@ -182,7 +141,7 @@ public class AuthHandler {
     }
 
     private int authenticateUser(WebSocketSession session, String username, String password) {
-        int rating = DatabaseManager.authenticateOrRegister(username, password);
+        int rating = userRepository.authenticateOrRegister(username, password);
         if (rating == -1) {
             sendJsonResponse(session, new JoinRejectedResponse("Invalid password or database error"));
         }
@@ -207,12 +166,7 @@ public class AuthHandler {
      * LOGIN, never RECONNECT -- so LOGIN has to check for an active game
      * itself, or a client-restart reconnect can never work.
      */
-    public void processLoginRequest(
-            WebSocketSession session,
-            String payload,
-            Map<String, GameRoom> usernameToRoom,
-            Map<WebSocketSession, GameRoom> sessionToRoom,
-            Map<WebSocketSession, PlayerInfo> players) {
+    public void processLoginRequest(WebSocketSession session, String payload, RoomRegistry registry) {
         try {
             LoginRequest loginReq = objectMapper.readValue(payload, LoginRequest.class);
 
@@ -221,7 +175,7 @@ public class AuthHandler {
                 return;
             }
 
-            int rating = DatabaseManager.authenticateOrRegister(loginReq.username(), loginReq.password());
+            int rating = userRepository.authenticateOrRegister(loginReq.username(), loginReq.password());
 
             if (rating == -1) {
                 sendJsonResponse(session, new LoginRejectedResponse("Invalid password or database error"));
@@ -239,12 +193,12 @@ public class AuthHandler {
             // GAME_STARTED + BOARD_UPDATE to this session, which the existing
             // client GUI already knows how to render as "the game resumed" --
             // no client-side UI changes needed.
-            GameRoom room = tryReconnectIntoActiveGame(session, loginReq.username(), usernameToRoom, sessionToRoom, players);
+            GameRoom room = tryReconnectIntoActiveGame(session, loginReq.username(), registry);
             if (room != null) {
                 System.out.println("Login doubled as a reconnect into room " + room.getRoomId());
             } else {
                 // Not in an active game -- temporary color until they join one.
-                players.put(session, new PlayerInfo(loginReq.username(), 'W'));
+                registry.registerPlayerInfo(session, loginReq.username(), 'W');
             }
 
         } catch (Exception e) {

@@ -54,8 +54,6 @@ public class MatchmakingManager {
 
         for (int i = 0; i < queue.size(); i++) {
             QueueEntry player1 = queue.get(i);
-            // Bug fix: a player already matched (or timed out) earlier in
-            // this same pass must not be matched again.
             if (toRemove.contains(player1)) continue;
 
             if (currentTime - player1.joinTimeMs > MINUTE) {

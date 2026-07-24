@@ -267,6 +267,12 @@ public class LobbyWindow {
             close();
         }));
 
+        GameEventBus.getInstance().subscribe("MATCHMAKING_TIMEOUT", data -> SwingUtilities.invokeLater(() -> {
+            String reason = data != null ? data.toString() : "Matchmaking timed out";
+            JOptionPane.showMessageDialog(frame, "Matchmaking failed: " + reason, "Error", JOptionPane.ERROR_MESSAGE);
+            switchState(LobbyState.LOBBY);
+        }));
+
         // המשחק התחיל -> סגירת ה-Launcher
 //        GameEventBus.getInstance().subscribe("GAME_STARTED", data -> SwingUtilities.invokeLater(this::close));
     }

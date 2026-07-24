@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class GameLoopRunner {
 
-    private static final long TICK_MS = 30;
+    public static final long TICK_MS = 30;
 
     private final ScheduledExecutorService scheduler;
     private final Runnable onTick;

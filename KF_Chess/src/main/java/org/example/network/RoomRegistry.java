@@ -9,13 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * Owns every cross-room/cross-session lookup the WebSocket layer needs:
  * which rooms exist, which room a session or logged-in username belongs to,
  * and which PlayerInfo a session is currently playing as.
- *
- * Previously these four maps were held by ChessWebSocketHandler and passed
- * as separate parameters into every AuthHandler/MessageHandler method. That
- * meant (a) every method signature grew whenever a lookup was needed, and
- * (b) the "wire up room cleanup on end" logic was duplicated in two
- * different places that created rooms. This class fixes both: it's the one
- * place that creates rooms and the one place that cleans them up.
  */
 public class RoomRegistry {
 

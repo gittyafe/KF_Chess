@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class GameRoom {
 
     public enum JoinRole { WHITE, BLACK, SPECTATOR }
+    public static final String PATH_BOARD_STARTING_POSITION = "/board.csv";
 
     public record JoinResult(JoinRole role, char color) {
         public static JoinResult of(JoinRole role) {
@@ -64,6 +65,9 @@ public class GameRoom {
     // know about that registry directly.
     private Runnable onEndedCallback;
 
+    private static final int BOARD_WIDTH = 8;
+    private static final int BOARD_HEIGHT = 8;
+
     public void setOnEnded(Runnable callback) {
         this.onEndedCallback = callback;
     }
@@ -71,8 +75,8 @@ public class GameRoom {
     public GameRoom(String roomId) {
         this.roomId = roomId;
 
-        Board board = new Board(8, 8);
-        BoardLoader.loadFromClasspath(board, "/board.csv");
+        Board board = new Board(BOARD_WIDTH, BOARD_HEIGHT);
+        BoardLoader.loadFromClasspath(board, PATH_BOARD_STARTING_POSITION);
         this.gameEngine = new GameEngine(board, new RealTimeArbiter());
 
         this.messenger = new RoomMessenger(players, gameEngine);
@@ -124,7 +128,7 @@ public class GameRoom {
         if (gameEngine.isGameOver() || !players.isRoomActive()) {
             return; // endGame()/disconnect path is responsible for stopping the loop
         }
-        gameEngine.wait_(30);
+        gameEngine.wait_((int) GameLoopRunner.TICK_MS);
         messenger.broadcastGameState();
     }
 

@@ -27,6 +27,7 @@ public final class GameServerEvents {
 
     // Login / connection lifecycle
     public static final String LOGIN_SUCCESS = "LOGIN_SUCCESS";
+    public static final String LOGIN_REJECTED = "LOGIN_REJECTED";
     public static final String RECONNECT_ACCEPTED = "RECONNECT_ACCEPTED";
     public static final String RECONNECT_REJECTED = "RECONNECT_REJECTED";
     public static final String DISCONNECT_COUNTDOWN = "DISCONNECT_COUNTDOWN";

@@ -211,18 +211,19 @@ public class LobbyWindow {
     private void registerEventBusListeners() {
         // אימות הצליח -> מעבר למסך הלובי
         GameEventBus.getInstance().subscribe("LOGIN_SUCCESS", data -> {
-            log.info("[CLIENT OUT] Login successful! Switching to Lobby screen.");
             switchState(LobbyState.LOBBY);
         });
 
-        // אימות נכשל -> הצגת הודעה
-        GameEventBus.getInstance().subscribe("LOGIN_REJECTED", data -> SwingUtilities.invokeLater(() ->
-                JOptionPane.showMessageDialog(frame, "Login Failed: " + data, "Error", JOptionPane.ERROR_MESSAGE)
-        ));
+        GameEventBus.getInstance().subscribe("LOGIN_REJECTED", data -> {
+            String reason = (data != null) ? data.toString() : "Unknown reason";
+            SwingUtilities.invokeLater(() ->
+                    JOptionPane.showMessageDialog(frame, "Login Failed: " + reason, "Error", JOptionPane.ERROR_MESSAGE)
+            );
+        });
 
         // 🟢 הצטרפות לחדר אושרה -> סוגרים את דיאלוג החדר וסוגרים את ה-Launcher
         GameEventBus.getInstance().subscribe("JOIN_ACCEPTED", data -> SwingUtilities.invokeLater(() -> {
-            System.out.println("⚔️ Joined room successfully! Closing launcher.");
+            log.info("[CLIENT OUT] Join room accepted! Closing launcher.");
             if (activeRoomDialog != null) {
                 activeRoomDialog.close();
                 activeRoomDialog = null;

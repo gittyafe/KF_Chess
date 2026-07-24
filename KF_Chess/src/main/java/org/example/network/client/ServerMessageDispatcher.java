@@ -146,5 +146,10 @@ final class ServerMessageDispatcher {
             callbacks.onLoginSuccess();
             publish(GameServerEvents.LOGIN_SUCCESS, new Object[]{ username, color, rating });
         });
+        handlers.put("LOGIN_REJECTED", root -> {
+            String reason = (String) root.get("reason");
+            log.error("[CLIENT ERROR] Login rejected: {}", reason);
+            publish(GameServerEvents.LOGIN_REJECTED, reason);
+        });
     }
 }

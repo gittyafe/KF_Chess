@@ -1,4 +1,6 @@
-package org.example.network.server;
+package org.example.network.server.game;
+
+import org.example.network.server.room.RoomMessenger;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;

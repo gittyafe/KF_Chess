@@ -1,4 +1,4 @@
-package org.example.network.server;
+package org.example.network.server.room;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.engines.GameEngine;

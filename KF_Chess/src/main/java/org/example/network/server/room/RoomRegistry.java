@@ -1,4 +1,4 @@
-package org.example.network.server;
+package org.example.network.server.room;
 
 import org.springframework.web.socket.WebSocketSession;
 

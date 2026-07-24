@@ -1,7 +1,10 @@
-package org.example.network.server;
+package org.example.network.server.connection;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.database.UserRepository;
+import org.example.network.server.room.GameRoom;
+import org.example.network.server.room.MatchmakingManager;
+import org.example.network.server.room.RoomRegistry;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;

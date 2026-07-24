@@ -1,7 +1,9 @@
-package org.example.network.server;
+package org.example.network.server.game;
 
 import org.example.models.Piece;
 import org.example.models.Position;
+import org.example.network.server.room.GameRoom;
+import org.example.network.server.room.PlayerInfo;
 
 /**
  * Decodes the raw move/jump protocol strings (e.g. "WPe2e4", "JWe4") and

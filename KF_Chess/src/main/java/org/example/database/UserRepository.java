@@ -1,5 +1,7 @@
 package org.example.database;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.sql.*;
 
 /**
@@ -7,6 +9,7 @@ import java.sql.*;
  * owns the connection and schema; this class is the single place that knows
  * the table's columns and how to read/write them.
  */
+@Slf4j
 public class UserRepository {
 
     /**
@@ -29,7 +32,7 @@ public class UserRepository {
             return registerNewUser(username, password);
 
         } catch (SQLException e) {
-            System.err.println("❌ Auth error: " + e.getMessage());
+            log.error("[SQLite ERROR] Auth error for user {}: {}", username, e.getMessage());
             return -1;
         }
     }
@@ -41,10 +44,10 @@ public class UserRepository {
             pstmt.setString(1, username);
             pstmt.setString(2, password);
             pstmt.executeUpdate();
-            System.out.println("🆕 Registered new user: " + username + " (1200 ELO)");
+            log.info("[SQLite OUT] Registered new user: {} (1200 ELO)", username);
             return 1200;
         } catch (SQLException e) {
-            System.err.println("❌ Registration error: " + e.getMessage());
+            log.error("[SQLite ERROR] Failed to register new user: {}", e.getMessage());
             return -1;
         }
     }
@@ -57,7 +60,7 @@ public class UserRepository {
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) return rs.getInt("rating");
         } catch (SQLException e) {
-            System.err.println("❌ Error fetching rating: " + e.getMessage());
+            log.error("[SQLite ERROR] Error fetching rating for user {}: {}", username, e.getMessage());
         }
         return 1200;
     }
@@ -70,7 +73,7 @@ public class UserRepository {
             pstmt.setString(2, username);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("❌ Error updating rating: " + e.getMessage());
+            log.error("[SQLite ERROR] Error updating rating for user {}: {}", username, e.getMessage());
         }
     }
 
@@ -82,7 +85,7 @@ public class UserRepository {
             pstmt.setString(2, username);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("❌ Error updating rating: " + e.getMessage());
+            log.error("[SQLite ERROR] Error updating rating for user {}: {}", username, e.getMessage());
         }
     }
 }

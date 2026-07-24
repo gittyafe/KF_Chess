@@ -1,11 +1,13 @@
 package org.example.view;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.bus.GameEventBus;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
+@Slf4j
 public class LobbyWindow {
 
     private final JFrame frame;
@@ -209,7 +211,7 @@ public class LobbyWindow {
     private void registerEventBusListeners() {
         // אימות הצליח -> מעבר למסך הלובי
         GameEventBus.getInstance().subscribe("LOGIN_SUCCESS", data -> {
-            System.out.println("✅ Login successful! Switching to Lobby screen.");
+            log.info("[CLIENT OUT] Login successful! Switching to Lobby screen.");
             switchState(LobbyState.LOBBY);
         });
 
@@ -263,7 +265,7 @@ public class LobbyWindow {
 
         // התאמת Matchmaking אושרה -> סגירת ה-Launcher
         GameEventBus.getInstance().subscribe("MATCH_FOUND", data -> SwingUtilities.invokeLater(() -> {
-            System.out.println("⚔️ Match found! Closing lobby...");
+            log.info("[CLIENT OUT] Match found! Closing lobby...");
             close();
         }));
 

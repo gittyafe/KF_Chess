@@ -1,5 +1,6 @@
 package org.example.network.server.game;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.network.server.room.RoomMessenger;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -13,6 +14,7 @@ import java.util.function.BiConsumer;
  * their opponent's favor. Reports the outcome (winner, loser) upward
  * through a callback instead of knowing how to end a game itself.
  */
+@Slf4j
 public class DisconnectCountdownManager {
 
     private static final int GRACE_PERIOD_SECONDS = 20;
@@ -33,7 +35,7 @@ public class DisconnectCountdownManager {
     public synchronized void startCountdown(String winner, String loser) {
         messenger.broadcastDisconnectCountdown(GRACE_PERIOD_SECONDS, winner);
         timerHandle = scheduler.schedule(() -> {
-            System.out.println("Player timed out. Winner: " + winner);
+            log.info("[SERVER OUT] Player timed out. Winner: {}", winner);
             onTimeout.accept(winner, loser);
         }, GRACE_PERIOD_SECONDS, TimeUnit.SECONDS);
     }

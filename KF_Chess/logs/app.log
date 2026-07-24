@@ -26,3 +26,52 @@
 2026-07-24 12:57:43.898 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
 2026-07-24 12:57:43.898 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
 2026-07-24 12:57:43.899 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-07-24 17:35:12.981 [main] INFO  o.e.n.s.connection.ServerApplication - Starting ServerApplication using Java 22.0.2 with PID 22840 (C:\Users\user\Desktop\kfchess\KF_Chess\target\classes started by user in C:\Users\user\Desktop\kfchess\KF_Chess)
+2026-07-24 17:35:12.985 [main] INFO  o.e.n.s.connection.ServerApplication - No active profile set, falling back to 1 default profile: "default"
+2026-07-24 17:35:14.474 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-07-24 17:35:14.489 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-07-24 17:35:14.493 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-07-24 17:35:14.494 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.30]
+2026-07-24 17:35:14.561 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-07-24 17:35:14.563 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1502 ms
+2026-07-24 17:35:15.066 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-07-24 17:35:15.097 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-07-24 17:35:15.107 [main] INFO  o.e.n.s.connection.ServerApplication - Started ServerApplication in 2.946 seconds (process running for 3.839)
+2026-07-24 17:35:43.111 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-24 17:35:43.112 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-07-24 17:35:43.113 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-07-24 17:35:43.226 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-24 17:35:43.524 [http-nio-8080-exec-2] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1231) logged in successfully
+2026-07-24 17:35:43.575 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as a with color W and rating 1231
+2026-07-24 17:35:43.576 [HttpClient-1-Worker-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Login successful! Switching to Lobby screen.
+2026-07-24 17:35:45.597 [http-nio-8080-exec-3] INFO  o.e.n.server.room.MatchmakingManager - [SERVER OUT] User a (1231 ELO) entered matchmaking queue.
+2026-07-24 17:37:56.252 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-24 17:38:25.629 [ForkJoinPool.commonPool-worker-2] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-24 17:38:25.630 [http-nio-8080-exec-7] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1231) logged in successfully
+2026-07-24 17:38:25.635 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as a with color W and rating 1231
+2026-07-24 17:38:25.637 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: a
+2026-07-24 17:38:25.638 [HttpClient-1-Worker-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Login successful! Switching to Lobby screen.
+2026-07-24 17:43:11.018 [HttpClient-2-Worker-3] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT IN] WebSocket closed with status 1006: 
+2026-07-24 17:43:11.019 [HttpClient-1-Worker-3] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT IN] WebSocket closed with status 1006: 
+2026-07-24 17:43:13.032 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 1 of 10
+2026-07-24 17:43:15.051 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 2 of 10
+2026-07-24 17:43:15.713 [main] INFO  o.e.n.s.connection.ServerApplication - Starting ServerApplication using Java 22.0.2 with PID 22080 (C:\Users\user\Desktop\kfchess\KF_Chess\target\classes started by user in C:\Users\user\Desktop\kfchess\KF_Chess)
+2026-07-24 17:43:15.717 [main] INFO  o.e.n.s.connection.ServerApplication - No active profile set, falling back to 1 default profile: "default"
+2026-07-24 17:43:17.068 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 3 of 10
+2026-07-24 17:43:17.210 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-07-24 17:43:17.228 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-07-24 17:43:17.234 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-07-24 17:43:17.235 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.30]
+2026-07-24 17:43:17.347 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-07-24 17:43:17.349 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1554 ms
+2026-07-24 17:43:17.837 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-07-24 17:43:17.864 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-07-24 17:43:17.874 [main] INFO  o.e.n.s.connection.ServerApplication - Started ServerApplication in 2.767 seconds (process running for 3.499)
+2026-07-24 17:43:19.092 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 4 of 10
+2026-07-24 17:43:19.168 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-24 17:43:19.169 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-07-24 17:43:19.171 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-07-24 17:43:19.232 [ForkJoinPool.commonPool-worker-3] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-24 17:43:19.450 [http-nio-8080-exec-1] INFO  o.example.database.DatabaseManager - [SQLite OUT] DB initialized successfully.
+2026-07-24 17:43:19.477 [HttpClient-6-Worker-2] ERROR o.e.n.client.ServerMessageDispatcher - [CLIENT ERROR] Reconnect rejected: No active game to reconnect to
+2026-07-24 17:43:50.235 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.

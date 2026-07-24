@@ -1,6 +1,7 @@
 package org.example.network.server.connection;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.example.database.UserRepository;
 import org.example.network.server.room.GameRoom;
 import org.example.network.server.room.MatchmakingManager;
@@ -10,6 +11,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+@Slf4j
 public class ChessWebSocketHandler extends TextWebSocketHandler {
 
     private final RoomRegistry registry = new RoomRegistry();
@@ -47,11 +49,12 @@ public class ChessWebSocketHandler extends TextWebSocketHandler {
             // reconnect (see RECONNECT/LOGIN handling in AuthHandler).
             // Cleanup of the registry happens automatically via GameRoom's
             // onEnded callback once endGame() fires.
-            System.out.println("Player disconnected! Starting resign countdown...");
+            log.info("[SERVER OUT] Player disconnected! Starting resign countdown...");
             room.handlePlayerDisconnect(session);
         } else if (!room.isStarted() && room.getSessions().isEmpty()) {
             // Nobody ever showed up to play against them -- no game to
             // reconnect into, safe to tear down immediately.
+            log.info("[SERVER OUT] Room {} is abandoned and will be removed.", room.getRoomId());
             registry.unregisterRoomIfAbandoned(room);
             room.shutdown();
         }

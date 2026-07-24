@@ -1,6 +1,7 @@
 package org.example.network.server.connection;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.example.database.UserRepository;
 import org.example.network.server.game.GameCommandHandler;
 import org.example.network.server.room.GameRoom;
@@ -19,6 +20,7 @@ import java.util.Map;
  * GameCommandHandler. Doesn't itself know how to authenticate, seat a
  * player, or validate a chess move -- it only decides who does.
  */
+@Slf4j
 public class MessageHandler {
 
     private final ObjectMapper objectMapper;
@@ -67,7 +69,7 @@ public class MessageHandler {
                 default -> System.err.println("Unknown JSON message type: " + type);
             }
         } catch (Exception e) {
-            System.err.println("Error parsing JSON message: " + e.getMessage());
+            log.error("[SERVER ERROR] Error parsing JSON message: {}", e.getMessage());
         }
     }
 
@@ -82,7 +84,7 @@ public class MessageHandler {
 
         GameRoom newRoom = registry.tryCreateRoom(roomId);
         if (newRoom == null) {
-            System.out.println("Room creation failed: " + roomId + " already exists!");
+            log.info("[SERVER OUT] Room creation failed: " + roomId + " already exists!");
             sendResponse(session, "{\"type\":\"CREATE_REJECTED\",\"message\":\"Room ID '" + roomId + "' is already taken. Choose another name.\"}");
             return;
         }
@@ -92,7 +94,7 @@ public class MessageHandler {
         GameRoom.JoinResult result = newRoom.addPlayer(session, username);
         registry.bindParticipant(session, username, newRoom, result.color());
 
-        System.out.println("Room created successfully: [" + roomId + "] by user: " + username);
+        log.info("[SERVER OUT] Room created successfully: [" + roomId + "] by user: " + username);
 
         sendResponse(session, "{\"type\":\"CREATE_ACCEPTED\",\"roomId\":\"" + roomId + "\",\"message\":\"Room created successfully. Waiting for opponent.\"}");
     }
@@ -122,7 +124,7 @@ public class MessageHandler {
                 session.sendMessage(new TextMessage(text));
             }
         } catch (Exception e) {
-            System.err.println("Error sending WebSocket response: " + e.getMessage());
+            log.error("[SERVER ERROR] Error sending WebSocket response: {}", e.getMessage());
         }
     }
 }

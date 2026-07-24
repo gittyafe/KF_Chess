@@ -1,5 +1,7 @@
 package org.example.network.server.game;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -10,6 +12,7 @@ import java.util.concurrent.TimeUnit;
  * on a fixed schedule and reports start/stop to the console. Whatever
  * "advance the engine and broadcast" means is entirely up to the caller.
  */
+@Slf4j
 public class GameLoopRunner {
 
     public static final long TICK_MS = 30;
@@ -26,12 +29,12 @@ public class GameLoopRunner {
     public synchronized void start(String roomId) {
         if (scheduler.isShutdown() || (loopHandle != null && !loopHandle.isDone())) return;
 
-        System.out.println("Room [" + roomId + "] Game Loop Started!");
+        log.info("[SERVER OUT] Room [{}] Game Loop Started!", roomId);
         loopHandle = scheduler.scheduleAtFixedRate(() -> {
             try {
                 onTick.run();
             } catch (Exception e) {
-                System.err.println("Error in room loop [" + roomId + "]: " + e.getMessage());
+                log.error("[SERVER ERROR] Error in room loop [{}]: {}", roomId, e.getMessage(), e);
             }
         }, 0, TICK_MS, TimeUnit.MILLISECONDS);
     }
@@ -39,7 +42,7 @@ public class GameLoopRunner {
     public synchronized void stop(String roomId) {
         if (loopHandle != null) {
             loopHandle.cancel(false);
-            System.out.println("Room [" + roomId + "] Game Loop Ended.");
+            log.info("[SERVER OUT] Room [{}] Game Loop Ended!", roomId);
         }
     }
 }

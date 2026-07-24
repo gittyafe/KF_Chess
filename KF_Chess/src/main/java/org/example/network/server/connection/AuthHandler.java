@@ -1,6 +1,7 @@
 package org.example.network.server.connection;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.example.database.UserRepository;
 import org.example.network.server.room.GameRoom;
 import org.example.network.server.room.GameRoom.JoinResult;
@@ -9,6 +10,7 @@ import org.example.network.server.room.RoomRegistry;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+@Slf4j
 public class AuthHandler {
 
     private final ObjectMapper objectMapper;
@@ -37,7 +39,7 @@ public class AuthHandler {
             addUserToRoom(session, joinReq.username(), joinReq.roomId(), rating, room, registry);
 
         } catch (Exception e) {
-            System.err.println("Error processing JOIN_ROOM request: " + e.getMessage());
+            log.error("[SERVER ERROR] Error processing JOIN_ROOM request: {}", e.getMessage());
             sendJsonResponse(session, new JoinRejectedResponse("Invalid request payload"));
         }
     }
@@ -56,7 +58,7 @@ public class AuthHandler {
             addUserToRoom(session, joinReq.username(), joinReq.roomId(), rating, room, registry);
 
         } catch (Exception e) {
-            System.err.println("Error processing JOIN_MATCH request: " + e.getMessage());
+            log.error("[SERVER ERROR] Error processing JOIN_MATCH request: {}", e.getMessage());
             sendJsonResponse(session, new JoinRejectedResponse("Failed to join match"));
         }
     }
@@ -109,7 +111,7 @@ public class AuthHandler {
             sendJsonResponse(session, new ReconnectAcceptedResponse(req.username(), room.getColorForUsername(req.username()), rating));
 
         } catch (Exception e) {
-            System.err.println("Error processing RECONNECT request: " + e.getMessage());
+            log.error("[SERVER ERROR] Error processing RECONNECT request: {}", e.getMessage());
             sendJsonResponse(session, new ReconnectRejectedResponse("Invalid request payload"));
         }
     }
@@ -125,8 +127,7 @@ public class AuthHandler {
             registry.bindSpectator(session, username, room);
         }
 
-        System.out.printf("User %s (%d ELO) joined Room %s as %s%n", username, rating, roomId, result.role());
-
+        log.info("[SERVER OUT] User {} ({}) joined Room {} as {}", username, rating, roomId, result.role());
         sendJsonResponse(session, new JoinAcceptedResponse(username, result.color(), rating));
     }
 
@@ -157,7 +158,7 @@ public class AuthHandler {
                 session.sendMessage(new TextMessage(json));
             }
         } catch (Exception e) {
-            System.err.println("Error sending message to client: " + e.getMessage());
+            log.error("[SERVER ERROR] Error sending message to client: {}", e.getMessage());
         }
     }
 
@@ -187,7 +188,7 @@ public class AuthHandler {
             session.getAttributes().put("username", loginReq.username());
             session.getAttributes().put("rating", rating);
 
-            System.out.printf("User %s (%d ELO) logged in successfully%n", loginReq.username(), rating);
+            log.info("[SERVER OUT] User {} ({}) logged in successfully", loginReq.username(), rating);
             sendJsonResponse(session, new LoginSuccessResponse(loginReq.username(), rating));
 
             // If they're a participant in a game that's still running,
@@ -197,14 +198,14 @@ public class AuthHandler {
             // no client-side UI changes needed.
             GameRoom room = tryReconnectIntoActiveGame(session, loginReq.username(), registry);
             if (room != null) {
-                System.out.println("Login doubled as a reconnect into room " + room.getRoomId());
+                log.info("[SERVER OUT] Login doubled as a reconnect into room {}", room.getRoomId());
             } else {
                 // Not in an active game -- temporary color until they join one.
                 registry.registerPlayerInfo(session, loginReq.username(), 'W');
             }
 
         } catch (Exception e) {
-            System.err.println("Error processing login request: " + e.getMessage());
+            log.error("[SERVER ERROR] Error processing login request: {}", e.getMessage());
             sendJsonResponse(session, new LoginRejectedResponse("Invalid JSON format"));
         }
     }

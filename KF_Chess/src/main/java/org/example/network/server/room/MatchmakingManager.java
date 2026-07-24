@@ -1,12 +1,14 @@
 package org.example.network.server.room;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.*;
 import java.util.concurrent.*;
 
+@Slf4j
 public class MatchmakingManager {
 
     private final int RANGE_ELO = 100;
@@ -39,7 +41,7 @@ public class MatchmakingManager {
         removeFromQueue(session);
 
         queue.add(new QueueEntry(session, username, rating));
-        System.out.println(username + " (" + rating + " ELO) entered matchmaking queue.");
+        log.info("[SERVER OUT] User {} ({} ELO) entered matchmaking queue.", username, rating);
 
         sendMessage(session, "{\"type\":\"MATCHMAKING_STARTED\",\"message\":\"Searching for an opponent (\u00b1100 ELO)...\"}");
     }
@@ -92,7 +94,7 @@ public class MatchmakingManager {
                 session.sendMessage(new TextMessage(text));
             }
         } catch (Exception e) {
-            System.err.println("Failed to send matchmaking message: " + e.getMessage());
+            log.error("[SERVER ERROR] Failed to send matchmaking message: {}", e.getMessage());
         }
     }
 }

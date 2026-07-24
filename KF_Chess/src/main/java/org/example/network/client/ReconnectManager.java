@@ -1,5 +1,7 @@
 package org.example.network.client;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -23,6 +25,7 @@ import java.util.function.Supplier;
  * unchanged from the original: 2-second delay, 10 attempts (~20s, matching
  * the server's disconnect grace window), then a RECONNECT_REJECTED event.
  */
+@Slf4j
 final class ReconnectManager {
 
     private static final int RETRY_DELAY_SECONDS = 2;
@@ -93,13 +96,13 @@ final class ReconnectManager {
 
     private void scheduleAttempt(int attempt) {
         if (attempt > MAX_ATTEMPTS) {
-            System.err.println("Giving up reconnecting after " + MAX_ATTEMPTS + " attempts.");
+            log.error("[CLIENT ERROR] Giving up reconnecting after {} attempts.", MAX_ATTEMPTS);
             reconnecting = false;
             onGiveUp.run();
             return;
         }
         scheduler.schedule(() -> {
-            System.out.println("Reconnect attempt " + attempt + "/" + MAX_ATTEMPTS + "...");
+            log.info("[CLIENT OUT] Reconnect attempt {} of {}", attempt, MAX_ATTEMPTS);
             if (isSocketOpen.get()) {
                 // Already reconnected via another path.
                 reconnecting = false;

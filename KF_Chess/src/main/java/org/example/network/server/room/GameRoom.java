@@ -1,5 +1,6 @@
 package org.example.network.server.room;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.database.RatingService;
 import org.example.engines.BoardLoader;
 import org.example.engines.GameEngine;
@@ -29,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * the loop and announce GAME_STARTED" or "when the game ends, stop the
  * loop, update ratings, and broadcast GAME_OVER, exactly once".
  */
+@Slf4j
 public class GameRoom {
 
     public enum JoinRole { WHITE, BLACK, SPECTATOR }
@@ -156,7 +158,7 @@ public class GameRoom {
     public void endGame(String winner, String loser, String reason) {
         if (!gameEnded.compareAndSet(false, true)) return; // already ended
 
-        System.out.println("GAME OVER in room [" + roomId + "]. Winner: " + winner + " (" + reason + ")");
+        log.info("[SERVER OUT] GAME OVER in room [{}]. Winner: {} ({})", roomId, winner, reason);
 
         if (winner != null && loser != null) {
             ratingService.applyGameResult(players.getWhiteUsername(), players.getBlackUsername(),
@@ -174,7 +176,7 @@ public class GameRoom {
             try {
                 onEndedCallback.run();
             } catch (Exception e) {
-                System.err.println("Error in room onEnded callback: " + e.getMessage());
+                log.error("[SERVER ERROR] Error in room onEnded callback: {}", e.getMessage());
             }
         }
     }
@@ -207,7 +209,7 @@ public class GameRoom {
         boolean rebound = players.reconnect(newSession, username);
         if (!rebound) return false;
 
-        System.out.println(username + " reconnected to room [" + roomId + "]");
+        log.info("[SERVER OUT] Player {} reconnected to room [{}]", username, roomId);
         cancelDisconnectTimer();
         messenger.sendGameStateTo(newSession);
         return true;

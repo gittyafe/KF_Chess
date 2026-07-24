@@ -6,7 +6,7 @@ package org.example.bus;
  * Before this class existed, "JOIN_ACCEPTED", "BOARD_UPDATE_RECEIVED" etc.
  * were typed out fresh at every publish() and subscribe() call site, split
  * across the network package and the UI package. A typo in either place
- * (e.g. "BOARD_UPDATE_RECIEVED") would silently fail at runtime -- the
+ * (e.g. "BOARD_UPDATE_RECEIVED") would silently fail at runtime -- the
  * subscription just never fires, with no compiler error and no exception.
  *
  * Using these constants instead doesn't make the bus type-safe (it's still

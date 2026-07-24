@@ -1,11 +1,14 @@
 package org.example.database;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Applies the outcome of a finished game to both players' ratings. Sits
  * between GameRoom (which knows *who* won) and UserRepository/EloCalculator
  * (which know how to persist a rating and how to compute one) -- neither of
  * those two should need to know about the other.
  */
+@Slf4j
 public class RatingService {
 
     private final UserRepository userRepository;
@@ -29,10 +32,9 @@ public class RatingService {
             userRepository.updateRating(whiteUser, result.newRatingA());
             userRepository.updateRating(blackUser, result.newRatingB());
 
-            System.out.printf("🏆 ELO Updated: %s (%d -> %d) | %s (%d -> %d)%n",
-                    whiteUser, ratingW, result.newRatingA(), blackUser, ratingB, result.newRatingB());
+            log.info("[SERVER OUT] ELO Updated: {} ({}) -> {}) | {} ({} -> {})", whiteUser, ratingW, result.newRatingA(), blackUser, ratingB, result.newRatingB());
         } catch (Exception e) {
-            System.err.println("Failed to update DB ratings: " + e.getMessage());
+            log.error("[SERVER ERROR] Failed to update DB ratings: {}", e.getMessage());
         }
     }
 }

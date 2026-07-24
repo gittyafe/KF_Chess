@@ -1,5 +1,6 @@
 package org.example.app;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.bus.GameEventBus;
 import org.example.bus.GameWindowBusBridge;
 import org.example.controllers.NetworkController;
@@ -11,6 +12,7 @@ import org.example.view.*;
 import javax.swing.SwingUtilities;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@Slf4j
 public class GameLifecycleManager {
 
     private final BoardGeometry geometry;
@@ -58,7 +60,7 @@ public class GameLifecycleManager {
         eventBus.subscribe("GAME_OVER", data -> SoundManager.play(SoundManager.Sound.GAME_OVER));
 
         eventBus.subscribe("JOIN_ACCEPTED", data ->
-                System.out.println("✅ Authenticated successfully.")
+                log.info("[CLIENT OUT] JOIN_ACCEPTED received from server: {}", data)
         );
 
         eventBus.subscribe("MATCH_FOUND", data -> {
@@ -74,8 +76,8 @@ public class GameLifecycleManager {
         eventBus.subscribe("LOGIN_SUCCESS", data -> {
             Object[] payload = (Object[]) data;
             String loggedInUser = (String) payload[0];
-            this.currentUsername = loggedInUser; // 👈 שומר את שם המשתמש כדי לדעת איזה צבע את במשחק!
-            System.out.println("✅ LifecycleManager updated current user: " + loggedInUser);
+            this.currentUsername = loggedInUser;
+            log.info("[CLIENT OUT] LOGIN_SUCCESS received. Updated current user: {}", loggedInUser);
         });
 
         eventBus.subscribe("BOARD_UPDATE_RECEIVED", rawSnapshot -> {
@@ -107,7 +109,7 @@ public class GameLifecycleManager {
         String whiteUser = (String) players[0];
         String blackUser = (String) players[1];
 
-        System.out.println("🚀 Game Active! White: " + whiteUser + " | Black: " + blackUser);
+        log.info("[CLIENT OUT] GAME_STARTED received. White: {} | Black: {}", whiteUser, blackUser);
 
         Role userRole;
         if (currentUsername != null && currentUsername.equalsIgnoreCase(whiteUser)) {

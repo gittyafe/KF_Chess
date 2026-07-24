@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.bus.GameEventBus;
 import org.example.bus.GameServerEvents;
 import org.example.engines.GameSnapshot;
@@ -19,6 +20,7 @@ import org.example.engines.GameSnapshot;
  * with a "type" field) and republishes it on {@link GameEventBus} under
  * the matching {@link GameServerEvents} name.
  */
+@Slf4j
 final class ServerMessageDispatcher {
 
     private final ServerMessageCallbacks callbacks;
@@ -51,12 +53,12 @@ final class ServerMessageDispatcher {
 
         handlers.put("DISCONNECT_COUNTDOWN", root -> {
             int seconds = intValue(root.get("seconds"));
-            System.out.println("Received DISCONNECT_COUNTDOWN from server: " + seconds + "s");
+            log.info("[CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: {}s", seconds);
             publish(GameServerEvents.DISCONNECT_COUNTDOWN, seconds);
         });
 
         handlers.put("DISCONNECT_CANCELLED", root -> {
-            System.out.println("Received DISCONNECT_CANCELLED from server");
+            log.info("[CLIENT OUT] Received DISCONNECT_CANCELLED from server");
             publish(GameServerEvents.DISCONNECT_CANCELLED, null);
         });
 
@@ -64,20 +66,20 @@ final class ServerMessageDispatcher {
             String username = (String) root.get("username");
             char color = charValue(root.get("color"));
             int rating = intValue(root.get("rating"));
-            System.out.println("Reconnected successfully as " + username);
+            log.info("[CLIENT OUT] Reconnected successfully as {} with color {} and rating {}", username, color, rating);
             publish(GameServerEvents.RECONNECT_ACCEPTED, new Object[]{ username, color, rating });
         });
 
         handlers.put("RECONNECT_REJECTED", root -> {
             String reason = (String) root.get("reason");
-            System.err.println("Reconnect rejected: " + reason);
+            log.error("[CLIENT ERROR] Reconnect rejected: {}", reason);
             publish(GameServerEvents.RECONNECT_REJECTED, reason);
         });
 
         handlers.put("GAME_OVER", root -> {
             String winner = (String) root.get("winner");
             String reason = (String) root.get("reason");
-            System.out.println("Game Over received. Winner: " + winner);
+            log.info("[CLIENT OUT] Game Over received. Winner: {}", winner);
             publish(GameServerEvents.GAME_OVER, new Object[]{ winner, reason });
         });
 
@@ -129,8 +131,7 @@ final class ServerMessageDispatcher {
         handlers.put("MATCH_FOUND", root -> {
             String roomId = (String) root.get("roomId");
             String opponent = (String) root.get("opponent");
-            System.out.println("Match found! Room: " + roomId + " against " + opponent);
-
+            log.info("[CLIENT OUT] Match found! Room: {} against {}", roomId, opponent);
             callbacks.requestJoinMatch(roomId);
             publish(GameServerEvents.MATCH_FOUND, new Object[]{ roomId, opponent });
         });
@@ -141,7 +142,7 @@ final class ServerMessageDispatcher {
             char color = (colorObj != null) ? charValue(colorObj) : 'W';
             Object ratingObj = root.get("rating");
             int rating = (ratingObj != null) ? intValue(ratingObj) : 1200;
-
+            log.info("[CLIENT OUT] Logged in successfully as {} with color {} and rating {}", username, color, rating);
             callbacks.onLoginSuccess();
             publish(GameServerEvents.LOGIN_SUCCESS, new Object[]{ username, color, rating });
         });

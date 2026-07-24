@@ -1,5 +1,6 @@
 package org.example.network.server.game;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.models.Piece;
 import org.example.models.Position;
 import org.example.network.server.room.GameRoom;
@@ -13,6 +14,7 @@ import org.example.network.server.room.PlayerInfo;
  * route an incoming WS frame" and "how do we interpret the move-command
  * text protocol" don't stay tangled in one class.
  */
+@Slf4j
 public class GameCommandHandler {
 
     public void handle(GameRoom room, PlayerInfo player, String command) {
@@ -38,7 +40,7 @@ public class GameCommandHandler {
                 room.getGameEngine().requestMove(from, to);
             }
         } catch (Exception e) {
-            System.err.println("Error executing move: " + e.getMessage());
+            log.error("[SERVER ERROR] Error executing move: {}", e.getMessage());
         }
     }
 
@@ -55,7 +57,7 @@ public class GameCommandHandler {
                 room.getGameEngine().jumpRequest(destination);
             }
         } catch (Exception e) {
-            System.err.println("Error executing jump: " + e.getMessage());
+            log.error("[SERVER ERROR] Error executing jump: {}", e.getMessage());
         }
     }
 

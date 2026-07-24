@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+import lombok.extern.slf4j.Slf4j;
 import org.example.bus.GameEventBus;
 import org.example.bus.GameServerEvents;
 
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * Thin transport layer: owns the live {@link WebSocket}
  */
+@Slf4j
 public class ChessWebSocketClient implements WebSocket.Listener {
 
     private volatile WebSocket webSocket;
@@ -56,7 +58,7 @@ public class ChessWebSocketClient implements WebSocket.Listener {
                 .buildAsync(URI.create(serverUrl), this)
                 .thenAccept(ws -> this.webSocket = ws)
                 .exceptionally(ex -> {
-                    System.err.println("Failed to connect: " + ex.getMessage());
+                    log.error("[CLIENT ERROR] Failed to connect: {}", ex.getMessage());
                     return null;
                 });
     }
@@ -148,13 +150,13 @@ public class ChessWebSocketClient implements WebSocket.Listener {
         try {
             webSocket.sendText(payloadSupplier.get(), true);
         } catch (Exception e) {
-            System.err.println("Error sending " + context + ": " + e.getMessage());
+            log.error("[CLIENT ERROR] Failed to send JSON message: {}", e.getMessage());
         }
     }
 
     @Override
     public void onOpen(WebSocket webSocket) {
-        System.out.println("Connected to chess server.");
+        log.info("[CLIENT OUT] Connected to chess server.");
         this.webSocket = webSocket;
         reconnectManager.reset();
 
@@ -185,8 +187,7 @@ public class ChessWebSocketClient implements WebSocket.Listener {
                 Map<String, Object> root = objectMapper.readValue(message, Map.class);
                 dispatcher.dispatch(root);
             } catch (Exception e) {
-                System.err.println("Error processing network message: " + e.getMessage());
-                e.printStackTrace();
+                log.error("[CLIENT ERROR] Error processing network message: {}", e.getMessage());
             }
         }
 
@@ -196,14 +197,14 @@ public class ChessWebSocketClient implements WebSocket.Listener {
 
     @Override
     public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
-        System.out.println("Connection to server closed: " + reason);
+        log.info("[CLIENT IN] WebSocket closed with status {}: {}", statusCode, reason);
         reconnectManager.onDisconnected(currentUsername != null);
         return null;
     }
 
     @Override
     public void onError(WebSocket webSocket, Throwable error) {
-        System.err.println("WebSocket error: " + error.getMessage());
+        log.error("[CLIENT ERROR] WebSocket error: {}", error.getMessage());
         reconnectManager.onDisconnected(currentUsername != null);
         WebSocket.Listener.super.onError(webSocket, error);
     }

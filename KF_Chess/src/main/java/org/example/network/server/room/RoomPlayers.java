@@ -1,5 +1,6 @@
 package org.example.network.server.room;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * a seat. Pure "who is here and what seat are they in" state -- no
  * networking, no scheduling, no game rules.
  */
+@Slf4j
 public class RoomPlayers {
 
     private final List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
@@ -26,7 +28,7 @@ public class RoomPlayers {
             whiteSession = session;
             whiteUsername = username;
             sessions.add(session);
-            System.out.println("Player 1 (White) joined room [" + roomId + "]: " + username);
+            log.info("[SERVER OUT] Player 1 (White) joined room [" + roomId + "]: " + username);
             return GameRoom.JoinResult.of(GameRoom.JoinRole.WHITE);
         }
 
@@ -35,12 +37,12 @@ public class RoomPlayers {
             blackUsername = username;
             sessions.add(session);
             started = true;
-            System.out.println("Player 2 (Black) joined room [" + roomId + "]: " + username);
+            log.info("[SERVER OUT] Player 2 (Black) joined room [" + roomId + "]: " + username);
             return GameRoom.JoinResult.of(GameRoom.JoinRole.BLACK);
         }
 
         sessions.add(session);
-        System.out.println("Spectator joined room [" + roomId + "]: " + username);
+        log.info("[SERVER OUT] Spectator joined room [" + roomId + "]: " + username);
         return GameRoom.JoinResult.of(GameRoom.JoinRole.SPECTATOR);
     }
 

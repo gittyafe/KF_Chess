@@ -1,6 +1,7 @@
 package org.example.network.server.room;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.example.engines.GameEngine;
 import org.example.network.protocol.NetworkDTOs.*;
 import org.springframework.web.socket.TextMessage;
@@ -15,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
  * describe *what* happened; this is the only place that knows *how* that
  * becomes a WebSocket message.
  */
+@Slf4j
 public class RoomMessenger {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -38,7 +40,7 @@ public class RoomMessenger {
                 Thread.sleep(100);
                 sendTo(session, new BoardUpdateResponse(gameEngine.getSnapshot()));
             } catch (Exception e) {
-                System.err.println("Error sending state to spectator: " + e.getMessage());
+                log.error("[SERVER ERROR] Error sending state to spectator: {}", e.getMessage());
             }
         });
     }
@@ -77,7 +79,7 @@ public class RoomMessenger {
         try {
             broadcastRaw(objectMapper.writeValueAsString(dto));
         } catch (Exception e) {
-            System.err.println("Error broadcasting message: " + e.getMessage());
+            log.error("[SERVER ERROR] Error broadcasting message: {}", e.getMessage());
         }
     }
 

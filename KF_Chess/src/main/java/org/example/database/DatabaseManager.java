@@ -10,7 +10,15 @@ public class DatabaseManager {
     }
 
     public static Connection connect() throws SQLException {
-        return DriverManager.getConnection(DB_URL);
+        Connection conn = DriverManager.getConnection(DB_URL);
+
+        // הגדרת המתנה של 5,000 מילישניות לפני שזה זורק SQLITE_BUSY
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute("PRAGMA busy_timeout = 5000;");
+            stmt.execute("PRAGMA journal_mode = WAL;");
+        }
+
+        return conn;
     }
 
     public static void initDatabase() {
@@ -120,6 +128,21 @@ public class DatabaseManager {
             pstmt.setInt(1, newRating);
             pstmt.setString(2, username);
             pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("❌ Error updating rating: " + e.getMessage());
+        }
+    }
+    public static synchronized void addUserRating(String username, int ratingToAdd) {
+        // SQLite יודע לחשב את הדירוג החדש ישירות בתוך ה-UPDATE
+        String sql = "UPDATE users SET rating = rating + ? WHERE username = ?";
+
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, ratingToAdd);
+            pstmt.setString(2, username);
+            pstmt.executeUpdate();
+
         } catch (SQLException e) {
             System.err.println("❌ Error updating rating: " + e.getMessage());
         }

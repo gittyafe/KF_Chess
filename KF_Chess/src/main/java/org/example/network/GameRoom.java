@@ -31,6 +31,8 @@ public class GameRoom {
      * independently (and incorrectly) guess a player's color.
      */
     public enum JoinRole { WHITE, BLACK, SPECTATOR }
+    public static final int WINNER_ELO_CHANGE = 15;
+    public static final int LOSER_ELO_CHANGE = -15;
 
     public record JoinResult(JoinRole role, char color) {
         public static JoinResult of(JoinRole role) {
@@ -210,8 +212,11 @@ public class GameRoom {
 
         if (winner != null && loser != null) {
             try {
-                DatabaseManager.updateUserRating(winner, 15);
-                DatabaseManager.updateUserRating(loser, -15);
+                DatabaseManager.updateRatings(whiteUsername, blackUsername, winner.equals(whiteUsername) ? 1.0 : 0.0);
+//                EloCalculator.EloResult winnerResult = EloCalculator.calculateNewRatings(DatabaseManager.getRating(winner), DatabaseManager.getRating(loser), 1.0);
+//                EloCalculator.EloResult loserResult = EloCalculator.calculateNewRatings(DatabaseManager.getRating(loser), DatabaseManager.getRating(winner), 0.0);
+//                DatabaseManager.addUserRating(winner, (int)winnerResult.newRatingA);
+//                DatabaseManager.addUserRating(loser, (int)loserResult.newRatingB);
             } catch (Exception e) {
                 System.err.println("Failed to update DB ratings: " + e.getMessage());
             }

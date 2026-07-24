@@ -49,6 +49,14 @@ public class GameLifecycleManager {
     public void registerEventListeners() {
         GameEventBus eventBus = GameEventBus.getInstance();
 
+        // 🔊 Sound effects. Kept separate from the window/rendering
+        // subscriptions below so audio logic doesn't get tangled up with UI
+        // logic -- if you want to mute, add a volume slider, etc., this is
+        // the only place to touch.
+        eventBus.subscribe("GAME_STARTED", data -> SoundManager.play(SoundManager.Sound.GAME_START));
+        eventBus.subscribe("PIECE_CAPTURED", data -> SoundManager.play(SoundManager.Sound.PIECE_CAPTURED));
+        eventBus.subscribe("GAME_OVER", data -> SoundManager.play(SoundManager.Sound.GAME_OVER));
+
         eventBus.subscribe("JOIN_ACCEPTED", data ->
                 System.out.println("✅ Authenticated successfully.")
         );

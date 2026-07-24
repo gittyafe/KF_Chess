@@ -26,6 +26,18 @@ public class NetworkDTOs {
 
     public record SimpleEventResponse(String type, List<Object> data) {}
 
+    public record ReconnectAcceptedResponse(String type, String username, char color, int rating) {
+        public ReconnectAcceptedResponse(String username, char color, int rating) {
+            this("RECONNECT_ACCEPTED", username, color, rating);
+        }
+    }
+
+    public record ReconnectRejectedResponse(String type, String reason) {
+        public ReconnectRejectedResponse(String reason) {
+            this("RECONNECT_REJECTED", reason);
+        }
+    }
+
     public record LoginRequest(String type, String username, String password) {}
     public record LoginSuccessResponse(String type, String username, int rating) {
         public LoginSuccessResponse(String username, int rating) {

@@ -2,11 +2,11 @@ package org.example.network;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.database.DatabaseManager;
+import org.example.network.GameRoom.JoinResult;
 import org.example.network.NetworkDTOs.*;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.io.IOException;
 import java.util.Map;
 
 public class AuthHandler {
@@ -17,11 +17,11 @@ public class AuthHandler {
         this.objectMapper = objectMapper;
     }
 
-
     public void processJoinRoomRequest(
             WebSocketSession session,
             String payload,
             Map<String, GameRoom> rooms,
+            Map<String, GameRoom> usernameToRoom,
             Map<WebSocketSession, GameRoom> sessionToRoom,
             Map<WebSocketSession, PlayerInfo> players) {
         try {
@@ -38,10 +38,10 @@ public class AuthHandler {
                 return;
             }
 
-            addUserToRoom(session, joinReq.username(), joinReq.roomId(), rating, room, sessionToRoom, players);
+            addUserToRoom(session, joinReq.username(), joinReq.roomId(), rating, room, usernameToRoom, sessionToRoom, players);
 
         } catch (Exception e) {
-            System.err.println("❌ Error processing JOIN_ROOM request: " + e.getMessage());
+            System.err.println("Error processing JOIN_ROOM request: " + e.getMessage());
             sendJsonResponse(session, new JoinRejectedResponse("Invalid request payload"));
         }
     }
@@ -50,25 +50,97 @@ public class AuthHandler {
             WebSocketSession session,
             String payload,
             Map<String, GameRoom> rooms,
+            Map<String, GameRoom> usernameToRoom,
             Map<WebSocketSession, GameRoom> sessionToRoom,
             Map<WebSocketSession, PlayerInfo> players) {
         try {
             JoinRequest joinReq = objectMapper.readValue(payload, JoinRequest.class);
 
             if (!"JOIN_MATCH".equals(joinReq.type())) return;
-
             if (!validateInput(session, joinReq)) return;
 
             int rating = authenticateUser(session, joinReq.username(), joinReq.password());
             if (rating == -1) return;
 
-            GameRoom room = rooms.computeIfAbsent(joinReq.roomId(), GameRoom::new);
+            GameRoom room = rooms.computeIfAbsent(joinReq.roomId(), id -> {
+                GameRoom created = new GameRoom(id);
+                created.setOnEnded(() -> {
+                    rooms.remove(created.getRoomId());
+                    usernameToRoom.entrySet().removeIf(e -> e.getValue() == created);
+                });
+                return created;
+            });
 
-            addUserToRoom(session, joinReq.username(), joinReq.roomId(), rating, room, sessionToRoom, players);
+            addUserToRoom(session, joinReq.username(), joinReq.roomId(), rating, room, usernameToRoom, sessionToRoom, players);
 
         } catch (Exception e) {
-            System.err.println("❌ Error processing JOIN_MATCH request: " + e.getMessage());
+            System.err.println("Error processing JOIN_MATCH request: " + e.getMessage());
             sendJsonResponse(session, new JoinRejectedResponse("Failed to join match"));
+        }
+    }
+
+    /**
+     * Shared by both explicit RECONNECT messages and plain LOGIN: if this
+     * username is a participant in a room that hasn't ended, rebind their
+     * new session into it. Returns the room on success, or null if there's
+     * nothing to reconnect to.
+     */
+    private GameRoom tryReconnectIntoActiveGame(
+            WebSocketSession session,
+            String username,
+            Map<String, GameRoom> usernameToRoom,
+            Map<WebSocketSession, GameRoom> sessionToRoom,
+            Map<WebSocketSession, PlayerInfo> players) {
+
+        GameRoom room = usernameToRoom.get(username);
+        if (room == null || room.isEnded()) return null;
+
+        boolean rebound = room.reconnectPlayer(session, username);
+        if (!rebound) return null;
+
+        char color = room.getColorForUsername(username);
+        players.put(session, new PlayerInfo(username, color));
+        sessionToRoom.put(session, room);
+
+        System.out.printf("User %s reconnected to room %s%n", username, room.getRoomId());
+        return room;
+    }
+
+    /**
+     * Explicit RECONNECT message, used by ChessWebSocketClient's automatic
+     * background retry after a socket drop within the same running client.
+     */
+    public void processReconnectRequest(
+            WebSocketSession session,
+            String payload,
+            Map<String, GameRoom> usernameToRoom,
+            Map<WebSocketSession, GameRoom> sessionToRoom,
+            Map<WebSocketSession, PlayerInfo> players) {
+        try {
+            LoginRequest req = objectMapper.readValue(payload, LoginRequest.class);
+
+            if (isInvalid(req.username()) || isInvalid(req.password())) {
+                sendJsonResponse(session, new ReconnectRejectedResponse("Missing username or password"));
+                return;
+            }
+
+            int rating = DatabaseManager.authenticateOrRegister(req.username(), req.password());
+            if (rating == -1) {
+                sendJsonResponse(session, new ReconnectRejectedResponse("Invalid password or database error"));
+                return;
+            }
+
+            GameRoom room = tryReconnectIntoActiveGame(session, req.username(), usernameToRoom, sessionToRoom, players);
+            if (room == null) {
+                sendJsonResponse(session, new ReconnectRejectedResponse("No active game to reconnect to"));
+                return;
+            }
+
+            sendJsonResponse(session, new ReconnectAcceptedResponse(req.username(), room.getColorForUsername(req.username()), rating));
+
+        } catch (Exception e) {
+            System.err.println("Error processing RECONNECT request: " + e.getMessage());
+            sendJsonResponse(session, new ReconnectRejectedResponse("Invalid request payload"));
         }
     }
 
@@ -78,33 +150,23 @@ public class AuthHandler {
             String roomId,
             int rating,
             GameRoom room,
+            Map<String, GameRoom> usernameToRoom,
             Map<WebSocketSession, GameRoom> sessionToRoom,
             Map<WebSocketSession, PlayerInfo> players) {
 
-        synchronized (room) {
-            // הקצאת צבע: השחקן הראשון לבן ('W'), השני שחור ('B')
-            char color = room.getSessions().isEmpty() ? 'W' : 'B';
+        JoinResult result = room.addPlayer(session, username);
 
-            boolean success = room.addPlayer(session, username);
-            if (!success) {
-                sendJsonResponse(session, new JoinRejectedResponse("Room is full"));
-                return;
-            }
+        PlayerInfo playerInfo = new PlayerInfo(username, result.color());
+        players.put(session, playerInfo);
+        sessionToRoom.put(session, room);
 
-            PlayerInfo playerInfo = new PlayerInfo(username, color);
-            players.put(session, playerInfo);
-            sessionToRoom.put(session, room);
-
-            System.out.printf("👤 User %s (%d ELO) joined Room %s as %c%n", username, rating, roomId, color);
-
-            // שליחת אישור הצטרפות חזרה ללקוח
-            sendJsonResponse(session, new JoinAcceptedResponse(username, color, rating));
-
-            // אם החדר התמלא והמשחק התחיל -> מודיעים לשני השחקנים
-            if (room.isStarted()) {
-                notifyGameStarted(room);
-            }
+        if (result.role() != GameRoom.JoinRole.SPECTATOR) {
+            usernameToRoom.put(username, room);
         }
+
+        System.out.printf("User %s (%d ELO) joined Room %s as %s%n", username, rating, roomId, result.role());
+
+        sendJsonResponse(session, new JoinAcceptedResponse(username, result.color(), rating));
     }
 
     private boolean validateInput(WebSocketSession session, JoinRequest req) {
@@ -127,16 +189,6 @@ public class AuthHandler {
         return rating;
     }
 
-    private void notifyGameStarted(GameRoom room) {
-        try {
-            GameStartedResponse payload = new GameStartedResponse(room.getWhiteUsername(), room.getBlackUsername());
-            room.broadcast(objectMapper.writeValueAsString(payload));
-            room.startLoop();
-        } catch (IOException e) {
-            System.err.println("❌ שגיאה בשידור תחילת משחק: " + e.getMessage());
-        }
-    }
-
     private void sendJsonResponse(WebSocketSession session, Object responseObj) {
         try {
             if (session.isOpen()) {
@@ -144,16 +196,23 @@ public class AuthHandler {
                 session.sendMessage(new TextMessage(json));
             }
         } catch (Exception e) {
-            System.err.println("❌ שגיאה בשליחת הודעה לקוח: " + e.getMessage());
+            System.err.println("Error sending message to client: " + e.getMessage());
         }
     }
 
-// בתוך AuthHandler.java
-
+    /**
+     * LOGIN now doubles as a reconnect path. This is the important part of
+     * the fix: a player who reconnects by restarting their client (a new
+     * process, a fresh ChessWebSocketClient/WebSocketSession) goes through
+     * LOGIN, never RECONNECT -- so LOGIN has to check for an active game
+     * itself, or a client-restart reconnect can never work.
+     */
     public void processLoginRequest(
             WebSocketSession session,
             String payload,
-            Map<WebSocketSession, PlayerInfo> players) { // 👈 הוסיפי את players לפרמטרים!
+            Map<String, GameRoom> usernameToRoom,
+            Map<WebSocketSession, GameRoom> sessionToRoom,
+            Map<WebSocketSession, PlayerInfo> players) {
         try {
             LoginRequest loginReq = objectMapper.readValue(payload, LoginRequest.class);
 
@@ -169,21 +228,27 @@ public class AuthHandler {
                 return;
             }
 
-            // 🟢 1. שמירת המשתמש ישירות ב-players Map של השרת!
-            // ה-'W' הוא צבע זמני בלבד, עד שמוצאים יריב ב-Matchmaking
-            PlayerInfo playerInfo = new PlayerInfo(loginReq.username(), 'W');
-            players.put(session, playerInfo);
-
-            // 🟢 2. שמירה גיבוי ב-Session attributes
             session.getAttributes().put("username", loginReq.username());
             session.getAttributes().put("rating", rating);
 
-            System.out.printf("🔑 User %s (%d ELO) logged in successfully%n", loginReq.username(), rating);
-
+            System.out.printf("User %s (%d ELO) logged in successfully%n", loginReq.username(), rating);
             sendJsonResponse(session, new LoginSuccessResponse(loginReq.username(), rating));
 
+            // If they're a participant in a game that's still running,
+            // silently pull them back in. GameRoom.reconnectPlayer sends
+            // GAME_STARTED + BOARD_UPDATE to this session, which the existing
+            // client GUI already knows how to render as "the game resumed" --
+            // no client-side UI changes needed.
+            GameRoom room = tryReconnectIntoActiveGame(session, loginReq.username(), usernameToRoom, sessionToRoom, players);
+            if (room != null) {
+                System.out.println("Login doubled as a reconnect into room " + room.getRoomId());
+            } else {
+                // Not in an active game -- temporary color until they join one.
+                players.put(session, new PlayerInfo(loginReq.username(), 'W'));
+            }
+
         } catch (Exception e) {
-            System.err.println("❌ שגיאה בעיבוד בקשת התחברות: " + e.getMessage());
+            System.err.println("Error processing login request: " + e.getMessage());
             sendJsonResponse(session, new LoginRejectedResponse("Invalid JSON format"));
         }
     }

@@ -93,8 +93,6 @@ public class GameEngine {
             return new MoveRequest(MoveStatus.OUT_OF_BOUNDS, false);
         }
 
-        // 🛑 אין כלי במשבצת המקור - אין מה לוודא/להזיז. בלי הבדיקה הזו כל שאר
-        // הקוד למטה מניח piece != null ומתרסק ב-NullPointerException.
         if (piece == null) {
             return new MoveRequest(MoveStatus.INVALID_MOVE, false);
         }
@@ -134,9 +132,6 @@ public class GameEngine {
     public synchronized void arrivedPiece(MovingPiece finished) {
         Piece piece = finished.getPiece();
 
-        // ייתכן שהכלי הזה כבר נאכל (הוסר מהלוח) ע"י arrivedPiece אחר
-        // שעובד באותו tick - למשל אם כלי אחר "נחת" על המשבצת שלו לפני
-        // שהגענו לעבד את ה-entry שלו כאן. במקרה כזה אין מה לעבד יותר.
         if (piece.getSquare() == null) {
             return;
         }
@@ -147,10 +142,11 @@ public class GameEngine {
 
         if (targetPiece != null && targetPiece.getState() != State.JUMPING) {
             board.removePiece(targetPiece);
-            notifyCaptureListeners(targetPiece.getType(), piece.getColor());
+
             if (targetPiece.getType() == 'K') {
                 isGameOver = true;
             }
+            notifyCaptureListeners(targetPiece.getType(), piece.getColor());
         }
         if(piece.getState() == State.JUMPING){
             piece.setState(State.SHORT_REST);

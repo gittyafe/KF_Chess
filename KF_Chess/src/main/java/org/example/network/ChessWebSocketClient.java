@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.example.bus.GameEventBus;
 import org.example.engines.GameSnapshot;
@@ -22,17 +25,39 @@ public class ChessWebSocketClient implements WebSocket.Listener {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final StringBuilder messageBuffer = new StringBuilder();
 
-    // שמירת הנתונים במקרה והחיבור אסינכרוני וטרם נפתח ה-Socket
     private volatile String pendingUsername;
     private volatile String pendingPassword;
-    private volatile String pendingRoomId;
+
+    private volatile String currentUsername;
+    private volatile String currentPassword;
+
+    // Remembered so we can transparently reconnect after a dropped socket.
+    private volatile String serverUrl;
+    // True once we've successfully logged in at least once -- distinguishes
+    // "first connect, about to log in" from "we were mid-game and dropped".
+    private volatile boolean hasLoggedInBefore = false;
+    // Guards against piling up multiple concurrent reconnect-retry loops.
+    private volatile boolean reconnecting = false;
+
+    private final ScheduledExecutorService reconnectScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread t = new Thread(r, "chess-reconnect");
+        t.setDaemon(true);
+        return t;
+    });
+    private static final int RECONNECT_RETRY_DELAY_SECONDS = 2;
+    private static final int RECONNECT_MAX_ATTEMPTS = 10; // ~20s, matching the server's disconnect grace window
 
     public ChessWebSocketClient() {}
 
     public void connect(String serverUrl) {
+        this.serverUrl = serverUrl;
         HttpClient.newHttpClient().newWebSocketBuilder()
                 .buildAsync(URI.create(serverUrl), this)
-                .thenAccept(ws -> this.webSocket = ws);
+                .thenAccept(ws -> this.webSocket = ws)
+                .exceptionally(ex -> {
+                    System.err.println("Failed to connect: " + ex.getMessage());
+                    return null;
+                });
     }
 
     public void sendMoveCommand(String command) {
@@ -45,21 +70,15 @@ public class ChessWebSocketClient implements WebSocket.Listener {
         if (webSocket != null && !webSocket.isOutputClosed()) {
             doSendLogin(username, password);
         } else {
-            // 🟢 אם ה-Socket עדיין בלייב התחברות, נשמור את הפרטים ונשלח מיד כשייפתח (ב-onOpen)!
             this.pendingUsername = username;
             this.pendingPassword = password;
         }
     }
 
-
-    private volatile String currentUsername;
-    private volatile String currentPassword;
-
-    // עדכון המתודה doSendLogin שתשמור אותם:
     private void doSendLogin(String username, String password) {
         try {
-            this.currentUsername = username; // 🟢 שמירת שם המשתמש
-            this.currentPassword = password; // 🟢 שמירת הסיסמה
+            this.currentUsername = username;
+            this.currentPassword = password;
 
             Map<String, String> payload = Map.of(
                     "type", "LOGIN",
@@ -68,7 +87,24 @@ public class ChessWebSocketClient implements WebSocket.Listener {
             );
             webSocket.sendText(objectMapper.writeValueAsString(payload), true);
         } catch (Exception e) {
-            System.err.println("❌ שגיאה בשליחת בקשת LOGIN: " + e.getMessage());
+            System.err.println("Error sending LOGIN request: " + e.getMessage());
+        }
+    }
+
+    private void sendReconnect() {
+        if (webSocket == null || webSocket.isOutputClosed() || currentUsername == null || currentPassword == null) {
+            return;
+        }
+        try {
+            Map<String, String> payload = Map.of(
+                    "type", "RECONNECT",
+                    "username", currentUsername,
+                    "password", currentPassword
+            );
+            webSocket.sendText(objectMapper.writeValueAsString(payload), true);
+            System.out.println("Sent RECONNECT for user: " + currentUsername);
+        } catch (Exception e) {
+            System.err.println("Error sending RECONNECT: " + e.getMessage());
         }
     }
 
@@ -76,12 +112,10 @@ public class ChessWebSocketClient implements WebSocket.Listener {
         sendJoinPayload("JOIN_ROOM", roomId);
     }
 
-    // שליחה אוטומטית בעקבות MATCH_FOUND
     public void sendJoinMatch(String roomId) {
         sendJoinPayload("JOIN_MATCH", roomId);
     }
 
-    // מתודת עזר משותפת לשליחה
     private void sendJoinPayload(String type, String roomId) {
         if (webSocket != null && !webSocket.isOutputClosed()) {
             try {
@@ -92,13 +126,12 @@ public class ChessWebSocketClient implements WebSocket.Listener {
                         "password", this.currentPassword != null ? this.currentPassword : ""
                 );
                 webSocket.sendText(objectMapper.writeValueAsString(payload), true);
-                System.out.println("📤 Sent " + type + " for room: " + roomId);
+                System.out.println("Sent " + type + " for room: " + roomId);
             } catch (Exception e) {
-                System.err.println("❌ Error sending " + type + ": " + e.getMessage());
+                System.err.println("Error sending " + type + ": " + e.getMessage());
             }
         }
     }
-
 
     public void sendCreateRoom(String roomId) {
         if (webSocket != null && !webSocket.isOutputClosed()) {
@@ -110,26 +143,29 @@ public class ChessWebSocketClient implements WebSocket.Listener {
                         "password", this.currentPassword != null ? this.currentPassword : ""
                 );
                 webSocket.sendText(objectMapper.writeValueAsString(payload), true);
-                System.out.println("📤 Sent CREATE_ROOM for room: " + roomId);
+                System.out.println("Sent CREATE_ROOM for room: " + roomId);
             } catch (Exception e) {
-                System.err.println("❌ Error sending CREATE_ROOM: " + e.getMessage());
+                System.err.println("Error sending CREATE_ROOM: " + e.getMessage());
             }
         }
     }
 
     @Override
     public void onOpen(WebSocket webSocket) {
-        System.out.println("🔗 מחובר לשרת השחמט בהצלחה!");
+        System.out.println("Connected to chess server.");
         this.webSocket = webSocket;
+        this.reconnecting = false;
 
-        // 🟢 אם המשתמש לחץ Login עוד לפני שהתחברנו סופית:
         if (pendingUsername != null && pendingPassword != null) {
             String username = pendingUsername;
             String password = pendingPassword;
             pendingUsername = null;
             pendingPassword = null;
-
             doSendLogin(username, password);
+        } else if (hasLoggedInBefore && currentUsername != null && currentPassword != null) {
+            // We've logged in before and the socket just re-opened without a
+            // fresh login click -- this is a reconnect after a drop.
+            sendReconnect();
         }
 
         WebSocket.Listener.super.onOpen(webSocket);
@@ -159,20 +195,31 @@ public class ChessWebSocketClient implements WebSocket.Listener {
 
                     GameEventBus.getInstance().publish("BOARD_UPDATE_RECEIVED", snapshot);
                 }
-                // הוסיפי את זה בתוך onText() ב-ChessWebSocketClient.java
                 else if ("DISCONNECT_COUNTDOWN".equals(msgType)) {
                     int seconds = ((Number) root.get("seconds")).intValue();
-                    System.out.println("⚠️ Received DISCONNECT_COUNTDOWN from server: " + seconds + "s");
+                    System.out.println("Received DISCONNECT_COUNTDOWN from server: " + seconds + "s");
                     GameEventBus.getInstance().publish("DISCONNECT_COUNTDOWN", seconds);
                 }
                 else if ("DISCONNECT_CANCELLED".equals(msgType)) {
-                    System.out.println("✅ Received DISCONNECT_CANCELLED from server");
+                    System.out.println("Received DISCONNECT_CANCELLED from server");
                     GameEventBus.getInstance().publish("DISCONNECT_CANCELLED", null);
+                }
+                else if ("RECONNECT_ACCEPTED".equals(msgType)) {
+                    String username = (String) root.get("username");
+                    char color = ((String) root.get("color")).charAt(0);
+                    int rating = ((Number) root.get("rating")).intValue();
+                    System.out.println("Reconnected successfully as " + username);
+                    GameEventBus.getInstance().publish("RECONNECT_ACCEPTED", new Object[]{ username, color, rating });
+                }
+                else if ("RECONNECT_REJECTED".equals(msgType)) {
+                    String reason = (String) root.get("reason");
+                    System.err.println("Reconnect rejected: " + reason);
+                    GameEventBus.getInstance().publish("RECONNECT_REJECTED", reason);
                 }
                 else if ("GAME_OVER".equals(msgType)) {
                     String winner = (String) root.get("winner");
-                    String reason = (String) root.get("reason"); // אופציונלי: למשל "CHECKMATE" או "RESIGN_DISCONNECT"
-                    System.out.println("🏆 Game Over received. Winner: " + winner);
+                    String reason = (String) root.get("reason");
+                    System.out.println("Game Over received. Winner: " + winner);
                     Object[] gameOverPayload = new Object[]{ winner, reason };
                     GameEventBus.getInstance().publish("GAME_OVER", gameOverPayload);
                 }
@@ -233,7 +280,7 @@ public class ChessWebSocketClient implements WebSocket.Listener {
                     String roomId = (String) root.get("roomId");
                     String opponent = (String) root.get("opponent");
 
-                    System.out.println("⚔️ Match found! Room: " + roomId + " against " + opponent);
+                    System.out.println("Match found! Room: " + roomId + " against " + opponent);
 
                     sendJoinMatch(roomId);
 
@@ -243,21 +290,20 @@ public class ChessWebSocketClient implements WebSocket.Listener {
                 else if ("LOGIN_SUCCESS".equals(msgType)) {
                     String username = (String) root.get("username");
 
-                    // אם השרת החזיר פרטים נוספים (כמו color או rating), נשמור אותם
                     Object colorObj = root.get("color");
                     char color = (colorObj != null) ? ((String) colorObj).charAt(0) : 'W';
 
                     Object ratingObj = root.get("rating");
                     int rating = (ratingObj != null) ? ((Number) ratingObj).intValue() : 1200;
 
-                    Object[] joinPayload = new Object[]{ username, color, rating };
+                    hasLoggedInBefore = true;
 
-                    // 🟢 מפיצים את אירוע ההתחברות המוצלחת לכל מי שמקשיב ב-UI!
+                    Object[] joinPayload = new Object[]{ username, color, rating };
                     GameEventBus.getInstance().publish("LOGIN_SUCCESS", joinPayload);
                 }
 
             } catch (Exception e) {
-                System.err.println("❌ שגיאה בעיבוד הודעת רשת: " + e.getMessage());
+                System.err.println("Error processing network message: " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -306,8 +352,55 @@ public class ChessWebSocketClient implements WebSocket.Listener {
 
     @Override
     public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
-        System.out.println("🔌 החיבור לשרת נסגר: " + reason);
+        System.out.println("Connection to server closed: " + reason);
+        triggerAutoReconnect();
         return null;
+    }
+
+    @Override
+    public void onError(WebSocket webSocket, Throwable error) {
+        System.err.println("WebSocket error: " + error.getMessage());
+        triggerAutoReconnect();
+        WebSocket.Listener.super.onError(webSocket, error);
+    }
+
+    /** Only try to auto-reconnect if we'd actually logged in before -- otherwise
+     *  this is just the initial (never-connected) state, or the user hasn't
+     *  started a session yet. Safe to call from both onClose and onError since
+     *  it's idempotent (guarded by `reconnecting`). */
+    private synchronized void triggerAutoReconnect() {
+        if (hasLoggedInBefore && currentUsername != null && !reconnecting) {
+            reconnecting = true;
+            scheduleReconnectAttempt(1);
+        }
+    }
+
+    private void scheduleReconnectAttempt(int attempt) {
+        if (attempt > RECONNECT_MAX_ATTEMPTS) {
+            System.err.println("Giving up reconnecting after " + RECONNECT_MAX_ATTEMPTS + " attempts.");
+            reconnecting = false;
+            GameEventBus.getInstance().publish("RECONNECT_REJECTED", "Could not reach server");
+            return;
+        }
+        reconnectScheduler.schedule(() -> {
+            System.out.println("Reconnect attempt " + attempt + "/" + RECONNECT_MAX_ATTEMPTS + "...");
+            if (webSocket != null && !webSocket.isOutputClosed()) {
+                // Already reconnected via another path.
+                reconnecting = false;
+                return;
+            }
+            try {
+                HttpClient.newHttpClient().newWebSocketBuilder()
+                        .buildAsync(URI.create(serverUrl), this)
+                        .thenAccept(ws -> this.webSocket = ws) // onOpen() fires sendReconnect()
+                        .exceptionally(ex -> {
+                            scheduleReconnectAttempt(attempt + 1);
+                            return null;
+                        });
+            } catch (Exception e) {
+                scheduleReconnectAttempt(attempt + 1);
+            }
+        }, RECONNECT_RETRY_DELAY_SECONDS, TimeUnit.SECONDS);
     }
 
     public void sendFindMatch() {
@@ -316,7 +409,7 @@ public class ChessWebSocketClient implements WebSocket.Listener {
                 Map<String, String> payload = Map.of("type", "FIND_MATCH");
                 webSocket.sendText(objectMapper.writeValueAsString(payload), true);
             } catch (Exception e) {
-                System.err.println("❌ שגיאה בשליחת FIND_MATCH: " + e.getMessage());
+                System.err.println("Error sending FIND_MATCH: " + e.getMessage());
             }
         }
     }
@@ -327,7 +420,7 @@ public class ChessWebSocketClient implements WebSocket.Listener {
                 Map<String, String> payload = Map.of("type", "CANCEL_MATCHMAKING");
                 webSocket.sendText(objectMapper.writeValueAsString(payload), true);
             } catch (Exception e) {
-                System.err.println("❌ שגיאה בשליחת CANCEL_MATCHMAKING: " + e.getMessage());
+                System.err.println("Error sending CANCEL_MATCHMAKING: " + e.getMessage());
             }
         }
     }

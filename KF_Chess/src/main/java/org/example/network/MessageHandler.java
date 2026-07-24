@@ -25,11 +25,12 @@ public class MessageHandler {
             WebSocketSession session,
             String payload,
             Map<String, GameRoom> rooms,
+            Map<String, GameRoom> usernameToRoom,
             Map<WebSocketSession, GameRoom> sessionToRoom,
             Map<WebSocketSession, PlayerInfo> players) {
 
         if (isJsonPayload(payload)) {
-            handleJsonMessage(session, payload, rooms, sessionToRoom, players);
+            handleJsonMessage(session, payload, rooms, usernameToRoom, sessionToRoom, players);
         } else {
             handleGameCommand(session, payload, sessionToRoom, players);
         }
@@ -43,6 +44,7 @@ public class MessageHandler {
             WebSocketSession session,
             String payload,
             Map<String, GameRoom> rooms,
+            Map<String, GameRoom> usernameToRoom,
             Map<WebSocketSession, GameRoom> sessionToRoom,
             Map<WebSocketSession, PlayerInfo> players) {
         try {
@@ -52,16 +54,19 @@ public class MessageHandler {
 
             switch (type) {
                 case "LOGIN":
-                    authHandler.processLoginRequest(session, payload, players);
+                    authHandler.processLoginRequest(session, payload, usernameToRoom, sessionToRoom, players);
+                    break;
+                case "RECONNECT":
+                    authHandler.processReconnectRequest(session, payload, usernameToRoom, sessionToRoom, players);
                     break;
                 case "CREATE_ROOM":
-                    processCreateRoomRequest(session, root, rooms, sessionToRoom, players);
+                    processCreateRoomRequest(session, root, rooms, usernameToRoom, sessionToRoom, players);
                     break;
                 case "JOIN_ROOM":
-                    authHandler.processJoinRoomRequest(session, payload, rooms, sessionToRoom, players);
+                    authHandler.processJoinRoomRequest(session, payload, rooms, usernameToRoom, sessionToRoom, players);
                     break;
                 case "JOIN_MATCH":
-                    authHandler.processJoinMatchRequest(session, payload, rooms, sessionToRoom, players);
+                    authHandler.processJoinMatchRequest(session, payload, rooms, usernameToRoom, sessionToRoom, players);
                     break;
                 case "FIND_MATCH":
                     handleFindMatchRequest(session, players);
@@ -71,10 +76,10 @@ public class MessageHandler {
                     sendResponse(session, "{\"type\":\"MATCHMAKING_CANCELLED\"}");
                     break;
                 default:
-                    System.err.println("⚠️ Unknown JSON message type: " + type);
+                    System.err.println("Unknown JSON message type: " + type);
             }
         } catch (Exception e) {
-            System.err.println("❌ Error parsing JSON message: " + e.getMessage());
+            System.err.println("Error parsing JSON message: " + e.getMessage());
         }
     }
 
@@ -82,39 +87,43 @@ public class MessageHandler {
             WebSocketSession session,
             Map<String, Object> root,
             Map<String, GameRoom> rooms,
+            Map<String, GameRoom> usernameToRoom,
             Map<WebSocketSession, GameRoom> sessionToRoom,
             Map<WebSocketSession, PlayerInfo> players) {
 
         String roomId = root.get("roomId") != null ? root.get("roomId").toString().trim() : "";
         String username = root.get("username") != null ? root.get("username").toString().trim() : "";
 
-        // 1. בדיקת תקינות הקלט
         if (roomId.isEmpty()) {
             sendResponse(session, "{\"type\":\"CREATE_REJECTED\",\"message\":\"Room ID cannot be empty\"}");
             return;
         }
 
-        // 2. בדיקה האם החדר כבר קיים בשרת
         if (rooms.containsKey(roomId)) {
-            System.out.println("⚠️ Room creation failed: " + roomId + " already exists!");
+            System.out.println("Room creation failed: " + roomId + " already exists!");
             sendResponse(session, "{\"type\":\"CREATE_REJECTED\",\"message\":\"Room ID '" + roomId + "' is already taken. Choose another name.\"}");
             return;
         }
 
-        // 3. יצירת החדר, הוספתו למפות וחיבור היוצר כ-Player 1 (White)
         GameRoom newRoom = new GameRoom(roomId);
+        // Once this game ends for good, stop offering reconnects into it and
+        // drop it from the shared maps.
+        newRoom.setOnEnded(() -> {
+            rooms.remove(newRoom.getRoomId());
+            usernameToRoom.entrySet().removeIf(e -> e.getValue() == newRoom);
+        });
+
         rooms.put(roomId, newRoom);
         sessionToRoom.put(session, newRoom);
 
-        // שמירת מידע השחקן היוצר כ-White ('W')
-        players.put(session, new PlayerInfo(username, 'W'));
+        // GameRoom.addPlayer is the single source of truth for color
+        // assignment (previously this line hardcoded 'W' independently).
+        GameRoom.JoinResult result = newRoom.addPlayer(session, username);
+        players.put(session, new PlayerInfo(username, result.color()));
+        usernameToRoom.put(username, newRoom);
 
-        // הוספת השחקן ל-GameRoom
-        newRoom.addPlayer(session, username);
+        System.out.println("Room created successfully: [" + roomId + "] by user: " + username);
 
-        System.out.println("✅ Room created successfully: [" + roomId + "] by user: " + username);
-
-        // 4. החזרת תשובת CREATE_ACCEPTED ליוצר החדר
         sendResponse(session, "{\"type\":\"CREATE_ACCEPTED\",\"roomId\":\"" + roomId + "\",\"message\":\"Room created successfully. Waiting for opponent.\"}");
     }
 
@@ -215,7 +224,7 @@ public class MessageHandler {
                 session.sendMessage(new TextMessage(text));
             }
         } catch (Exception e) {
-            System.err.println("❌ Error sending WebSocket response: " + e.getMessage());
+            System.err.println("Error sending WebSocket response: " + e.getMessage());
         }
     }
 }

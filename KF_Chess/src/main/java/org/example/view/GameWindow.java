@@ -118,12 +118,12 @@ public class GameWindow {
 
         String message;
         if (winner != null && !winner.isBlank()) {
-            message = "🏆 GAME OVER! 🏆\n\nWinner: " + winner;
+            message = "GAME OVER!\n\nWinner: " + winner;
             if ("RESIGN_DISCONNECT".equals(reason)) {
                 message += "\n(Opponent disconnected and timed out)";
             }
         } else {
-            message = "🤝 GAME OVER!\n\nIt's a Draw!";
+            message = "GAME OVER!\n\nIt's a Draw!";
         }
         JOptionPane.showMessageDialog(
                 frame,

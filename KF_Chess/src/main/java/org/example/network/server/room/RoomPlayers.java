@@ -89,6 +89,15 @@ public class RoomPlayers {
         return null;
     }
 
+    public boolean isSpectator(WebSocketSession session) {
+        if (session == null) return false;
+
+        boolean isWhite = session.equals(whiteSession);
+        boolean isBlack = session.equals(blackSession);
+
+        return !isWhite && !isBlack;
+    }
+
     public boolean isStarted() { return started; }
     public String getWhiteUsername() { return whiteUsername; }
     public String getBlackUsername() { return blackUsername; }

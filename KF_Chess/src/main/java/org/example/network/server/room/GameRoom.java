@@ -215,6 +215,10 @@ public class GameRoom {
         return true;
     }
 
+    public boolean isSpectator(WebSocketSession session) {
+        return players.isSpectator(session);
+    }
+
     public char getColorForUsername(String username) { return players.getColorForUsername(username); }
 
     public void removeSession(WebSocketSession session) { players.removeSession(session); }

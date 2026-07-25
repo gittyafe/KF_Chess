@@ -43,6 +43,11 @@ public class ChessWebSocketHandler extends TextWebSocketHandler {
 
         room.removeSession(session);
 
+        if (room.isSpectator(session)){
+            log.info("[SERVER OUT] Spectator disconnected from room " + room.getRoomId());
+            return;
+        }
+
         if (room.isStarted() && !room.isEnded()) {
             // Deliberately do NOT remove the room here. GameRoom keeps its
             // loop/scheduler alive for a grace period so the player can

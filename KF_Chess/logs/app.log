@@ -164,3 +164,368 @@
 2026-07-26 01:24:25.045 [http-nio-8080-exec-9] INFO  o.e.n.s.c.ChessWebSocketHandler - [SERVER OUT] Player disconnected! Starting resign countdown...
 2026-07-26 01:24:25.049 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: 20s
 2026-07-26 01:24:25.049 [HttpClient-1-Worker-1] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: 20s
+2026-07-26 01:24:45.062 [pool-6-thread-1] INFO  o.e.n.s.g.DisconnectCountdownManager - [SERVER OUT] Player timed out. Winner: null
+2026-07-26 01:24:45.062 [pool-6-thread-1] INFO  o.e.network.server.room.GameRoom - [SERVER OUT] GAME OVER in room [match_bfcff021]. Winner: null (RESIGN_DISCONNECT)
+2026-07-26 01:24:45.062 [pool-6-thread-1] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [match_bfcff021] Game Loop Ended!
+2026-07-26 01:24:45.067 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Game Over received. Winner: 
+2026-07-26 01:24:45.067 [HttpClient-1-Worker-1] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Game Over received. Winner: 
+2026-07-26 01:24:45.069 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_CANCELLED from server
+2026-07-26 01:24:45.071 [HttpClient-1-Worker-1] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_CANCELLED from server
+2026-07-26 01:27:46.847 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:27:46.892 [http-nio-8080-exec-4] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1241) logged in successfully
+2026-07-26 01:27:46.929 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as a with color W and rating 1241
+2026-07-26 01:27:46.932 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: a
+2026-07-26 01:27:48.397 [http-nio-8080-exec-3] INFO  o.e.n.server.room.MatchmakingManager - [SERVER OUT] User a (1241 ELO) entered matchmaking queue.
+2026-07-26 01:27:55.779 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:27:55.820 [http-nio-8080-exec-7] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1159) logged in successfully
+2026-07-26 01:27:55.856 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as z with color W and rating 1159
+2026-07-26 01:27:55.858 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: z
+2026-07-26 01:27:56.807 [http-nio-8080-exec-8] INFO  o.e.n.server.room.MatchmakingManager - [SERVER OUT] User z (1159 ELO) entered matchmaking queue.
+2026-07-26 01:27:57.192 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Match found! Room: match_999f9789 against a
+2026-07-26 01:27:57.194 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Match found! Room: match_999f9789 against z
+2026-07-26 01:27:57.196 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Match found! Closing lobby...
+2026-07-26 01:27:57.213 [http-nio-8080-exec-6] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 1 (White) joined room [match_999f9789]: z
+2026-07-26 01:27:57.214 [http-nio-8080-exec-6] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1159) joined Room match_999f9789 as WHITE
+2026-07-26 01:27:57.215 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Match found! Closing lobby...
+2026-07-26 01:27:57.216 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [z, W, 1159]
+2026-07-26 01:27:57.218 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-26 01:27:57.219 [http-nio-8080-exec-9] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 2 (Black) joined room [match_999f9789]: a
+2026-07-26 01:27:57.221 [http-nio-8080-exec-9] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [match_999f9789] Game Loop Started!
+2026-07-26 01:27:57.222 [http-nio-8080-exec-9] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1241) joined Room match_999f9789 as BLACK
+2026-07-26 01:27:57.339 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: a
+2026-07-26 01:27:57.340 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: a
+2026-07-26 01:27:57.351 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [a, B, 1241]
+2026-07-26 01:27:57.689 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-26 01:28:08.933 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:28:08.978 [http-nio-8080-exec-1] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User s (1184) logged in successfully
+2026-07-26 01:28:09.014 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as s with color W and rating 1184
+2026-07-26 01:28:09.016 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: s
+2026-07-26 01:28:20.951 [http-nio-8080-exec-2] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Spectator joined room [match_999f9789]: s
+2026-07-26 01:28:20.953 [http-nio-8080-exec-2] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User s (1184) joined Room match_999f9789 as SPECTATOR
+2026-07-26 01:28:20.953 [ForkJoinPool.commonPool-worker-2] ERROR o.e.n.server.room.RoomMessenger - [SERVER ERROR] Error sending state to spectator: The remote endpoint was in state [TEXT_PARTIAL_WRITING] which is an invalid state for called method
+2026-07-26 01:28:20.953 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [s, -, 1184]
+2026-07-26 01:28:20.955 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-26 01:28:22.989 [http-nio-8080-exec-4] INFO  o.e.n.s.c.ChessWebSocketHandler - [SERVER OUT] Player disconnected! Starting resign countdown...
+2026-07-26 01:28:22.993 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: 20s
+2026-07-26 01:28:22.995 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: 20s
+2026-07-26 01:28:42.996 [pool-7-thread-1] INFO  o.e.n.s.g.DisconnectCountdownManager - [SERVER OUT] Player timed out. Winner: null
+2026-07-26 01:28:42.996 [pool-7-thread-1] INFO  o.e.network.server.room.GameRoom - [SERVER OUT] GAME OVER in room [match_999f9789]. Winner: null (RESIGN_DISCONNECT)
+2026-07-26 01:28:42.998 [pool-7-thread-1] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [match_999f9789] Game Loop Ended!
+2026-07-26 01:28:42.998 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Game Over received. Winner: 
+2026-07-26 01:28:42.998 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Game Over received. Winner: 
+2026-07-26 01:28:43.000 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_CANCELLED from server
+2026-07-26 01:28:43.000 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_CANCELLED from server
+2026-07-26 01:28:57.918 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:28:57.974 [http-nio-8080-exec-8] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1241) logged in successfully
+2026-07-26 01:28:58.022 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as a with color W and rating 1241
+2026-07-26 01:28:58.024 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: a
+2026-07-26 01:28:59.128 [http-nio-8080-exec-6] INFO  o.e.n.server.room.MatchmakingManager - [SERVER OUT] User a (1241 ELO) entered matchmaking queue.
+2026-07-26 01:29:07.916 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:29:07.962 [http-nio-8080-exec-10] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1159) logged in successfully
+2026-07-26 01:29:07.998 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as z with color W and rating 1159
+2026-07-26 01:29:07.999 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: z
+2026-07-26 01:29:09.162 [http-nio-8080-exec-1] INFO  o.e.n.server.room.MatchmakingManager - [SERVER OUT] User z (1159 ELO) entered matchmaking queue.
+2026-07-26 01:29:09.194 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Match found! Room: match_e91f535e against a
+2026-07-26 01:29:09.194 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Match found! Room: match_e91f535e against z
+2026-07-26 01:29:09.198 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Match found! Closing lobby...
+2026-07-26 01:29:09.199 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Match found! Closing lobby...
+2026-07-26 01:29:09.216 [http-nio-8080-exec-2] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 1 (White) joined room [match_e91f535e]: z
+2026-07-26 01:29:09.217 [http-nio-8080-exec-2] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1159) joined Room match_e91f535e as WHITE
+2026-07-26 01:29:09.223 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [z, W, 1159]
+2026-07-26 01:29:09.234 [http-nio-8080-exec-4] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 2 (Black) joined room [match_e91f535e]: a
+2026-07-26 01:29:09.239 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-26 01:29:09.238 [http-nio-8080-exec-4] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [match_e91f535e] Game Loop Started!
+2026-07-26 01:29:09.247 [http-nio-8080-exec-4] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1241) joined Room match_e91f535e as BLACK
+2026-07-26 01:29:09.371 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: a
+2026-07-26 01:29:09.371 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: a
+2026-07-26 01:29:09.377 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [a, B, 1241]
+2026-07-26 01:29:09.710 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-26 01:29:26.014 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:29:26.058 [http-nio-8080-exec-5] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User s (1184) logged in successfully
+2026-07-26 01:29:26.092 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as s with color W and rating 1184
+2026-07-26 01:29:26.092 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: s
+2026-07-26 01:29:36.019 [http-nio-8080-exec-7] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Spectator joined room [match_e91f535e]: s
+2026-07-26 01:29:36.019 [http-nio-8080-exec-7] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User s (1184) joined Room match_e91f535e as SPECTATOR
+2026-07-26 01:29:36.021 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [s, -, 1184]
+2026-07-26 01:29:36.021 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-26 01:29:36.138 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: a
+2026-07-26 01:29:43.782 [http-nio-8080-exec-8] INFO  o.e.n.s.c.ChessWebSocketHandler - [SERVER OUT] Player disconnected! Starting resign countdown...
+2026-07-26 01:29:43.785 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: 20s
+2026-07-26 01:29:43.785 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: 20s
+2026-07-26 01:29:48.561 [http-nio-8080-exec-6] INFO  o.e.n.s.c.ChessWebSocketHandler - [SERVER OUT] Player disconnected! Starting resign countdown...
+2026-07-26 01:29:48.562 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: 20s
+2026-07-26 01:29:52.561 [http-nio-8080-exec-9] INFO  o.e.n.s.c.ChessWebSocketHandler - [SERVER OUT] Player disconnected! Starting resign countdown...
+2026-07-26 01:30:03.798 [pool-8-thread-1] INFO  o.e.n.s.g.DisconnectCountdownManager - [SERVER OUT] Player timed out. Winner: null
+2026-07-26 01:30:03.799 [pool-8-thread-1] INFO  o.e.network.server.room.GameRoom - [SERVER OUT] GAME OVER in room [match_e91f535e]. Winner: null (RESIGN_DISCONNECT)
+2026-07-26 01:30:03.801 [pool-8-thread-1] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [match_e91f535e] Game Loop Ended!
+2026-07-26 01:30:08.573 [pool-8-thread-1] INFO  o.e.n.s.g.DisconnectCountdownManager - [SERVER OUT] Player timed out. Winner: z
+2026-07-26 01:44:53.173 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:44:53.222 [http-nio-8080-exec-1] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1241) logged in successfully
+2026-07-26 01:44:53.269 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as a with color W and rating 1241
+2026-07-26 01:44:53.272 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: a
+2026-07-26 01:44:53.725 [http-nio-8080-exec-2] INFO  o.e.n.server.room.MatchmakingManager - [SERVER OUT] User a (1241 ELO) entered matchmaking queue.
+2026-07-26 01:45:03.733 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:45:03.786 [http-nio-8080-exec-3] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1159) logged in successfully
+2026-07-26 01:45:03.833 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as z with color W and rating 1159
+2026-07-26 01:45:03.836 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: z
+2026-07-26 01:45:04.513 [http-nio-8080-exec-5] INFO  o.e.n.server.room.MatchmakingManager - [SERVER OUT] User z (1159 ELO) entered matchmaking queue.
+2026-07-26 01:45:05.184 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Match found! Room: match_5c675992 against a
+2026-07-26 01:45:05.184 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Match found! Room: match_5c675992 against z
+2026-07-26 01:45:05.189 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Match found! Closing lobby...
+2026-07-26 01:45:05.192 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Match found! Closing lobby...
+2026-07-26 01:45:05.205 [http-nio-8080-exec-7] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 1 (White) joined room [match_5c675992]: z
+2026-07-26 01:45:05.207 [http-nio-8080-exec-7] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1159) joined Room match_5c675992 as WHITE
+2026-07-26 01:45:05.213 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [z, W, 1159]
+2026-07-26 01:45:05.219 [http-nio-8080-exec-8] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 2 (Black) joined room [match_5c675992]: a
+2026-07-26 01:45:05.222 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-26 01:45:05.229 [http-nio-8080-exec-8] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [match_5c675992] Game Loop Started!
+2026-07-26 01:45:05.236 [http-nio-8080-exec-8] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1241) joined Room match_5c675992 as BLACK
+2026-07-26 01:45:05.366 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: a
+2026-07-26 01:45:05.367 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: a
+2026-07-26 01:45:05.369 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [a, B, 1241]
+2026-07-26 01:45:05.771 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-26 01:45:17.975 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:45:18.026 [http-nio-8080-exec-9] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User s (1184) logged in successfully
+2026-07-26 01:45:18.068 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as s with color W and rating 1184
+2026-07-26 01:45:18.070 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: s
+2026-07-26 01:45:21.612 [http-nio-8080-exec-10] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Spectator joined room [match_5c675992]: s
+2026-07-26 01:45:21.612 [http-nio-8080-exec-10] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User s (1184) joined Room match_5c675992 as SPECTATOR
+2026-07-26 01:45:21.614 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [s, -, 1184]
+2026-07-26 01:45:21.614 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-26 01:45:21.766 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: a
+2026-07-26 01:45:24.740 [http-nio-8080-exec-1] INFO  o.e.n.s.c.ChessWebSocketHandler - [SERVER OUT] Player disconnected! Starting resign countdown...
+2026-07-26 01:45:24.743 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: 20s
+2026-07-26 01:45:24.743 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: 20s
+2026-07-26 01:45:37.645 [http-nio-8080-exec-2] INFO  o.e.n.s.c.ChessWebSocketHandler - [SERVER OUT] Player disconnected! Starting resign countdown...
+2026-07-26 01:45:37.647 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: 20s
+2026-07-26 01:45:38.737 [http-nio-8080-exec-4] INFO  o.e.n.s.c.ChessWebSocketHandler - [SERVER OUT] Player disconnected! Starting resign countdown...
+2026-07-26 01:45:44.751 [pool-9-thread-1] INFO  o.e.n.s.g.DisconnectCountdownManager - [SERVER OUT] Player timed out. Winner: null
+2026-07-26 01:45:44.751 [pool-9-thread-1] INFO  o.e.network.server.room.GameRoom - [SERVER OUT] GAME OVER in room [match_5c675992]. Winner: null (RESIGN_DISCONNECT)
+2026-07-26 01:45:44.753 [pool-9-thread-1] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [match_5c675992] Game Loop Ended!
+2026-07-26 01:45:57.657 [pool-9-thread-1] INFO  o.e.n.s.g.DisconnectCountdownManager - [SERVER OUT] Player timed out. Winner: a
+2026-07-26 01:47:23.673 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:47:23.725 [http-nio-8080-exec-5] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1241) logged in successfully
+2026-07-26 01:47:23.768 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as a with color W and rating 1241
+2026-07-26 01:47:23.768 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: a
+2026-07-26 01:47:25.896 [http-nio-8080-exec-7] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 1 (White) joined room [1]: a
+2026-07-26 01:47:25.896 [http-nio-8080-exec-7] INFO  o.e.n.s.connection.MessageHandler - [SERVER OUT] Room created successfully: [1] by user: a
+2026-07-26 01:47:35.234 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:47:35.281 [http-nio-8080-exec-6] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1159) logged in successfully
+2026-07-26 01:47:35.324 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as z with color W and rating 1159
+2026-07-26 01:47:35.326 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: z
+2026-07-26 01:47:37.947 [http-nio-8080-exec-9] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 2 (Black) joined room [1]: z
+2026-07-26 01:47:37.951 [http-nio-8080-exec-9] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [1] Game Loop Started!
+2026-07-26 01:47:37.952 [http-nio-8080-exec-9] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1159) joined Room 1 as BLACK
+2026-07-26 01:47:38.088 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: a | Black: z
+2026-07-26 01:47:38.091 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [z, B, 1159]
+2026-07-26 01:47:38.112 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: a | Black: z
+2026-07-26 01:47:38.213 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-26 01:47:51.218 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:47:51.263 [http-nio-8080-exec-1] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User s (1184) logged in successfully
+2026-07-26 01:47:51.310 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as s with color W and rating 1184
+2026-07-26 01:47:51.314 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: s
+2026-07-26 01:47:53.584 [http-nio-8080-exec-2] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Spectator joined room [1]: s
+2026-07-26 01:47:53.584 [http-nio-8080-exec-2] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User s (1184) joined Room 1 as SPECTATOR
+2026-07-26 01:47:53.587 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [s, -, 1184]
+2026-07-26 01:47:53.590 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-26 01:47:53.699 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: a | Black: z
+2026-07-26 01:47:56.271 [http-nio-8080-exec-4] INFO  o.e.n.s.c.ChessWebSocketHandler - [SERVER OUT] Player disconnected! Starting resign countdown...
+2026-07-26 01:47:56.273 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: 20s
+2026-07-26 01:47:56.273 [HttpClient-1-Worker-1] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: 20s
+2026-07-26 01:48:16.274 [pool-10-thread-1] INFO  o.e.n.s.g.DisconnectCountdownManager - [SERVER OUT] Player timed out. Winner: null
+2026-07-26 01:48:16.274 [pool-10-thread-1] INFO  o.e.network.server.room.GameRoom - [SERVER OUT] GAME OVER in room [1]. Winner: null (RESIGN_DISCONNECT)
+2026-07-26 01:48:16.276 [pool-10-thread-1] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [1] Game Loop Ended!
+2026-07-26 01:48:16.276 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Game Over received. Winner: 
+2026-07-26 01:48:16.277 [HttpClient-1-Worker-1] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Game Over received. Winner: 
+2026-07-26 01:48:16.281 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_CANCELLED from server
+2026-07-26 01:48:16.281 [HttpClient-1-Worker-1] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_CANCELLED from server
+2026-07-26 01:51:33.018 [main] INFO  o.e.n.s.connection.ServerApplication - Starting ServerApplication using Java 22.0.2 with PID 17960 (C:\Users\user\Desktop\kfchess\KF_Chess\target\classes started by user in C:\Users\user\Desktop\kfchess\KF_Chess)
+2026-07-26 01:51:33.021 [main] INFO  o.e.n.s.connection.ServerApplication - No active profile set, falling back to 1 default profile: "default"
+2026-07-26 01:51:34.397 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-07-26 01:51:34.413 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-07-26 01:51:34.420 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-07-26 01:51:34.420 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.30]
+2026-07-26 01:51:34.503 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-07-26 01:51:34.504 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1411 ms
+2026-07-26 01:51:35.004 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-07-26 01:51:35.033 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-07-26 01:51:35.047 [main] INFO  o.e.n.s.connection.ServerApplication - Started ServerApplication in 2.641 seconds (process running for 3.586)
+2026-07-26 01:51:43.128 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-26 01:51:43.129 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-07-26 01:51:43.131 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2026-07-26 01:51:43.280 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:51:43.789 [http-nio-8080-exec-2] INFO  o.example.database.DatabaseManager - [SQLite OUT] DB initialized successfully.
+2026-07-26 01:51:43.817 [http-nio-8080-exec-2] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1241) logged in successfully
+2026-07-26 01:51:43.899 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as a with color W and rating 1241
+2026-07-26 01:51:43.901 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: a
+2026-07-26 01:51:47.038 [http-nio-8080-exec-3] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 1 (White) joined room [1]: a
+2026-07-26 01:51:47.044 [http-nio-8080-exec-3] INFO  o.e.n.s.connection.MessageHandler - [SERVER OUT] Room created successfully: [1] by user: a
+2026-07-26 01:51:57.280 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:51:57.331 [http-nio-8080-exec-5] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1159) logged in successfully
+2026-07-26 01:51:57.371 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as z with color W and rating 1159
+2026-07-26 01:51:57.373 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: z
+2026-07-26 01:52:00.274 [http-nio-8080-exec-6] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 2 (Black) joined room [1]: z
+2026-07-26 01:52:00.285 [http-nio-8080-exec-6] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [1] Game Loop Started!
+2026-07-26 01:52:00.286 [http-nio-8080-exec-6] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1159) joined Room 1 as BLACK
+2026-07-26 01:52:00.408 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: a | Black: z
+2026-07-26 01:52:00.410 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [z, B, 1159]
+2026-07-26 01:52:00.448 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: a | Black: z
+2026-07-26 01:52:00.532 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-26 01:52:13.064 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:52:13.112 [http-nio-8080-exec-8] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User s (1184) logged in successfully
+2026-07-26 01:52:13.158 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as s with color W and rating 1184
+2026-07-26 01:52:13.160 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: s
+2026-07-26 01:52:15.780 [http-nio-8080-exec-9] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Spectator joined room [1]: s
+2026-07-26 01:52:15.786 [http-nio-8080-exec-9] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User s (1184) joined Room 1 as SPECTATOR
+2026-07-26 01:52:15.789 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [s, -, 1184]
+2026-07-26 01:52:15.791 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-26 01:52:15.909 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: a | Black: z
+2026-07-26 01:52:18.628 [http-nio-8080-exec-10] INFO  o.e.n.s.c.ChessWebSocketHandler - !Spectator disconnected from room 1
+2026-07-26 01:52:18.628 [http-nio-8080-exec-10] INFO  o.e.n.s.c.ChessWebSocketHandler - [SERVER OUT] Player disconnected! Starting resign countdown...
+2026-07-26 01:52:18.634 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: 20s
+2026-07-26 01:52:18.634 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: 20s
+2026-07-26 01:52:38.643 [pool-2-thread-1] INFO  o.e.n.s.g.DisconnectCountdownManager - [SERVER OUT] Player timed out. Winner: null
+2026-07-26 01:52:38.644 [pool-2-thread-1] INFO  o.e.network.server.room.GameRoom - [SERVER OUT] GAME OVER in room [1]. Winner: null (RESIGN_DISCONNECT)
+2026-07-26 01:52:38.648 [pool-2-thread-1] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [1] Game Loop Ended!
+2026-07-26 01:52:38.649 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Game Over received. Winner: 
+2026-07-26 01:52:38.649 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Game Over received. Winner: 
+2026-07-26 01:52:38.655 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_CANCELLED from server
+2026-07-26 01:52:38.655 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_CANCELLED from server
+2026-07-26 01:53:24.860 [HttpClient-1-Worker-0] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT IN] WebSocket closed with status 1006: 
+2026-07-26 01:53:24.860 [HttpClient-1-Worker-0] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT IN] WebSocket closed with status 1006: 
+2026-07-26 01:53:24.874 [SpringApplicationShutdownHook] INFO  o.e.n.s.c.ChessWebSocketHandler - !Player disconnected from room 1
+2026-07-26 01:53:24.874 [SpringApplicationShutdownHook] INFO  o.e.n.s.c.ChessWebSocketHandler - !Player disconnected from room 1
+2026-07-26 01:53:26.876 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 1 of 10
+2026-07-26 01:53:26.876 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 1 of 10
+2026-07-26 01:53:28.908 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 2 of 10
+2026-07-26 01:53:28.908 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 2 of 10
+2026-07-26 01:53:30.490 [main] INFO  o.e.n.s.connection.ServerApplication - Starting ServerApplication using Java 22.0.2 with PID 28640 (C:\Users\user\Desktop\kfchess\KF_Chess\target\classes started by user in C:\Users\user\Desktop\kfchess\KF_Chess)
+2026-07-26 01:53:30.495 [main] INFO  o.e.n.s.connection.ServerApplication - No active profile set, falling back to 1 default profile: "default"
+2026-07-26 01:53:30.955 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 3 of 10
+2026-07-26 01:53:30.955 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 3 of 10
+2026-07-26 01:53:31.892 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-07-26 01:53:31.913 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-07-26 01:53:31.919 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-07-26 01:53:31.919 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.30]
+2026-07-26 01:53:32.013 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-07-26 01:53:32.014 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1445 ms
+2026-07-26 01:53:32.689 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-07-26 01:53:32.726 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-07-26 01:53:32.744 [main] INFO  o.e.n.s.connection.ServerApplication - Started ServerApplication in 2.875 seconds (process running for 3.749)
+2026-07-26 01:53:32.973 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 4 of 10
+2026-07-26 01:53:33.061 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-26 01:53:33.061 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-07-26 01:53:33.063 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2026-07-26 01:53:33.135 [ForkJoinPool.commonPool-worker-2] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:53:33.392 [http-nio-8080-exec-1] INFO  o.example.database.DatabaseManager - [SQLite OUT] DB initialized successfully.
+2026-07-26 01:53:33.429 [HttpClient-5-Worker-2] ERROR o.e.n.client.ServerMessageDispatcher - [CLIENT ERROR] Reconnect rejected: No active game to reconnect to
+2026-07-26 01:53:39.469 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:53:39.507 [http-nio-8080-exec-4] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1241) logged in successfully
+2026-07-26 01:53:39.555 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as a with color W and rating 1241
+2026-07-26 01:53:39.555 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: a
+2026-07-26 01:53:41.472 [http-nio-8080-exec-6] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 1 (White) joined room [1]: a
+2026-07-26 01:53:41.480 [http-nio-8080-exec-6] INFO  o.e.n.s.connection.MessageHandler - [SERVER OUT] Room created successfully: [1] by user: a
+2026-07-26 01:53:50.463 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:53:50.501 [http-nio-8080-exec-7] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User s (1184) logged in successfully
+2026-07-26 01:53:50.544 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as s with color W and rating 1184
+2026-07-26 01:53:50.547 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: s
+2026-07-26 01:53:52.916 [http-nio-8080-exec-8] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 2 (Black) joined room [1]: s
+2026-07-26 01:53:52.927 [http-nio-8080-exec-8] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [1] Game Loop Started!
+2026-07-26 01:53:52.929 [http-nio-8080-exec-8] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User s (1184) joined Room 1 as BLACK
+2026-07-26 01:53:53.068 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: a | Black: s
+2026-07-26 01:53:53.071 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [s, B, 1184]
+2026-07-26 01:53:53.109 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: a | Black: s
+2026-07-26 01:53:53.197 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-26 01:54:05.113 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:54:05.165 [http-nio-8080-exec-10] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1159) logged in successfully
+2026-07-26 01:54:05.208 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as z with color W and rating 1159
+2026-07-26 01:54:05.211 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: z
+2026-07-26 01:54:08.017 [http-nio-8080-exec-1] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Spectator joined room [1]: z
+2026-07-26 01:54:08.021 [http-nio-8080-exec-1] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1159) joined Room 1 as SPECTATOR
+2026-07-26 01:54:08.022 [ForkJoinPool.commonPool-worker-1] ERROR o.e.n.server.room.RoomMessenger - [SERVER ERROR] Error sending state to spectator: The remote endpoint was in state [TEXT_PARTIAL_WRITING] which is an invalid state for called method
+2026-07-26 01:54:08.023 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [z, -, 1159]
+2026-07-26 01:54:08.025 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-26 01:54:10.043 [http-nio-8080-exec-3] INFO  o.e.n.s.c.ChessWebSocketHandler - [SERVER OUT] Spectator disconnected from room 1
+2026-07-26 01:54:34.573 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:54:34.662 [http-nio-8080-exec-6] INFO  org.example.database.UserRepository - [SQLite OUT] Registered new user: zz (1200 ELO)
+2026-07-26 01:54:34.662 [http-nio-8080-exec-6] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User zz (1200) logged in successfully
+2026-07-26 01:54:34.700 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as zz with color W and rating 1200
+2026-07-26 01:54:34.700 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: zz
+2026-07-26 01:54:37.837 [http-nio-8080-exec-5] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Spectator joined room [1]: zz
+2026-07-26 01:54:37.841 [http-nio-8080-exec-5] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User zz (1200) joined Room 1 as SPECTATOR
+2026-07-26 01:54:37.841 [ForkJoinPool.commonPool-worker-2] ERROR o.e.n.server.room.RoomMessenger - [SERVER ERROR] Error sending state to spectator: The remote endpoint was in state [TEXT_PARTIAL_WRITING] which is an invalid state for called method
+2026-07-26 01:54:37.841 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [zz, -, 1200]
+2026-07-26 01:54:37.841 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-26 01:54:39.871 [http-nio-8080-exec-2] INFO  o.e.n.s.c.ChessWebSocketHandler - [SERVER OUT] Spectator disconnected from room 1
+2026-07-26 01:55:54.473 [pool-2-thread-1] INFO  o.e.n.s.c.ChessWebSocketHandler - [SERVER OUT] Player disconnected! Starting resign countdown...
+2026-07-26 01:55:54.474 [HttpClient-1-Worker-0] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT IN] WebSocket closed with status 1006: 
+2026-07-26 01:55:54.475 [HttpClient-1-Worker-0] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT IN] WebSocket closed with status 1006: 
+2026-07-26 01:55:54.481 [pool-2-thread-1] INFO  o.e.n.s.c.ChessWebSocketHandler - [SERVER OUT] Player disconnected! Starting resign countdown...
+2026-07-26 01:55:56.484 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 1 of 10
+2026-07-26 01:55:56.484 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 1 of 10
+2026-07-26 01:55:58.523 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 2 of 10
+2026-07-26 01:55:58.523 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 2 of 10
+2026-07-26 01:55:59.864 [main] INFO  o.e.n.s.connection.ServerApplication - Starting ServerApplication using Java 22.0.2 with PID 3712 (C:\Users\user\Desktop\kfchess\KF_Chess\target\classes started by user in C:\Users\user\Desktop\kfchess\KF_Chess)
+2026-07-26 01:55:59.867 [main] INFO  o.e.n.s.connection.ServerApplication - No active profile set, falling back to 1 default profile: "default"
+2026-07-26 01:56:00.546 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 3 of 10
+2026-07-26 01:56:00.546 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 3 of 10
+2026-07-26 01:56:01.327 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-07-26 01:56:01.345 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-07-26 01:56:01.353 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-07-26 01:56:01.353 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.30]
+2026-07-26 01:56:01.432 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-07-26 01:56:01.433 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1480 ms
+2026-07-26 01:56:02.450 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-07-26 01:56:02.539 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-07-26 01:56:02.563 [main] INFO  o.e.n.s.connection.ServerApplication - Started ServerApplication in 3.294 seconds (process running for 4.139)
+2026-07-26 01:56:02.573 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 4 of 10
+2026-07-26 01:56:02.573 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 4 of 10
+2026-07-26 01:56:02.767 [http-nio-8080-exec-2] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-26 01:56:02.767 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-07-26 01:56:02.770 [http-nio-8080-exec-2] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2026-07-26 01:56:02.896 [ForkJoinPool.commonPool-worker-2] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:56:02.899 [ForkJoinPool.commonPool-worker-2] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:56:03.292 [http-nio-8080-exec-1] INFO  o.example.database.DatabaseManager - [SQLite OUT] DB initialized successfully.
+2026-07-26 01:56:03.335 [HttpClient-5-Worker-2] ERROR o.e.n.client.ServerMessageDispatcher - [CLIENT ERROR] Reconnect rejected: No active game to reconnect to
+2026-07-26 01:56:03.336 [HttpClient-5-Worker-1] ERROR o.e.n.client.ServerMessageDispatcher - [CLIENT ERROR] Reconnect rejected: No active game to reconnect to
+2026-07-26 01:56:19.609 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:56:19.647 [http-nio-8080-exec-4] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1159) logged in successfully
+2026-07-26 01:56:19.690 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as z with color W and rating 1159
+2026-07-26 01:56:19.692 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: z
+2026-07-26 01:56:37.714 [http-nio-8080-exec-7] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 1 (White) joined room [1]: z
+2026-07-26 01:56:37.726 [http-nio-8080-exec-7] INFO  o.e.n.s.connection.MessageHandler - [SERVER OUT] Room created successfully: [1] by user: z
+2026-07-26 01:56:45.168 [http-nio-8080-exec-8] INFO  o.e.n.s.c.ChessWebSocketHandler - [SERVER OUT] Room 1 is abandoned and will be removed.
+2026-07-26 01:56:57.241 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:56:57.295 [http-nio-8080-exec-2] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1159) logged in successfully
+2026-07-26 01:56:57.324 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as z with color W and rating 1159
+2026-07-26 01:56:57.324 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: z
+2026-07-26 01:56:59.854 [http-nio-8080-exec-3] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 1 (White) joined room [1]: z
+2026-07-26 01:56:59.861 [http-nio-8080-exec-3] INFO  o.e.n.s.connection.MessageHandler - [SERVER OUT] Room created successfully: [1] by user: z
+2026-07-26 01:57:08.538 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:57:08.586 [http-nio-8080-exec-5] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1241) logged in successfully
+2026-07-26 01:57:08.622 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as a with color W and rating 1241
+2026-07-26 01:57:08.624 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: a
+2026-07-26 01:57:10.669 [http-nio-8080-exec-6] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 2 (Black) joined room [1]: a
+2026-07-26 01:57:10.683 [http-nio-8080-exec-6] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [1] Game Loop Started!
+2026-07-26 01:57:10.685 [http-nio-8080-exec-6] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1241) joined Room 1 as BLACK
+2026-07-26 01:57:10.808 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: a
+2026-07-26 01:57:10.810 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [a, B, 1241]
+2026-07-26 01:57:10.855 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: a
+2026-07-26 01:57:10.925 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-26 01:57:21.774 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-26 01:57:21.826 [http-nio-8080-exec-9] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User s (1184) logged in successfully
+2026-07-26 01:57:21.868 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as s with color W and rating 1184
+2026-07-26 01:57:21.868 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: s
+2026-07-26 01:57:24.654 [http-nio-8080-exec-8] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Spectator joined room [1]: s
+2026-07-26 01:57:24.659 [http-nio-8080-exec-8] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User s (1184) joined Room 1 as SPECTATOR
+2026-07-26 01:57:24.659 [http-nio-8080-exec-8] ERROR o.e.n.server.connection.AuthHandler - [SERVER ERROR] Error sending message to client: The remote endpoint was in state [TEXT_PARTIAL_WRITING] which is an invalid state for called method
+2026-07-26 01:57:24.744 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: a
+2026-07-26 01:57:29.826 [http-nio-8080-exec-10] INFO  o.e.n.s.c.ChessWebSocketHandler - [SERVER OUT] Spectator disconnected from room 1
+2026-07-26 01:57:42.241 [http-nio-8080-exec-2] INFO  o.e.n.s.c.ChessWebSocketHandler - [SERVER OUT] Player disconnected! Starting resign countdown...
+2026-07-26 01:57:42.244 [HttpClient-1-Worker-1] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: 20s
+2026-07-26 01:58:02.253 [pool-3-thread-1] INFO  o.e.n.s.g.DisconnectCountdownManager - [SERVER OUT] Player timed out. Winner: z
+2026-07-26 01:58:02.254 [pool-3-thread-1] INFO  o.e.network.server.room.GameRoom - [SERVER OUT] GAME OVER in room [1]. Winner: z (RESIGN_DISCONNECT)
+2026-07-26 01:58:02.326 [pool-3-thread-1] INFO  org.example.database.RatingService - [SERVER OUT] ELO Updated: z (1159) -> 1179) | a (1241 -> 1221)
+2026-07-26 01:58:02.326 [pool-3-thread-1] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [1] Game Loop Ended!
+2026-07-26 01:58:02.326 [HttpClient-1-Worker-1] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Game Over received. Winner: z
+2026-07-26 01:58:02.340 [HttpClient-1-Worker-1] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_CANCELLED from server

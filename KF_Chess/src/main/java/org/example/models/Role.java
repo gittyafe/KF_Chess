@@ -1,9 +1,9 @@
 package org.example.models;
 
 public enum Role {
-    WHITE("White Player ⚪"),
-    BLACK("Black Player ⬛"),
-    SPECTATOR("Spectator 👁️"),
+    WHITE("White Player"),
+    BLACK("Black Player"),
+    SPECTATOR("Spectator"),
     UNKNOWN("Waiting for role...");
 
     private final String displayName;

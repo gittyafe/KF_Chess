@@ -140,16 +140,16 @@ public class GameWindow {
         }
 
         final int[] remaining = {initialSeconds};
-        disconnectLabel.setText("⚠️ Opponent disconnected! Resigning in: " + remaining[0] + "s");
+        disconnectLabel.setText("Opponent disconnected! Resigning in: " + remaining[0] + "s");
         disconnectLabel.setVisible(true);
 
         uiCountdownTimer = new Timer(1000, e -> {
             remaining[0]--;
             if (remaining[0] > 0) {
-                disconnectLabel.setText("⚠️ Opponent disconnected! Resigning in: " + remaining[0] + "s");
+                disconnectLabel.setText("Opponent disconnected! Resigning in: " + remaining[0] + "s");
             } else {
                 ((Timer) e.getSource()).stop();
-                disconnectLabel.setText("⌛ Opponent timed out!");
+                disconnectLabel.setText("Opponent timed out!");
             }
         });
         uiCountdownTimer.start();
@@ -159,7 +159,7 @@ public class GameWindow {
         if (uiCountdownTimer != null && uiCountdownTimer.isRunning()) {
             uiCountdownTimer.stop();
         }
-        disconnectLabel.setText("✅ Opponent reconnected!");
+        disconnectLabel.setText("Opponent reconnected!");
         new Timer(2000, e -> {
             disconnectLabel.setVisible(false);
             ((Timer) e.getSource()).stop();
@@ -171,8 +171,7 @@ public class GameWindow {
      */
     public void updateRole(Role role) {
         SwingUtilities.invokeLater(() -> {
-            statusBoxLabel.setText("Your Role: " + role.getDisplayName());
-
+            statusBoxLabel.setText(role.getDisplayName());
             switch (role) {
                 case WHITE -> {
                     statusBoxLabel.setBackground(new Color(245, 245, 245));

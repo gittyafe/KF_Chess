@@ -1,5 +1,6 @@
 package org.example.app;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.example.bus.GameEventBus;
 import org.example.bus.GameWindowBusBridge;
@@ -24,7 +25,9 @@ public class GameLifecycleManager {
     private static volatile GameWindow activeWindow = null;
     private final AtomicBoolean isRendering = new AtomicBoolean(false);
 
+    @Setter
     private String currentUsername;
+    @Setter
     private String currentRoomId;
 
     public GameLifecycleManager(
@@ -38,14 +41,6 @@ public class GameLifecycleManager {
         this.historyManager = historyManager;
         this.scoreManager = scoreManager;
         this.controller = controller;
-    }
-
-    public void setCurrentUsername(String username) {
-        this.currentUsername = username;
-    }
-
-    public void setCurrentRoomId(String roomId) {
-        this.currentRoomId = roomId;
     }
 
     public void registerEventListeners() {

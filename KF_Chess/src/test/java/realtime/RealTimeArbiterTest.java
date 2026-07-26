@@ -1,9 +1,9 @@
 package realtime;
 
-import org.example.realtime.RealTimeArbiter;
 import org.example.models.Piece;
 import org.example.models.Position;
 import org.example.models.MovingPiece;
+import org.example.realtime.RealTimeArbiter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

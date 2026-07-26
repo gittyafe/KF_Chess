@@ -26,11 +26,11 @@ import org.example.models.State;
  * targetPosition were parsed with two separate copy-pasted blocks that
  * differed only by field name. They now share {@link #positionFromMap}.
  */
-final class GameSnapshotMapper {
+public final class GameSnapshotMapper {
 
     private GameSnapshotMapper() {}
 
-    static GameSnapshot fromMap(Map<String, Object> snapshotMap) {
+    public static GameSnapshot fromMap(Map<String, Object> snapshotMap) {
         List<PieceSnapshot> pieces = new ArrayList<>();
         List<Object> piecesList = asList(snapshotMap.get("pieces"));
 

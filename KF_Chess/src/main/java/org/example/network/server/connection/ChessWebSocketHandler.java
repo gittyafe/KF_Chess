@@ -27,7 +27,7 @@ public class ChessWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+    public void handleTextMessage(WebSocketSession session, TextMessage message) {
         String payload = message.getPayload();
         if (payload == null || payload.isBlank()) return;
 

@@ -1,8 +1,8 @@
 package engines;
 
 import org.example.engines.GameEngine;
-import org.example.realtime.RealTimeArbiter;
 import org.example.models.*;
+import org.example.realtime.RealTimeArbiter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

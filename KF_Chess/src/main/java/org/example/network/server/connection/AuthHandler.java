@@ -10,8 +10,6 @@ import org.example.network.server.room.RoomRegistry;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.util.Map;
-
 @Slf4j
 public class AuthHandler {
 

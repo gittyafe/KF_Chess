@@ -161,7 +161,7 @@ public class GameRoom {
         log.info("[SERVER OUT] GAME OVER in room [{}]. Winner: {} ({})", roomId, winner, reason);
 
         if (winner != null && loser != null) {
-            ratingService.applyGameResult(players.getWhiteUsername(), players.getBlackUsername(),
+            ratingService.applyGameResultAsync(players.getWhiteUsername(), players.getBlackUsername(),
                     winner.equals(players.getWhiteUsername()) ? 1.0 : 0.0);
         }
 

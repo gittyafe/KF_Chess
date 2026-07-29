@@ -1,13 +1,8 @@
 package org.example.database;
 
 import lombok.extern.slf4j.Slf4j;
+import java.util.concurrent.CompletableFuture;
 
-/**
- * Applies the outcome of a finished game to both players' ratings. Sits
- * between GameRoom (which knows *who* won) and UserRepository/EloCalculator
- * (which know how to persist a rating and how to compute one) -- neither of
- * those two should need to know about the other.
- */
 @Slf4j
 public class RatingService {
 
@@ -21,20 +16,31 @@ public class RatingService {
         this.userRepository = userRepository;
     }
 
-    /** @param whiteScore 1.0 if white won, 0.0 if black won, 0.5 for a draw */
-    public synchronized void applyGameResult(String whiteUser, String blackUser, double whiteScore) {
-        try {
-            int ratingW = userRepository.getRating(whiteUser);
-            int ratingB = userRepository.getRating(blackUser);
+    /**
+     * Non-blocking update of player ratings after a game.
+     */
+    public void applyGameResultAsync(String whiteUser, String blackUser, double whiteScore) {
+        CompletableFuture<Integer> whiteRatingFuture = userRepository.getRatingAsync(whiteUser);
+        CompletableFuture<Integer> blackRatingFuture = userRepository.getRatingAsync(blackUser);
 
-            EloCalculator.EloResult result = EloCalculator.calculateNewRatings(ratingW, ratingB, whiteScore);
+        // ממתינים לקבלת שני הדירוגים אסינכרונית, ומחשבים ELO
+        CompletableFuture.allOf(whiteRatingFuture, blackRatingFuture)
+                .thenRunAsync(() -> {
+                    try {
+                        int ratingW = whiteRatingFuture.join();
+                        int ratingB = blackRatingFuture.join();
 
-            userRepository.updateRating(whiteUser, result.newRatingA());
-            userRepository.updateRating(blackUser, result.newRatingB());
+                        EloCalculator.EloResult result = EloCalculator.calculateNewRatings(ratingW, ratingB, whiteScore);
 
-            log.info("[SERVER OUT] ELO Updated: {} ({}) -> {}) | {} ({} -> {})", whiteUser, ratingW, result.newRatingA(), blackUser, ratingB, result.newRatingB());
-        } catch (Exception e) {
-            log.error("[SERVER ERROR] Failed to update DB ratings: {}", e.getMessage());
-        }
+                        // עדכון ה-DB ברקע
+                        userRepository.updateRatingAsync(whiteUser, result.newRatingA());
+                        userRepository.updateRatingAsync(blackUser, result.newRatingB());
+
+                        log.info("[SERVER OUT] ELO Updated Async: {} ({}) -> {}) | {} ({} -> {})",
+                                whiteUser, ratingW, result.newRatingA(), blackUser, ratingB, result.newRatingB());
+                    } catch (Exception e) {
+                        log.error("[SERVER ERROR] Failed to update DB ratings async: {}", e.getMessage());
+                    }
+                });
     }
 }

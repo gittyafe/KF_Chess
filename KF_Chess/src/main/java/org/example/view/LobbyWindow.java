@@ -96,7 +96,7 @@ public class LobbyWindow {
         styleField(userField);
         styleField(passField);
 
-        JButton btnLogin = primaryButton("Login");
+        JButton btnLogin = primaryButton("Login / Register");
         btnLogin.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnLogin.setMaximumSize(new Dimension(300, 42));
 

@@ -1,0 +1,31 @@
+services:
+  # 1. מסד נתונים קבוע
+  postgres:
+    image: postgres:15-alpine
+    container_name: kfchess-postgres
+    environment:
+      POSTGRES_DB: kfchess
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # 2. זיכרון מהיר וניהול תור Matchmaking
+  redis:
+    image: redis:7-alpine
+    container_name: kfchess-redis
+    ports:
+      - "6379:6379"
+
+  # 3. ערוץ תקשורת מהיר בין שירותים (Internal Event Bus)
+  nats:
+    image: nats:latest
+    container_name: kfchess-nats
+    ports:
+      - "4222:4222" # NATS client port
+      - "8222:8222" # NATS management dashboard
+
+volumes:
+  pgdata:

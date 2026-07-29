@@ -102,8 +102,16 @@ public class MessageHandler {
     private void handleFindMatchRequest(WebSocketSession session, RoomRegistry registry) {
         PlayerInfo player = registry.getPlayer(session);
         if (player != null) {
-            int rating = userRepository.getRating(player.username());
-            matchmakingManager.addToQueue(session, player.username(), rating);
+            userRepository.getRatingAsync(player.username())
+                    .thenAccept(rating -> {
+                        matchmakingManager.addToQueue(session, player.username(), rating);
+                    })
+                    .exceptionally(ex -> {
+                        log.error("[SERVER ERROR] Failed to fetch rating for matchmaking (user: {}): {}",
+                                player.username(), ex.getMessage());
+                        sendResponse(session, "{\"type\":\"MATCHMAKING_REJECTED\",\"reason\":\"Database error\"}");
+                        return null;
+                    });
         } else {
             sendResponse(session, "{\"type\":\"MATCHMAKING_REJECTED\",\"reason\":\"Must be logged in to find match\"}");
         }

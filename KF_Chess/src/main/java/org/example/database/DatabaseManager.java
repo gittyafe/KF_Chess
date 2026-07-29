@@ -1,47 +1,61 @@
 package org.example.database;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
- * Owns the SQLite connection and schema only. Query/update logic for
- * specific tables lives in repository classes (see UserRepository) so this
- * class doesn't grow a new method every time a new table or query shows up.
+ * Manages PostgreSQL connection pool (HikariCP) and schema initialization.
  */
 @Slf4j
 public class DatabaseManager {
-    private static final String DB_URL = "jdbc:sqlite:chess_game.db";
+    // פרטי ההתחברות ל-PostgreSQL שהרמנו ב-docker-compose
+    private static final String DB_URL = "jdbc:postgresql://localhost:5432/kfchess";
+    private static final String DB_USER = "postgres";
+    private static final String DB_PASSWORD = "password";
+
+    private static final HikariDataSource dataSource;
 
     static {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(DB_URL);
+        config.setUsername(DB_USER);
+        config.setPassword(DB_PASSWORD);
+
+        // הגדרות Connection Pool מותאמות עומס
+        config.setMaximumPoolSize(20);
+        config.setMinimumIdle(5);
+        config.setIdleTimeout(30000);
+        config.setConnectionTimeout(10000);
+        config.setDriverClassName("org.postgresql.Driver");
+
+        dataSource = new HikariDataSource(config);
+
         initDatabase();
     }
 
     public static Connection connect() throws SQLException {
-        Connection conn = DriverManager.getConnection(DB_URL);
-
-        // הגדרת המתנה של 5,000 מילישניות לפני שזה זורק SQLITE_BUSY
-        try (Statement stmt = conn.createStatement()) {
-            stmt.execute("PRAGMA busy_timeout = 5000;");
-            stmt.execute("PRAGMA journal_mode = WAL;");
-        }
-
-        return conn;
+        return dataSource.getConnection();
     }
 
     public static void initDatabase() {
+        // תחביר תואם PostgreSQL
         String createTableSQL = "CREATE TABLE IF NOT EXISTS users ("
-                + "username TEXT PRIMARY KEY, "
-                + "password TEXT NOT NULL, "
-                + "rating INTEGER DEFAULT 1200"
+                + "username VARCHAR(50) PRIMARY KEY, "
+                + "password VARCHAR(255) NOT NULL, "
+                + "rating INT DEFAULT 1200"
                 + ");";
 
         try (Connection conn = connect();
              Statement stmt = conn.createStatement()) {
             stmt.execute(createTableSQL);
-            log.info("[SQLite OUT] DB initialized successfully.");
+            log.info("[PostgreSQL] DB initialized successfully.");
         } catch (SQLException e) {
-            log.error("[SQLite ERROR] Database init error: " + e.getMessage());
+            log.error("[PostgreSQL ERROR] Database init error: {}", e.getMessage());
         }
     }
 }

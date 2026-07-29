@@ -1,0 +1,1 @@
+2026-07-27 10:14:09.589 [ForkJoinPool.commonPool-worker-1] ERROR o.e.n.client.ChessWebSocketClient - [CLIENT ERROR] Failed to connect: java.net.ConnectException

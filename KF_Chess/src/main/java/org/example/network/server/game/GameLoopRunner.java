@@ -45,5 +45,4 @@ public class GameLoopRunner {
             log.info("[SERVER OUT] Room [{}] Game Loop Ended!", roomId);
         }
     }
-
 }

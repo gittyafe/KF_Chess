@@ -3,6 +3,7 @@ package org.example.network.server.connection;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.example.database.UserRepository;
+import org.example.network.redis.RedisSubscriber;
 import org.example.network.server.room.GameRoom;
 import org.example.network.server.room.MatchmakingManager;
 import org.example.network.server.room.RoomRegistry;
@@ -17,6 +18,7 @@ public class ChessWebSocketHandler extends TextWebSocketHandler {
     private final RoomRegistry registry = new RoomRegistry();
     private final MatchmakingManager matchmakingManager;
     private final MessageHandler messageHandler;
+    private final RedisSubscriber redisSubscriber;
 
     public ChessWebSocketHandler() {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -24,6 +26,14 @@ public class ChessWebSocketHandler extends TextWebSocketHandler {
         AuthHandler authHandler = new AuthHandler(objectMapper, userRepository);
         this.matchmakingManager = new MatchmakingManager(objectMapper);
         this.messageHandler = new MessageHandler(objectMapper, authHandler, matchmakingManager, userRepository);
+
+        this.redisSubscriber = new RedisSubscriber(objectMapper, (roomId, rawJson) -> {
+            GameRoom localRoom = registry.getRoom(roomId);
+            if (localRoom != null) {
+                localRoom.broadcast(rawJson);
+            }
+        });
+        this.redisSubscriber.startListening();
     }
 
     @Override

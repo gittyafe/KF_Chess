@@ -70,6 +70,7 @@ public class MatchmakingManager {
             localEntries.remove(usernameToRemove);
             try (Jedis jedis = RedisManager.getResource()) {
                 jedis.zrem(QUEUE_KEY, usernameToRemove);
+                log.info("[SERVER OUT] User {} removed from matchmaking queue.", usernameToRemove);
             } catch (Exception e) {
                 log.error("[SERVER ERROR] Failed to remove user {} from Redis matchmaking queue: {}", usernameToRemove, e.getMessage());
             }

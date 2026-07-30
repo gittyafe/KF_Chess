@@ -13,10 +13,9 @@ import org.example.models.Role;
 public class GameWindow {
     private final JFrame frame;
     private final JLabel imageLabel;
-    private final JLabel statusBoxLabel; // 📦 הקופסה הקבועה להצגת התפקיד
+    private final JLabel statusBoxLabel;
     private final BoardGeometry geometry;
 
-    // 🟢 1. רכיבי UI וטיימר לספירה לאחור של התנתקות
     private final JLabel disconnectLabel;
     private Timer uiCountdownTimer;
 
@@ -31,7 +30,6 @@ public class GameWindow {
         frame.setResizable(true);
         frame.setLayout(new BorderLayout());
 
-        // 🟢 יצירת הקופסה הקבועה בראש החלון
         statusBoxLabel = new JLabel("Role: " + Role.UNKNOWN.getDisplayName(), SwingConstants.CENTER);
         statusBoxLabel.setFont(new Font("Segoe UI", Font.BOLD, 15));
         statusBoxLabel.setOpaque(true);
@@ -40,7 +38,6 @@ public class GameWindow {
                 new EmptyBorder(8, 20, 8, 20)
         ));
 
-        // 🟢 2. יצירת לבל הספירה לאחור (עיצוב אדום ובולט)
         disconnectLabel = new JLabel("", SwingConstants.CENTER);
         disconnectLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         disconnectLabel.setForeground(new Color(220, 53, 69));
@@ -50,24 +47,22 @@ public class GameWindow {
                 BorderFactory.createLineBorder(new Color(220, 53, 69), 1, true),
                 new EmptyBorder(6, 12, 6, 12)
         ));
-        disconnectLabel.setVisible(false); // מוסתר כברירת מחדל
+        disconnectLabel.setVisible(false);
 
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
         topPanel.add(statusBoxLabel);
-        topPanel.add(disconnectLabel); // 🟢 הוספת ה-label לראשי הממשק
+        topPanel.add(disconnectLabel);
         frame.add(topPanel, BorderLayout.NORTH);
 
         imageLabel = new JLabel();
         imageLabel.setPreferredSize(new Dimension(initialWidth, initialHeight));
         frame.add(imageLabel, BorderLayout.CENTER);
 
-        // 🟢 3. הרשמה לאירועי התנתקות דרך GameEventBus
         registerDisconnectListeners();
         registerGameOver();
     }
 
     public void init(NetworkController controller) {
-        // עדכון הקופסה לפי התפקיד הנוכחי ב-Controller
         updateRole(controller.getRole());
 
         imageLabel.addMouseListener(new MouseAdapter() {
@@ -93,7 +88,6 @@ public class GameWindow {
         frame.setVisible(true);
     }
 
-    // 🟢 4. מאזינים ואירועי ספירה לאחור
     private void registerDisconnectListeners() {
         GameEventBus.getInstance().subscribe("DISCONNECT_COUNTDOWN", data -> SwingUtilities.invokeLater(() -> {
             if (data instanceof Integer seconds) {
@@ -104,7 +98,6 @@ public class GameWindow {
         GameEventBus.getInstance().subscribe("DISCONNECT_CANCELLED", data -> SwingUtilities.invokeLater(this::stopUiCountdown));
     }
     private void registerGameOver(){
-        // בתוך הבנאי של GameWindow או בשיטה ייעודית לרגיסטרציית אירועים:
         GameEventBus.getInstance().subscribe("GAME_OVER", data -> SwingUtilities.invokeLater(() -> {
             Object[] payload = (Object[]) data;
             String winner = (String) payload[0];
@@ -166,9 +159,7 @@ public class GameWindow {
         }).start();
     }
 
-    /**
-     * 🎨 עדכון הטקסט והצבעים של הקופסה הקבועה לפי ה-Enum
-     */
+
     public void updateRole(Role role) {
         SwingUtilities.invokeLater(() -> {
             statusBoxLabel.setText(role.getDisplayName());

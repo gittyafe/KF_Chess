@@ -10,43 +10,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * What changed and why:
- * <ul>
- *   <li><b>Dedicated executor.</b> Every async method here used to run on
- *       {@code CompletableFuture}'s default executor --
- *       {@code ForkJoinPool.commonPool()} -- which is shared by every
- *       unrelated use of {@code CompletableFuture}/parallel streams in the
- *       whole JVM. A slow or momentarily-stuck JDBC call could starve
- *       completely unrelated async work elsewhere in the app. Now runs on
- *       a small dedicated pool, sized to roughly match
- *       {@code DatabaseManager}'s HikariCP pool (20), so it can never have
- *       more concurrent DB work in flight than the connection pool can
- *       actually serve.</li>
- *   <li><b>Password hashing.</b> Passwords were stored and compared as
- *       plain text (a fresh column value equal to whatever the client
- *       sent, and {@code String.equals} against it). Now hashed with
- *       PBKDF2 via {@link PasswordHasher}. <b>Migration note:</b> any
- *       existing rows in the {@code users} table have plaintext passwords
- *       in the {@code password} column -- {@code PasswordHasher.verify}
- *       will not match them (wrong format), so those accounts will need a
- *       password reset (or a one-time migration script that re-hashes
- *       them) after this change ships.</li>
- *   <li><b>Race-safe registration.</b> {@code registerNewUser} used to do
- *       a plain {@code INSERT}; if two requests for the same brand-new
- *       username arrived concurrently (double-click login, a login racing
- *       a reconnect, etc.), the second one hit a duplicate-key
- *       {@code SQLException}, which was logged and turned into a flat
- *       {@code -1} ("invalid password or database error") -- even though
- *       the username itself was perfectly valid and the user simply lost
- *       an insert race for their own new account. Now uses
- *       {@code INSERT ... ON CONFLICT (username) DO NOTHING}, and if the
- *       insert didn't win, falls back to authenticating against whichever
- *       row did.</li>
- *   <li>Removed {@code authenticateOrRegister(String alice, String
- *       wrong)} -- a dead, no-op method with hardcoded parameter names
- *       that looked like leftover test/debug code that shouldn't have
- *       been committed.</li>
- * </ul>
+ * A repository for managing user data in the database.
  */
 @Slf4j
 @Repository
@@ -58,6 +22,7 @@ public class UserRepository implements DisposableBean {
         return t;
     });
 
+    private static final int INITIAL_ELO = 1200;
     /**
      * Authenticates an existing user asynchronously, or auto-registers a new one at 1200 ELO.
      */
@@ -84,7 +49,7 @@ public class UserRepository implements DisposableBean {
     }
 
     private int registerNewUser(String username, String password) {
-        String insertSQL = "INSERT INTO users(username, password, rating) VALUES(?, ?, 1200) " +
+        String insertSQL = "INSERT INTO users(username, password, rating) VALUES(?, ?, ?) " +
                 "ON CONFLICT (username) DO NOTHING";
         String selectSQL = "SELECT password, rating FROM users WHERE username = ?";
 
@@ -94,10 +59,11 @@ public class UserRepository implements DisposableBean {
             try (PreparedStatement insert = conn.prepareStatement(insertSQL)) {
                 insert.setString(1, username);
                 insert.setString(2, passwordHash);
+                insert.setInt(3, INITIAL_ELO);
                 int inserted = insert.executeUpdate();
                 if (inserted == 1) {
-                    log.info("[PostgreSQL] Registered new user: {} (1200 ELO)", username);
-                    return 1200;
+                    log.info("[PostgreSQL] Registered new user: {} ({} ELO)", username, INITIAL_ELO);
+                    return INITIAL_ELO;
                 }
             }
 

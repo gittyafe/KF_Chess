@@ -311,3 +311,751 @@
 2026-07-30 11:46:54.712 [SpringApplicationShutdownHook] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: 2e155b86-e760-47a4-de99-f306cca4c512
 2026-07-30 11:46:54.712 [SpringApplicationShutdownHook] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: 0554344e-eaec-f0da-3c5e-ceaa2cd39475
 2026-07-30 11:46:56.713 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 1 of 10
+2026-07-30 12:32:41.833 [main] INFO  o.e.n.s.connection.ServerApplication - Starting ServerApplication using Java 22.0.2 with PID 36292 (C:\Users\user\Desktop\kfchess\KF_Chess\target\classes started by user in C:\Users\user\Desktop\kfchess\KF_Chess)
+2026-07-30 12:32:41.837 [main] INFO  o.e.n.s.connection.ServerApplication - No active profile set, falling back to 1 default profile: "default"
+2026-07-30 12:32:43.205 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-07-30 12:32:43.222 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-07-30 12:32:43.226 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-07-30 12:32:43.226 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.30]
+2026-07-30 12:32:43.336 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-07-30 12:32:43.338 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1443 ms
+2026-07-30 12:32:43.579 [main] INFO  org.example.network.nats.NatsBridge - [NATS] Connected successfully to nats://localhost:4222
+2026-07-30 12:32:43.970 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-07-30 12:32:43.993 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-07-30 12:32:44.001 [main] INFO  o.e.n.s.connection.ServerApplication - Started ServerApplication in 2.671 seconds (process running for 3.375)
+2026-07-30 12:32:45.760 [pool-3-thread-1] INFO  org.example.database.RedisManager - [Redis] Connection pool initialized successfully on localhost:6379
+2026-07-30 12:32:53.405 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-30 12:32:53.405 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-07-30 12:32:53.407 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-07-30 12:32:53.491 [http-nio-8080-exec-1] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: e2e69a7d-2acc-129c-0c9c-9a43f01afaec
+2026-07-30 12:32:53.502 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 12:32:53.601 [db-worker] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-07-30 12:32:53.797 [db-worker] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@152cfa9b
+2026-07-30 12:32:53.799 [db-worker] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-07-30 12:32:53.808 [db-worker] INFO  o.example.database.DatabaseManager - [PostgreSQL] DB initialized successfully.
+2026-07-30 12:32:53.896 [db-worker] INFO  org.example.database.UserRepository - [PostgreSQL] Registered new user: a (1200 ELO)
+2026-07-30 12:32:53.896 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1200) logged in successfully
+2026-07-30 12:32:53.945 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as a with color W and rating 1200
+2026-07-30 12:32:53.948 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: a
+2026-07-30 12:32:54.692 [db-worker] INFO  o.e.n.server.room.MatchmakingManager - [SERVER OUT] User a (1200 ELO) entered matchmaking queue.
+2026-07-30 12:33:02.361 [http-nio-8080-exec-2] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: 4a582717-8d44-1d9b-0000-3fafa20324aa
+2026-07-30 12:33:02.385 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 12:33:02.607 [db-worker] INFO  org.example.database.UserRepository - [PostgreSQL] Registered new user: z (1200 ELO)
+2026-07-30 12:33:02.608 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1200) logged in successfully
+2026-07-30 12:33:02.635 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as z with color W and rating 1200
+2026-07-30 12:33:02.637 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: z
+2026-07-30 12:33:03.587 [db-worker] INFO  o.e.n.server.room.MatchmakingManager - [SERVER OUT] User z (1200 ELO) entered matchmaking queue.
+2026-07-30 12:33:03.625 [pool-3-thread-1] INFO  o.e.n.server.room.MatchmakingManager - [SERVER OUT] Match found! Room: match_9bf58cfc | a vs z
+2026-07-30 12:33:03.629 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Match found! Room: match_9bf58cfc against z
+2026-07-30 12:33:03.630 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Match found! Room: match_9bf58cfc against a
+2026-07-30 12:33:03.631 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Match found! Closing lobby...
+2026-07-30 12:33:03.637 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Match found! Closing lobby...
+2026-07-30 12:33:03.704 [db-worker] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 1 (White) joined room [match_9bf58cfc]: z
+2026-07-30 12:33:03.706 [db-worker] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 2 (Black) joined room [match_9bf58cfc]: a
+2026-07-30 12:33:03.708 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1200) joined Room match_9bf58cfc as WHITE
+2026-07-30 12:33:03.712 [db-worker] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [match_9bf58cfc] Game Loop Started!
+2026-07-30 12:33:03.714 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [z, W, 1200]
+2026-07-30 12:33:03.715 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1200) joined Room match_9bf58cfc as BLACK
+2026-07-30 12:33:03.715 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-30 12:33:03.847 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: a
+2026-07-30 12:33:03.847 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: a
+2026-07-30 12:33:03.849 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [a, B, 1200]
+2026-07-30 12:33:03.909 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-30 12:33:08.896 [http-nio-8080-exec-9] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: 4a582717-8d44-1d9b-0000-3fafa20324aa
+2026-07-30 12:33:08.928 [nats:7] INFO  o.e.network.server.room.GameRoom - [GAME ROOM] Player [z] disconnected from room [match_9bf58cfc]. Starting disconnect timer.
+2026-07-30 12:33:08.963 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: 20s
+2026-07-30 12:33:28.948 [pool-4-thread-1] INFO  o.e.n.s.g.DisconnectCountdownManager - [SERVER OUT] Player timed out. Winner: a
+2026-07-30 12:33:28.948 [pool-4-thread-1] INFO  o.e.network.server.room.GameRoom - [SERVER OUT] GAME OVER in room [match_9bf58cfc]. Winner: a (RESIGN_DISCONNECT)
+2026-07-30 12:33:28.965 [pool-4-thread-1] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [match_9bf58cfc] Game Loop Ended!
+2026-07-30 12:33:28.976 [ForkJoinPool.commonPool-worker-1] INFO  org.example.database.RatingService - [SERVER OUT] ELO Updated Async: z (1200) -> 1184) | a (1200 -> 1216)
+2026-07-30 12:34:22.120 [http-nio-8080-exec-2] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: e2e69a7d-2acc-129c-0c9c-9a43f01afaec
+2026-07-30 12:55:13.087 [http-nio-8080-exec-5] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: f0555563-3c8d-5981-2182-e1420328f484
+2026-07-30 12:55:13.111 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 12:55:13.187 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1216) logged in successfully
+2026-07-30 12:55:13.234 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as a with color W and rating 1216
+2026-07-30 12:55:13.236 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: a
+2026-07-30 12:55:14.030 [db-worker] INFO  o.e.n.server.room.MatchmakingManager - [SERVER OUT] User a (1216 ELO) entered matchmaking queue.
+2026-07-30 12:55:21.014 [http-nio-8080-exec-7] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: ee6ddb5e-1fc2-1500-3afe-cade4d8e00a1
+2026-07-30 12:55:21.049 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 12:55:21.124 [db-worker] INFO  org.example.database.UserRepository - [PostgreSQL] Registered new user: s (1200 ELO)
+2026-07-30 12:55:21.124 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User s (1200) logged in successfully
+2026-07-30 12:55:21.146 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as s with color W and rating 1200
+2026-07-30 12:55:21.146 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: s
+2026-07-30 12:55:21.896 [db-worker] INFO  o.e.n.server.room.MatchmakingManager - [SERVER OUT] User s (1200 ELO) entered matchmaking queue.
+2026-07-30 12:55:23.612 [pool-3-thread-1] INFO  o.e.n.server.room.MatchmakingManager - [SERVER OUT] Match found! Room: match_9a0560e9 | s vs a
+2026-07-30 12:55:23.616 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Match found! Room: match_9a0560e9 against a
+2026-07-30 12:55:23.617 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Match found! Room: match_9a0560e9 against s
+2026-07-30 12:55:23.618 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Match found! Closing lobby...
+2026-07-30 12:55:23.620 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Match found! Closing lobby...
+2026-07-30 12:55:23.656 [db-worker] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 1 (White) joined room [match_9a0560e9]: s
+2026-07-30 12:55:23.657 [db-worker] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 2 (Black) joined room [match_9a0560e9]: a
+2026-07-30 12:55:23.658 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User s (1200) joined Room match_9a0560e9 as WHITE
+2026-07-30 12:55:23.659 [db-worker] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [match_9a0560e9] Game Loop Started!
+2026-07-30 12:55:23.659 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1216) joined Room match_9a0560e9 as BLACK
+2026-07-30 12:55:23.661 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [s, W, 1200]
+2026-07-30 12:55:23.662 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-30 12:55:23.663 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [a, B, 1216]
+2026-07-30 12:55:23.664 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-30 12:55:23.762 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: s | Black: a
+2026-07-30 12:55:23.762 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: s | Black: a
+2026-07-30 12:55:26.722 [http-nio-8080-exec-3] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: ee6ddb5e-1fc2-1500-3afe-cade4d8e00a1
+2026-07-30 12:55:26.732 [nats:7] INFO  o.e.network.server.room.GameRoom - [GAME ROOM] Player [s] disconnected from room [match_9a0560e9]. Starting disconnect timer.
+2026-07-30 12:55:26.740 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: 20s
+2026-07-30 12:55:46.734 [pool-5-thread-1] INFO  o.e.n.s.g.DisconnectCountdownManager - [SERVER OUT] Player timed out. Winner: a
+2026-07-30 12:55:46.736 [pool-5-thread-1] INFO  o.e.network.server.room.GameRoom - [SERVER OUT] GAME OVER in room [match_9a0560e9]. Winner: a (RESIGN_DISCONNECT)
+2026-07-30 12:55:46.742 [pool-5-thread-1] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [match_9a0560e9] Game Loop Ended!
+2026-07-30 12:55:46.749 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Game Over received. Winner: a
+2026-07-30 12:55:46.749 [ForkJoinPool.commonPool-worker-2] INFO  org.example.database.RatingService - [SERVER OUT] ELO Updated Async: s (1200) -> 1185) | a (1216 -> 1231)
+2026-07-30 12:56:15.074 [http-nio-8080-exec-2] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: f0555563-3c8d-5981-2182-e1420328f484
+2026-07-30 12:56:43.982 [http-nio-8080-exec-5] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: 2230393c-c12a-4a78-a9a9-ff3ec5783746
+2026-07-30 12:56:43.997 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 12:56:44.052 [db-worker] INFO  org.example.database.UserRepository - [PostgreSQL] Registered new user: c (1200 ELO)
+2026-07-30 12:56:44.053 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User c (1200) logged in successfully
+2026-07-30 12:56:44.083 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as c with color W and rating 1200
+2026-07-30 12:56:44.086 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: c
+2026-07-30 12:56:47.186 [nats:6] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 1 (White) joined room [1]: c
+2026-07-30 12:56:47.188 [nats:6] INFO  o.e.n.server.connection.RoomHandler - [SERVER OUT] Room created successfully: [1] by user: c
+2026-07-30 12:56:55.165 [http-nio-8080-exec-7] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: 24bf3d28-332a-10c7-7a0f-9ac33fb286a8
+2026-07-30 12:56:55.193 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 12:56:55.268 [db-worker] INFO  org.example.database.UserRepository - [PostgreSQL] Registered new user: d (1200 ELO)
+2026-07-30 12:56:55.269 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User d (1200) logged in successfully
+2026-07-30 12:56:55.296 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as d with color W and rating 1200
+2026-07-30 12:56:55.297 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: d
+2026-07-30 12:56:57.505 [db-worker] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 2 (Black) joined room [1]: d
+2026-07-30 12:56:57.507 [db-worker] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [1] Game Loop Started!
+2026-07-30 12:56:57.508 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User d (1200) joined Room 1 as BLACK
+2026-07-30 12:56:57.592 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: c | Black: d
+2026-07-30 12:56:57.593 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [d, B, 1200]
+2026-07-30 12:56:57.625 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-30 12:56:57.704 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: c | Black: d
+2026-07-30 12:57:25.536 [pool-6-thread-1] INFO  o.e.network.server.room.GameRoom - [SERVER OUT] GAME OVER in room [1]. Winner: c (CHECKMATE)
+2026-07-30 12:57:25.542 [pool-6-thread-1] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [1] Game Loop Ended!
+2026-07-30 12:57:25.551 [ForkJoinPool.commonPool-worker-3] INFO  org.example.database.RatingService - [SERVER OUT] ELO Updated Async: c (1200) -> 1216) | d (1200 -> 1184)
+2026-07-30 12:58:20.449 [http-nio-8080-exec-2] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: 24bf3d28-332a-10c7-7a0f-9ac33fb286a8
+2026-07-30 12:58:32.146 [http-nio-8080-exec-5] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: 2230393c-c12a-4a78-a9a9-ff3ec5783746
+2026-07-30 13:04:36.195 [main] INFO  o.e.n.s.connection.ServerApplication - Starting ServerApplication using Java 22.0.2 with PID 10844 (C:\Users\user\Desktop\kfchess\KF_Chess\target\classes started by user in C:\Users\user\Desktop\kfchess\KF_Chess)
+2026-07-30 13:04:36.197 [main] INFO  o.e.n.s.connection.ServerApplication - No active profile set, falling back to 1 default profile: "default"
+2026-07-30 13:04:37.516 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-07-30 13:04:37.533 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-07-30 13:04:37.538 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-07-30 13:04:37.539 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.30]
+2026-07-30 13:04:37.651 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-07-30 13:04:37.653 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1391 ms
+2026-07-30 13:04:37.867 [main] INFO  org.example.network.nats.NatsBridge - [NATS] Connected successfully to nats://localhost:4222
+2026-07-30 13:04:38.295 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-07-30 13:04:38.318 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-07-30 13:04:38.335 [main] INFO  o.e.n.s.connection.ServerApplication - Started ServerApplication in 2.618 seconds (process running for 3.24)
+2026-07-30 13:04:40.047 [pool-3-thread-1] INFO  org.example.database.RedisManager - [Redis] Connection pool initialized successfully on localhost:6379
+2026-07-30 13:04:48.313 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-30 13:04:48.313 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-07-30 13:04:48.314 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-07-30 13:04:48.388 [http-nio-8080-exec-1] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: e8157fa3-393d-6fd3-7d68-3ff63a6b1226
+2026-07-30 13:04:48.393 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 13:04:48.523 [db-worker] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-07-30 13:04:48.814 [db-worker] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@48ab6199
+2026-07-30 13:04:48.816 [db-worker] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-07-30 13:04:48.826 [db-worker] INFO  o.example.database.DatabaseManager - [PostgreSQL] DB initialized successfully.
+2026-07-30 13:04:48.877 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1184) logged in successfully
+2026-07-30 13:04:48.921 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as z with color W and rating 1184
+2026-07-30 13:04:48.924 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: z
+2026-07-30 13:04:51.573 [nats:6] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 1 (White) joined room [1]: z
+2026-07-30 13:04:51.578 [nats:6] INFO  o.e.n.server.connection.RoomHandler - [SERVER OUT] Room created successfully: [1] by user: z
+2026-07-30 13:04:58.545 [http-nio-8080-exec-5] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: 99445b3e-71e1-c61d-5b9c-ea05f63aebfd
+2026-07-30 13:04:58.576 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 13:04:58.670 [db-worker] INFO  org.example.database.UserRepository - [PostgreSQL] Registered new user: x (1200 ELO)
+2026-07-30 13:04:58.670 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User x (1200) logged in successfully
+2026-07-30 13:04:58.695 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as x with color W and rating 1200
+2026-07-30 13:04:58.697 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: x
+2026-07-30 13:05:00.599 [db-worker] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 2 (Black) joined room [1]: x
+2026-07-30 13:05:00.604 [db-worker] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [1] Game Loop Started!
+2026-07-30 13:05:00.606 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User x (1200) joined Room 1 as BLACK
+2026-07-30 13:05:00.702 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: x
+2026-07-30 13:05:00.703 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [x, B, 1200]
+2026-07-30 13:05:00.907 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-30 13:05:01.053 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: x
+2026-07-30 13:05:27.138 [pool-4-thread-1] INFO  o.e.network.server.room.GameRoom - [SERVER OUT] GAME OVER in room [1]. Winner: z (CHECKMATE)
+2026-07-30 13:05:27.144 [pool-4-thread-1] INFO  o.e.n.server.room.RoomMessenger - [SERVER OUT] Publishing GAME_OVER to room [1]: {"type":"GAME_OVER","winner":"z","reason":"CHECKMATE"}
+2026-07-30 13:05:27.145 [pool-4-thread-1] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [1] Game Loop Ended!
+2026-07-30 13:05:27.156 [ForkJoinPool.commonPool-worker-1] INFO  org.example.database.RatingService - [SERVER OUT] ELO Updated Async: z (1184) -> 1201) | x (1200 -> 1183)
+2026-07-30 13:08:00.173 [HttpClient-1-Worker-3] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT IN] WebSocket closed with status 1006: 
+2026-07-30 13:08:00.176 [HttpClient-1-Worker-3] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT IN] WebSocket closed with status 1006: 
+2026-07-30 13:08:00.179 [SpringApplicationShutdownHook] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: 99445b3e-71e1-c61d-5b9c-ea05f63aebfd
+2026-07-30 13:08:00.179 [SpringApplicationShutdownHook] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: e8157fa3-393d-6fd3-7d68-3ff63a6b1226
+2026-07-30 13:08:02.190 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 1 of 10
+2026-07-30 13:08:02.190 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 1 of 10
+2026-07-30 13:08:04.225 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 2 of 10
+2026-07-30 13:08:04.226 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 2 of 10
+2026-07-30 13:08:06.310 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 3 of 10
+2026-07-30 13:08:06.373 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 3 of 10
+2026-07-30 13:08:06.688 [main] INFO  o.e.n.s.connection.ServerApplication - Starting ServerApplication using Java 22.0.2 with PID 27096 (C:\Users\user\Desktop\kfchess\KF_Chess\target\classes started by user in C:\Users\user\Desktop\kfchess\KF_Chess)
+2026-07-30 13:08:06.691 [main] INFO  o.e.n.s.connection.ServerApplication - No active profile set, falling back to 1 default profile: "default"
+2026-07-30 13:08:08.386 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 4 of 10
+2026-07-30 13:08:08.419 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 4 of 10
+2026-07-30 13:08:08.839 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-07-30 13:08:08.868 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-07-30 13:08:08.880 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-07-30 13:08:08.880 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.30]
+2026-07-30 13:08:09.005 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-07-30 13:08:09.007 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2229 ms
+2026-07-30 13:08:09.326 [main] INFO  org.example.network.nats.NatsBridge - [NATS] Connected successfully to nats://localhost:4222
+2026-07-30 13:08:09.808 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-07-30 13:08:09.847 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-07-30 13:08:09.860 [main] INFO  o.e.n.s.connection.ServerApplication - Started ServerApplication in 3.906 seconds (process running for 4.883)
+2026-07-30 13:08:10.449 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 5 of 10
+2026-07-30 13:08:10.580 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-30 13:08:10.581 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-07-30 13:08:10.582 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-07-30 13:08:10.659 [ForkJoinPool.commonPool-worker-2] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 13:08:10.682 [http-nio-8080-exec-1] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: 2c5b666d-a86e-07ad-2592-140b79980ed1
+2026-07-30 13:08:10.832 [db-worker] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-07-30 13:08:11.168 [db-worker] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@55180a2e
+2026-07-30 13:08:11.172 [db-worker] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-07-30 13:08:11.181 [db-worker] INFO  o.example.database.DatabaseManager - [PostgreSQL] DB initialized successfully.
+2026-07-30 13:08:11.297 [HttpClient-6-Worker-2] ERROR o.e.n.client.ServerMessageDispatcher - [CLIENT ERROR] Reconnect rejected: No active game to reconnect to
+2026-07-30 13:08:11.584 [pool-3-thread-1] INFO  org.example.database.RedisManager - [Redis] Connection pool initialized successfully on localhost:6379
+2026-07-30 13:08:17.526 [http-nio-8080-exec-2] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: 1f27a1f8-5bd2-0cfc-adc4-5d295c8edaf3
+2026-07-30 13:08:17.552 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 13:08:17.626 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1231) logged in successfully
+2026-07-30 13:08:17.655 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as a with color W and rating 1231
+2026-07-30 13:08:17.657 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: a
+2026-07-30 13:08:21.097 [nats:6] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 1 (White) joined room [1]: a
+2026-07-30 13:08:21.103 [nats:6] INFO  o.e.n.server.connection.RoomHandler - [SERVER OUT] Room created successfully: [1] by user: a
+2026-07-30 13:08:24.131 [http-nio-8080-exec-5] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: 2c5b666d-a86e-07ad-2592-140b79980ed1
+2026-07-30 13:08:29.293 [http-nio-8080-exec-6] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: c81257fd-f340-6077-ce21-2bcf9e196bb7
+2026-07-30 13:08:29.319 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 13:08:29.387 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1201) logged in successfully
+2026-07-30 13:08:29.414 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as z with color W and rating 1201
+2026-07-30 13:08:29.415 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: z
+2026-07-30 13:08:31.867 [db-worker] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 2 (Black) joined room [1]: z
+2026-07-30 13:08:31.872 [db-worker] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [1] Game Loop Started!
+2026-07-30 13:08:31.875 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=40
+2026-07-30 13:08:31.875 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1201) joined Room 1 as BLACK
+2026-07-30 13:08:31.890 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3832
+2026-07-30 13:08:32.008 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: a | Black: z
+2026-07-30 13:08:32.010 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [z, B, 1201]
+2026-07-30 13:08:32.048 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-30 13:08:32.104 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: a | Black: z
+2026-07-30 13:08:35.549 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3834
+2026-07-30 13:08:36.546 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=52
+2026-07-30 13:08:36.547 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3837
+2026-07-30 13:08:38.327 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3839
+2026-07-30 13:08:39.329 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=52
+2026-07-30 13:08:39.331 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3842
+2026-07-30 13:08:40.071 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3844
+2026-07-30 13:08:40.552 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3839
+2026-07-30 13:08:43.343 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3834
+2026-07-30 13:08:44.061 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=52
+2026-07-30 13:08:44.062 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3837
+2026-07-30 13:08:48.081 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3832
+2026-07-30 13:08:49.606 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3834
+2026-07-30 13:08:52.586 [pool-4-thread-1] INFO  o.e.network.server.room.GameRoom - [SERVER OUT] GAME OVER in room [1]. Winner: a (CHECKMATE)
+2026-07-30 13:08:52.590 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=42
+2026-07-30 13:08:52.613 [pool-4-thread-1] INFO  o.e.n.server.room.RoomMessenger - [SERVER OUT] Publishing GAME_OVER to room [1]: {"type":"GAME_OVER","winner":"a","reason":"CHECKMATE"}
+2026-07-30 13:08:52.614 [pool-4-thread-1] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [1] Game Loop Ended!
+2026-07-30 13:08:52.619 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=54
+2026-07-30 13:08:52.623 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=52
+2026-07-30 13:08:52.624 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3719
+2026-07-30 13:08:52.633 [ForkJoinPool.commonPool-worker-1] INFO  org.example.database.RatingService - [SERVER OUT] ELO Updated Async: a (1231) -> 1246) | z (1201 -> 1186)
+2026-07-30 13:10:06.466 [HttpClient-1-Worker-3] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT IN] WebSocket closed with status 1006: 
+2026-07-30 13:10:06.466 [HttpClient-1-Worker-3] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT IN] WebSocket closed with status 1006: 
+2026-07-30 13:10:06.470 [SpringApplicationShutdownHook] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: 1f27a1f8-5bd2-0cfc-adc4-5d295c8edaf3
+2026-07-30 13:10:06.471 [SpringApplicationShutdownHook] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: c81257fd-f340-6077-ce21-2bcf9e196bb7
+2026-07-30 13:10:08.482 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 1 of 10
+2026-07-30 13:10:08.482 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 1 of 10
+2026-07-30 13:10:10.454 [main] INFO  o.e.n.s.connection.ServerApplication - Starting ServerApplication using Java 22.0.2 with PID 36860 (C:\Users\user\Desktop\kfchess\KF_Chess\target\classes started by user in C:\Users\user\Desktop\kfchess\KF_Chess)
+2026-07-30 13:10:10.456 [main] INFO  o.e.n.s.connection.ServerApplication - No active profile set, falling back to 1 default profile: "default"
+2026-07-30 13:10:10.514 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 2 of 10
+2026-07-30 13:10:10.529 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 2 of 10
+2026-07-30 13:10:11.785 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-07-30 13:10:11.804 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-07-30 13:10:11.808 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-07-30 13:10:11.808 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.30]
+2026-07-30 13:10:11.874 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-07-30 13:10:11.876 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1362 ms
+2026-07-30 13:10:12.066 [main] INFO  org.example.network.nats.NatsBridge - [NATS] Connected successfully to nats://localhost:4222
+2026-07-30 13:10:12.497 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-07-30 13:10:12.519 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-07-30 13:10:12.527 [main] INFO  o.e.n.s.connection.ServerApplication - Started ServerApplication in 2.595 seconds (process running for 3.271)
+2026-07-30 13:10:12.539 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 3 of 10
+2026-07-30 13:10:12.554 [chess-reconnect] INFO  o.e.network.client.ReconnectManager - [CLIENT OUT] Reconnect attempt 3 of 10
+2026-07-30 13:10:12.612 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-30 13:10:12.613 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-07-30 13:10:12.614 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-07-30 13:10:12.673 [ForkJoinPool.commonPool-worker-2] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 13:10:12.674 [ForkJoinPool.commonPool-worker-2] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 13:10:12.682 [http-nio-8080-exec-1] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: dbba24bc-dd5a-6301-08b8-4ec6163f1b0b
+2026-07-30 13:10:12.682 [http-nio-8080-exec-2] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: 268c093f-6c21-00ce-e0c8-6318e416af0c
+2026-07-30 13:10:12.785 [db-worker] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-07-30 13:10:12.956 [db-worker] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@78b7a28c
+2026-07-30 13:10:12.957 [db-worker] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-07-30 13:10:12.965 [db-worker] INFO  o.example.database.DatabaseManager - [PostgreSQL] DB initialized successfully.
+2026-07-30 13:10:13.155 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.268c093f-6c21-00ce-e0c8-6318e416af0c targetSessionId=268c093f-6c21-00ce-e0c8-6318e416af0c payloadLen=71
+2026-07-30 13:10:13.162 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 268c093f-6c21-00ce-e0c8-6318e416af0c (payloadLen=71)
+2026-07-30 13:10:13.162 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.dbba24bc-dd5a-6301-08b8-4ec6163f1b0b targetSessionId=dbba24bc-dd5a-6301-08b8-4ec6163f1b0b payloadLen=71
+2026-07-30 13:10:13.163 [HttpClient-4-Worker-2] ERROR o.e.n.client.ServerMessageDispatcher - [CLIENT ERROR] Reconnect rejected: No active game to reconnect to
+2026-07-30 13:10:13.163 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session dbba24bc-dd5a-6301-08b8-4ec6163f1b0b (payloadLen=71)
+2026-07-30 13:10:13.164 [HttpClient-4-Worker-2] ERROR o.e.n.client.ServerMessageDispatcher - [CLIENT ERROR] Reconnect rejected: No active game to reconnect to
+2026-07-30 13:10:14.227 [pool-3-thread-1] INFO  org.example.database.RedisManager - [Redis] Connection pool initialized successfully on localhost:6379
+2026-07-30 13:10:18.887 [http-nio-8080-exec-5] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: dbba24bc-dd5a-6301-08b8-4ec6163f1b0b
+2026-07-30 13:10:52.360 [http-nio-8080-exec-4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: 268c093f-6c21-00ce-e0c8-6318e416af0c
+2026-07-30 13:10:58.361 [http-nio-8080-exec-3] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: 367d4f23-64eb-0dae-790f-f2c03690c3f8
+2026-07-30 13:10:58.384 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 13:10:58.458 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1186) logged in successfully
+2026-07-30 13:10:58.466 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.367d4f23-64eb-0dae-790f-f2c03690c3f8 targetSessionId=367d4f23-64eb-0dae-790f-f2c03690c3f8 payloadLen=53
+2026-07-30 13:10:58.467 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 367d4f23-64eb-0dae-790f-f2c03690c3f8 (payloadLen=53)
+2026-07-30 13:10:58.492 [HttpClient-1-Worker-1] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as z with color W and rating 1186
+2026-07-30 13:10:58.493 [HttpClient-1-Worker-1] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: z
+2026-07-30 13:11:01.475 [nats:6] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 1 (White) joined room [1]: z
+2026-07-30 13:11:01.479 [nats:6] INFO  o.e.n.server.connection.RoomHandler - [SERVER OUT] Room created successfully: [1] by user: z
+2026-07-30 13:11:01.481 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.367d4f23-64eb-0dae-790f-f2c03690c3f8 targetSessionId=367d4f23-64eb-0dae-790f-f2c03690c3f8 payloadLen=100
+2026-07-30 13:11:01.481 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 367d4f23-64eb-0dae-790f-f2c03690c3f8 (payloadLen=100)
+2026-07-30 13:11:07.889 [http-nio-8080-exec-7] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: 7840b485-94e7-ca4c-be7a-9fe04c6cd78e
+2026-07-30 13:11:07.921 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 13:11:07.987 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User x (1183) logged in successfully
+2026-07-30 13:11:07.990 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.7840b485-94e7-ca4c-be7a-9fe04c6cd78e targetSessionId=7840b485-94e7-ca4c-be7a-9fe04c6cd78e payloadLen=53
+2026-07-30 13:11:07.990 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 7840b485-94e7-ca4c-be7a-9fe04c6cd78e (payloadLen=53)
+2026-07-30 13:11:08.015 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as x with color W and rating 1183
+2026-07-30 13:11:08.016 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: x
+2026-07-30 13:11:10.392 [db-worker] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 2 (Black) joined room [1]: x
+2026-07-30 13:11:10.398 [db-worker] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [1] Game Loop Started!
+2026-07-30 13:11:10.400 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=40
+2026-07-30 13:11:10.400 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User x (1183) joined Room 1 as BLACK
+2026-07-30 13:11:10.403 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.367d4f23-64eb-0dae-790f-f2c03690c3f8 targetSessionId=367d4f23-64eb-0dae-790f-f2c03690c3f8 payloadLen=40
+2026-07-30 13:11:10.404 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 367d4f23-64eb-0dae-790f-f2c03690c3f8 (payloadLen=40)
+2026-07-30 13:11:10.405 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.7840b485-94e7-ca4c-be7a-9fe04c6cd78e targetSessionId=7840b485-94e7-ca4c-be7a-9fe04c6cd78e payloadLen=40
+2026-07-30 13:11:10.405 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 7840b485-94e7-ca4c-be7a-9fe04c6cd78e (payloadLen=40)
+2026-07-30 13:11:10.405 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.7840b485-94e7-ca4c-be7a-9fe04c6cd78e targetSessionId=7840b485-94e7-ca4c-be7a-9fe04c6cd78e payloadLen=65
+2026-07-30 13:11:10.405 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 7840b485-94e7-ca4c-be7a-9fe04c6cd78e (payloadLen=65)
+2026-07-30 13:11:10.418 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3832
+2026-07-30 13:11:10.422 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.367d4f23-64eb-0dae-790f-f2c03690c3f8 targetSessionId=367d4f23-64eb-0dae-790f-f2c03690c3f8 payloadLen=3832
+2026-07-30 13:11:10.424 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 367d4f23-64eb-0dae-790f-f2c03690c3f8 (payloadLen=3832)
+2026-07-30 13:11:10.424 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.7840b485-94e7-ca4c-be7a-9fe04c6cd78e targetSessionId=7840b485-94e7-ca4c-be7a-9fe04c6cd78e payloadLen=3832
+2026-07-30 13:11:10.425 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 7840b485-94e7-ca4c-be7a-9fe04c6cd78e (payloadLen=3832)
+2026-07-30 13:11:10.584 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: x
+2026-07-30 13:11:10.586 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [x, B, 1183]
+2026-07-30 13:11:10.624 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-30 13:11:10.675 [HttpClient-1-Worker-1] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: x
+2026-07-30 13:11:13.619 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3834
+2026-07-30 13:11:13.622 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.367d4f23-64eb-0dae-790f-f2c03690c3f8 targetSessionId=367d4f23-64eb-0dae-790f-f2c03690c3f8 payloadLen=3834
+2026-07-30 13:11:13.624 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 367d4f23-64eb-0dae-790f-f2c03690c3f8 (payloadLen=3834)
+2026-07-30 13:11:13.624 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.7840b485-94e7-ca4c-be7a-9fe04c6cd78e targetSessionId=7840b485-94e7-ca4c-be7a-9fe04c6cd78e payloadLen=3834
+2026-07-30 13:11:13.625 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 7840b485-94e7-ca4c-be7a-9fe04c6cd78e (payloadLen=3834)
+2026-07-30 13:11:14.626 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=52
+2026-07-30 13:11:14.626 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3837
+2026-07-30 13:11:14.630 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.367d4f23-64eb-0dae-790f-f2c03690c3f8 targetSessionId=367d4f23-64eb-0dae-790f-f2c03690c3f8 payloadLen=52
+2026-07-30 13:11:14.630 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 367d4f23-64eb-0dae-790f-f2c03690c3f8 (payloadLen=52)
+2026-07-30 13:11:14.630 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.7840b485-94e7-ca4c-be7a-9fe04c6cd78e targetSessionId=7840b485-94e7-ca4c-be7a-9fe04c6cd78e payloadLen=52
+2026-07-30 13:11:14.630 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 7840b485-94e7-ca4c-be7a-9fe04c6cd78e (payloadLen=52)
+2026-07-30 13:11:14.631 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.367d4f23-64eb-0dae-790f-f2c03690c3f8 targetSessionId=367d4f23-64eb-0dae-790f-f2c03690c3f8 payloadLen=3837
+2026-07-30 13:11:14.631 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 367d4f23-64eb-0dae-790f-f2c03690c3f8 (payloadLen=3837)
+2026-07-30 13:11:14.631 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.7840b485-94e7-ca4c-be7a-9fe04c6cd78e targetSessionId=7840b485-94e7-ca4c-be7a-9fe04c6cd78e payloadLen=3837
+2026-07-30 13:11:14.632 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 7840b485-94e7-ca4c-be7a-9fe04c6cd78e (payloadLen=3837)
+2026-07-30 13:11:16.347 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3839
+2026-07-30 13:11:16.353 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.367d4f23-64eb-0dae-790f-f2c03690c3f8 targetSessionId=367d4f23-64eb-0dae-790f-f2c03690c3f8 payloadLen=3839
+2026-07-30 13:11:16.355 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 367d4f23-64eb-0dae-790f-f2c03690c3f8 (payloadLen=3839)
+2026-07-30 13:11:16.356 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.7840b485-94e7-ca4c-be7a-9fe04c6cd78e targetSessionId=7840b485-94e7-ca4c-be7a-9fe04c6cd78e payloadLen=3839
+2026-07-30 13:11:16.358 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 7840b485-94e7-ca4c-be7a-9fe04c6cd78e (payloadLen=3839)
+2026-07-30 13:11:18.338 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=52
+2026-07-30 13:11:18.339 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3842
+2026-07-30 13:11:18.343 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.367d4f23-64eb-0dae-790f-f2c03690c3f8 targetSessionId=367d4f23-64eb-0dae-790f-f2c03690c3f8 payloadLen=52
+2026-07-30 13:11:18.345 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 367d4f23-64eb-0dae-790f-f2c03690c3f8 (payloadLen=52)
+2026-07-30 13:11:18.345 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.7840b485-94e7-ca4c-be7a-9fe04c6cd78e targetSessionId=7840b485-94e7-ca4c-be7a-9fe04c6cd78e payloadLen=52
+2026-07-30 13:11:18.346 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 7840b485-94e7-ca4c-be7a-9fe04c6cd78e (payloadLen=52)
+2026-07-30 13:11:18.346 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.367d4f23-64eb-0dae-790f-f2c03690c3f8 targetSessionId=367d4f23-64eb-0dae-790f-f2c03690c3f8 payloadLen=3842
+2026-07-30 13:11:18.348 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 367d4f23-64eb-0dae-790f-f2c03690c3f8 (payloadLen=3842)
+2026-07-30 13:11:18.349 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.7840b485-94e7-ca4c-be7a-9fe04c6cd78e targetSessionId=7840b485-94e7-ca4c-be7a-9fe04c6cd78e payloadLen=3842
+2026-07-30 13:11:18.351 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 7840b485-94e7-ca4c-be7a-9fe04c6cd78e (payloadLen=3842)
+2026-07-30 13:11:18.630 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3837
+2026-07-30 13:11:18.632 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.367d4f23-64eb-0dae-790f-f2c03690c3f8 targetSessionId=367d4f23-64eb-0dae-790f-f2c03690c3f8 payloadLen=3837
+2026-07-30 13:11:18.633 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 367d4f23-64eb-0dae-790f-f2c03690c3f8 (payloadLen=3837)
+2026-07-30 13:11:18.633 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.7840b485-94e7-ca4c-be7a-9fe04c6cd78e targetSessionId=7840b485-94e7-ca4c-be7a-9fe04c6cd78e payloadLen=3837
+2026-07-30 13:11:18.634 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 7840b485-94e7-ca4c-be7a-9fe04c6cd78e (payloadLen=3837)
+2026-07-30 13:11:20.372 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3839
+2026-07-30 13:11:20.376 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.367d4f23-64eb-0dae-790f-f2c03690c3f8 targetSessionId=367d4f23-64eb-0dae-790f-f2c03690c3f8 payloadLen=3839
+2026-07-30 13:11:20.377 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 367d4f23-64eb-0dae-790f-f2c03690c3f8 (payloadLen=3839)
+2026-07-30 13:11:20.377 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.7840b485-94e7-ca4c-be7a-9fe04c6cd78e targetSessionId=7840b485-94e7-ca4c-be7a-9fe04c6cd78e payloadLen=3839
+2026-07-30 13:11:20.378 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 7840b485-94e7-ca4c-be7a-9fe04c6cd78e (payloadLen=3839)
+2026-07-30 13:11:22.351 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3834
+2026-07-30 13:11:22.354 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.367d4f23-64eb-0dae-790f-f2c03690c3f8 targetSessionId=367d4f23-64eb-0dae-790f-f2c03690c3f8 payloadLen=3834
+2026-07-30 13:11:22.355 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 367d4f23-64eb-0dae-790f-f2c03690c3f8 (payloadLen=3834)
+2026-07-30 13:11:22.355 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.7840b485-94e7-ca4c-be7a-9fe04c6cd78e targetSessionId=7840b485-94e7-ca4c-be7a-9fe04c6cd78e payloadLen=3834
+2026-07-30 13:11:22.357 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 7840b485-94e7-ca4c-be7a-9fe04c6cd78e (payloadLen=3834)
+2026-07-30 13:11:24.357 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=52
+2026-07-30 13:11:24.359 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3837
+2026-07-30 13:11:24.361 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.367d4f23-64eb-0dae-790f-f2c03690c3f8 targetSessionId=367d4f23-64eb-0dae-790f-f2c03690c3f8 payloadLen=52
+2026-07-30 13:11:24.362 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 367d4f23-64eb-0dae-790f-f2c03690c3f8 (payloadLen=52)
+2026-07-30 13:11:24.362 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.7840b485-94e7-ca4c-be7a-9fe04c6cd78e targetSessionId=7840b485-94e7-ca4c-be7a-9fe04c6cd78e payloadLen=52
+2026-07-30 13:11:24.363 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 7840b485-94e7-ca4c-be7a-9fe04c6cd78e (payloadLen=52)
+2026-07-30 13:11:24.364 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.367d4f23-64eb-0dae-790f-f2c03690c3f8 targetSessionId=367d4f23-64eb-0dae-790f-f2c03690c3f8 payloadLen=3837
+2026-07-30 13:11:24.364 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 367d4f23-64eb-0dae-790f-f2c03690c3f8 (payloadLen=3837)
+2026-07-30 13:11:24.365 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.7840b485-94e7-ca4c-be7a-9fe04c6cd78e targetSessionId=7840b485-94e7-ca4c-be7a-9fe04c6cd78e payloadLen=3837
+2026-07-30 13:11:24.365 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 7840b485-94e7-ca4c-be7a-9fe04c6cd78e (payloadLen=3837)
+2026-07-30 13:11:28.380 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3832
+2026-07-30 13:11:28.389 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.367d4f23-64eb-0dae-790f-f2c03690c3f8 targetSessionId=367d4f23-64eb-0dae-790f-f2c03690c3f8 payloadLen=3832
+2026-07-30 13:11:28.391 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 367d4f23-64eb-0dae-790f-f2c03690c3f8 (payloadLen=3832)
+2026-07-30 13:11:28.391 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.7840b485-94e7-ca4c-be7a-9fe04c6cd78e targetSessionId=7840b485-94e7-ca4c-be7a-9fe04c6cd78e payloadLen=3832
+2026-07-30 13:11:28.392 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 7840b485-94e7-ca4c-be7a-9fe04c6cd78e (payloadLen=3832)
+2026-07-30 13:11:30.264 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3834
+2026-07-30 13:11:30.266 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.367d4f23-64eb-0dae-790f-f2c03690c3f8 targetSessionId=367d4f23-64eb-0dae-790f-f2c03690c3f8 payloadLen=3834
+2026-07-30 13:11:30.266 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 367d4f23-64eb-0dae-790f-f2c03690c3f8 (payloadLen=3834)
+2026-07-30 13:11:30.266 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.7840b485-94e7-ca4c-be7a-9fe04c6cd78e targetSessionId=7840b485-94e7-ca4c-be7a-9fe04c6cd78e payloadLen=3834
+2026-07-30 13:11:30.267 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 7840b485-94e7-ca4c-be7a-9fe04c6cd78e (payloadLen=3834)
+2026-07-30 13:11:33.228 [pool-4-thread-1] INFO  o.e.network.server.room.GameRoom - [SERVER OUT] GAME OVER in room [1]. Winner: z (CHECKMATE)
+2026-07-30 13:11:33.235 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=42
+2026-07-30 13:11:33.240 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.367d4f23-64eb-0dae-790f-f2c03690c3f8 targetSessionId=367d4f23-64eb-0dae-790f-f2c03690c3f8 payloadLen=42
+2026-07-30 13:11:33.242 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 367d4f23-64eb-0dae-790f-f2c03690c3f8 (payloadLen=42)
+2026-07-30 13:11:33.243 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.7840b485-94e7-ca4c-be7a-9fe04c6cd78e targetSessionId=7840b485-94e7-ca4c-be7a-9fe04c6cd78e payloadLen=42
+2026-07-30 13:11:33.247 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 7840b485-94e7-ca4c-be7a-9fe04c6cd78e (payloadLen=42)
+2026-07-30 13:11:33.258 [pool-4-thread-1] INFO  o.e.n.server.room.RoomMessenger - [SERVER OUT] Publishing GAME_OVER to room [1]: {"type":"GAME_OVER","winner":"z","reason":"CHECKMATE"}
+2026-07-30 13:11:33.259 [pool-4-thread-1] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [1] Game Loop Ended!
+2026-07-30 13:11:33.271 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=54
+2026-07-30 13:11:33.276 [ForkJoinPool.commonPool-worker-1] INFO  org.example.database.RatingService - [SERVER OUT] ELO Updated Async: z (1186) -> 1202) | x (1183 -> 1167)
+2026-07-30 13:11:33.284 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=52
+2026-07-30 13:11:33.284 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3719
+2026-07-30 13:12:24.544 [http-nio-8080-exec-6] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: 367d4f23-64eb-0dae-790f-f2c03690c3f8
+2026-07-30 13:12:35.186 [http-nio-8080-exec-9] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: 7840b485-94e7-ca4c-be7a-9fe04c6cd78e
+2026-07-30 13:12:42.421 [http-nio-8080-exec-7] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: d3814791-eb6c-c675-d608-e87922245cb4
+2026-07-30 13:12:42.453 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 13:12:42.524 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User s (1185) logged in successfully
+2026-07-30 13:12:42.527 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.d3814791-eb6c-c675-d608-e87922245cb4 targetSessionId=d3814791-eb6c-c675-d608-e87922245cb4 payloadLen=53
+2026-07-30 13:12:42.527 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session d3814791-eb6c-c675-d608-e87922245cb4 (payloadLen=53)
+2026-07-30 13:12:42.549 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as s with color W and rating 1185
+2026-07-30 13:12:42.550 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: s
+2026-07-30 13:12:43.820 [db-worker] INFO  o.e.n.server.room.MatchmakingManager - [SERVER OUT] User s (1185 ELO) entered matchmaking queue.
+2026-07-30 13:12:43.830 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.d3814791-eb6c-c675-d608-e87922245cb4 targetSessionId=d3814791-eb6c-c675-d608-e87922245cb4 payloadLen=82
+2026-07-30 13:12:43.831 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session d3814791-eb6c-c675-d608-e87922245cb4 (payloadLen=82)
+2026-07-30 13:12:51.363 [http-nio-8080-exec-2] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: f97cb5cd-3b74-22db-96b7-14e7d481d2cd
+2026-07-30 13:12:51.393 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 13:12:51.460 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User d (1184) logged in successfully
+2026-07-30 13:12:51.463 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f97cb5cd-3b74-22db-96b7-14e7d481d2cd targetSessionId=f97cb5cd-3b74-22db-96b7-14e7d481d2cd payloadLen=53
+2026-07-30 13:12:51.463 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f97cb5cd-3b74-22db-96b7-14e7d481d2cd (payloadLen=53)
+2026-07-30 13:12:51.485 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as d with color W and rating 1184
+2026-07-30 13:12:51.486 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: d
+2026-07-30 13:12:52.097 [db-worker] INFO  o.e.n.server.room.MatchmakingManager - [SERVER OUT] User d (1184 ELO) entered matchmaking queue.
+2026-07-30 13:12:52.099 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f97cb5cd-3b74-22db-96b7-14e7d481d2cd targetSessionId=f97cb5cd-3b74-22db-96b7-14e7d481d2cd payloadLen=82
+2026-07-30 13:12:52.099 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f97cb5cd-3b74-22db-96b7-14e7d481d2cd (payloadLen=82)
+2026-07-30 13:12:52.104 [pool-3-thread-1] INFO  o.e.n.server.room.MatchmakingManager - [SERVER OUT] Match found! Room: match_28260f3d | d vs s
+2026-07-30 13:12:52.107 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f97cb5cd-3b74-22db-96b7-14e7d481d2cd targetSessionId=f97cb5cd-3b74-22db-96b7-14e7d481d2cd payloadLen=63
+2026-07-30 13:12:52.108 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f97cb5cd-3b74-22db-96b7-14e7d481d2cd (payloadLen=63)
+2026-07-30 13:12:52.108 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.d3814791-eb6c-c675-d608-e87922245cb4 targetSessionId=d3814791-eb6c-c675-d608-e87922245cb4 payloadLen=63
+2026-07-30 13:12:52.109 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session d3814791-eb6c-c675-d608-e87922245cb4 (payloadLen=63)
+2026-07-30 13:12:52.109 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Match found! Room: match_28260f3d against s
+2026-07-30 13:12:52.111 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Match found! Room: match_28260f3d against d
+2026-07-30 13:12:52.115 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Match found! Closing lobby...
+2026-07-30 13:12:52.167 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Match found! Closing lobby...
+2026-07-30 13:12:52.214 [db-worker] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 1 (White) joined room [match_28260f3d]: d
+2026-07-30 13:12:52.217 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User d (1184) joined Room match_28260f3d as WHITE
+2026-07-30 13:12:52.219 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f97cb5cd-3b74-22db-96b7-14e7d481d2cd targetSessionId=f97cb5cd-3b74-22db-96b7-14e7d481d2cd payloadLen=65
+2026-07-30 13:12:52.220 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f97cb5cd-3b74-22db-96b7-14e7d481d2cd (payloadLen=65)
+2026-07-30 13:12:52.220 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [d, W, 1184]
+2026-07-30 13:12:52.221 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-30 13:12:52.226 [db-worker] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 2 (Black) joined room [match_28260f3d]: s
+2026-07-30 13:12:52.227 [db-worker] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [match_28260f3d] Game Loop Started!
+2026-07-30 13:12:52.229 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.match_28260f3d for room match_28260f3d. Payload length=40
+2026-07-30 13:12:52.230 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User s (1185) joined Room match_28260f3d as BLACK
+2026-07-30 13:12:52.232 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f97cb5cd-3b74-22db-96b7-14e7d481d2cd targetSessionId=f97cb5cd-3b74-22db-96b7-14e7d481d2cd payloadLen=40
+2026-07-30 13:12:52.232 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f97cb5cd-3b74-22db-96b7-14e7d481d2cd (payloadLen=40)
+2026-07-30 13:12:52.233 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.d3814791-eb6c-c675-d608-e87922245cb4 targetSessionId=d3814791-eb6c-c675-d608-e87922245cb4 payloadLen=40
+2026-07-30 13:12:52.233 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session d3814791-eb6c-c675-d608-e87922245cb4 (payloadLen=40)
+2026-07-30 13:12:52.233 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.d3814791-eb6c-c675-d608-e87922245cb4 targetSessionId=d3814791-eb6c-c675-d608-e87922245cb4 payloadLen=65
+2026-07-30 13:12:52.233 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session d3814791-eb6c-c675-d608-e87922245cb4 (payloadLen=65)
+2026-07-30 13:12:52.233 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.match_28260f3d for room match_28260f3d. Payload length=3842
+2026-07-30 13:12:52.235 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f97cb5cd-3b74-22db-96b7-14e7d481d2cd targetSessionId=f97cb5cd-3b74-22db-96b7-14e7d481d2cd payloadLen=3842
+2026-07-30 13:12:52.236 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f97cb5cd-3b74-22db-96b7-14e7d481d2cd (payloadLen=3842)
+2026-07-30 13:12:52.237 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.d3814791-eb6c-c675-d608-e87922245cb4 targetSessionId=d3814791-eb6c-c675-d608-e87922245cb4 payloadLen=3842
+2026-07-30 13:12:52.237 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session d3814791-eb6c-c675-d608-e87922245cb4 (payloadLen=3842)
+2026-07-30 13:12:52.334 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: d | Black: s
+2026-07-30 13:12:52.356 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: d | Black: s
+2026-07-30 13:12:52.359 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [s, B, 1185]
+2026-07-30 13:12:52.434 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-30 13:12:55.114 [http-nio-8080-exec-6] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: f97cb5cd-3b74-22db-96b7-14e7d481d2cd
+2026-07-30 13:12:55.129 [nats:7] INFO  o.e.network.server.room.GameRoom - [GAME ROOM] Player [d] disconnected from room [match_28260f3d]. Starting disconnect timer.
+2026-07-30 13:12:55.144 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.match_28260f3d for room match_28260f3d. Payload length=66
+2026-07-30 13:12:55.153 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f97cb5cd-3b74-22db-96b7-14e7d481d2cd targetSessionId=f97cb5cd-3b74-22db-96b7-14e7d481d2cd payloadLen=66
+2026-07-30 13:12:55.154 [nats:4] WARN  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] No local session for id f97cb5cd-3b74-22db-96b7-14e7d481d2cd. Dropping payloadLen=66
+2026-07-30 13:12:55.154 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.d3814791-eb6c-c675-d608-e87922245cb4 targetSessionId=d3814791-eb6c-c675-d608-e87922245cb4 payloadLen=66
+2026-07-30 13:12:55.155 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session d3814791-eb6c-c675-d608-e87922245cb4 (payloadLen=66)
+2026-07-30 13:12:55.156 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: 20s
+2026-07-30 13:13:15.140 [pool-5-thread-1] INFO  o.e.n.s.g.DisconnectCountdownManager - [SERVER OUT] Player timed out. Winner: s
+2026-07-30 13:13:15.141 [pool-5-thread-1] INFO  o.e.network.server.room.GameRoom - [SERVER OUT] GAME OVER in room [match_28260f3d]. Winner: s (RESIGN_DISCONNECT)
+2026-07-30 13:13:15.142 [pool-5-thread-1] INFO  o.e.n.server.room.RoomMessenger - [SERVER OUT] Publishing GAME_OVER to room [match_28260f3d]: {"type":"GAME_OVER","winner":"s","reason":"RESIGN_DISCONNECT"}
+2026-07-30 13:13:15.143 [pool-5-thread-1] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [match_28260f3d] Game Loop Ended!
+2026-07-30 13:13:15.146 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.match_28260f3d for room match_28260f3d. Payload length=62
+2026-07-30 13:13:15.150 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.match_28260f3d for room match_28260f3d. Payload length=31
+2026-07-30 13:13:15.152 [ForkJoinPool.commonPool-worker-2] INFO  org.example.database.RatingService - [SERVER OUT] ELO Updated Async: d (1184) -> 1168) | s (1185 -> 1201)
+2026-07-30 13:13:23.907 [http-nio-8080-exec-9] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: d3814791-eb6c-c675-d608-e87922245cb4
+2026-07-30 13:25:08.198 [pool-3-thread-1] ERROR o.e.n.server.room.MatchmakingManager - [SERVER ERROR] Error processing matchmaking queue in Redis: java.net.SocketTimeoutException: Read timed out
+2026-07-30 14:00:08.245 [HikariPool-1 housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=12m21s283ms150µs).
+2026-07-30 14:11:26.011 [main] INFO  o.e.n.s.connection.ServerApplication - Starting ServerApplication using Java 22.0.2 with PID 37552 (C:\Users\user\Desktop\kfchess\KF_Chess\target\classes started by user in C:\Users\user\Desktop\kfchess\KF_Chess)
+2026-07-30 14:11:26.015 [main] INFO  o.e.n.s.connection.ServerApplication - No active profile set, falling back to 1 default profile: "default"
+2026-07-30 14:11:28.458 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-07-30 14:11:28.487 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2026-07-30 14:11:28.497 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-07-30 14:11:28.497 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.30]
+2026-07-30 14:11:28.699 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-07-30 14:11:28.703 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2608 ms
+2026-07-30 14:11:29.085 [main] INFO  org.example.network.nats.NatsBridge - [NATS] Connected successfully to nats://localhost:4222
+2026-07-30 14:11:29.986 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2026-07-30 14:11:30.012 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-07-30 14:11:30.024 [main] INFO  o.e.n.s.connection.ServerApplication - Started ServerApplication in 4.689 seconds (process running for 5.642)
+2026-07-30 14:11:31.498 [pool-3-thread-1] INFO  org.example.database.RedisManager - [Redis] Connection pool initialized successfully on localhost:6379
+2026-07-30 14:11:43.541 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-30 14:11:43.542 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-07-30 14:11:43.545 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2026-07-30 14:11:43.653 [http-nio-8080-exec-1] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: 0a4cb455-54c7-e8ab-ba20-41fc45d41832
+2026-07-30 14:11:43.671 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 14:11:43.918 [db-worker] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-07-30 14:11:44.329 [db-worker] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@5499118e
+2026-07-30 14:11:44.333 [db-worker] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-07-30 14:11:44.349 [db-worker] INFO  o.example.database.DatabaseManager - [PostgreSQL] DB initialized successfully.
+2026-07-30 14:11:44.549 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1246) logged in successfully
+2026-07-30 14:11:44.600 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.0a4cb455-54c7-e8ab-ba20-41fc45d41832 targetSessionId=0a4cb455-54c7-e8ab-ba20-41fc45d41832 payloadLen=53
+2026-07-30 14:11:44.609 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 0a4cb455-54c7-e8ab-ba20-41fc45d41832 (payloadLen=53)
+2026-07-30 14:11:44.653 [HttpClient-1-Worker-1] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as a with color W and rating 1246
+2026-07-30 14:11:44.656 [HttpClient-1-Worker-1] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: a
+2026-07-30 14:11:45.715 [db-worker] INFO  o.e.n.server.room.MatchmakingManager - [SERVER OUT] User a (1246 ELO) entered matchmaking queue.
+2026-07-30 14:11:45.726 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.0a4cb455-54c7-e8ab-ba20-41fc45d41832 targetSessionId=0a4cb455-54c7-e8ab-ba20-41fc45d41832 payloadLen=82
+2026-07-30 14:11:45.726 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 0a4cb455-54c7-e8ab-ba20-41fc45d41832 (payloadLen=82)
+2026-07-30 14:11:53.965 [http-nio-8080-exec-4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: cdbefea6-f898-9b31-344a-7a42a21855f6
+2026-07-30 14:11:53.997 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 14:11:54.096 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1202) logged in successfully
+2026-07-30 14:11:54.105 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.cdbefea6-f898-9b31-344a-7a42a21855f6 targetSessionId=cdbefea6-f898-9b31-344a-7a42a21855f6 payloadLen=53
+2026-07-30 14:11:54.105 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session cdbefea6-f898-9b31-344a-7a42a21855f6 (payloadLen=53)
+2026-07-30 14:11:54.184 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as z with color W and rating 1202
+2026-07-30 14:11:54.187 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: z
+2026-07-30 14:11:55.094 [db-worker] INFO  o.e.n.server.room.MatchmakingManager - [SERVER OUT] User z (1202 ELO) entered matchmaking queue.
+2026-07-30 14:11:55.101 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.cdbefea6-f898-9b31-344a-7a42a21855f6 targetSessionId=cdbefea6-f898-9b31-344a-7a42a21855f6 payloadLen=82
+2026-07-30 14:11:55.103 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session cdbefea6-f898-9b31-344a-7a42a21855f6 (payloadLen=82)
+2026-07-30 14:11:55.167 [pool-3-thread-1] INFO  o.e.n.server.room.MatchmakingManager - [SERVER OUT] Match found! Room: match_385e727d | z vs a
+2026-07-30 14:11:55.173 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.cdbefea6-f898-9b31-344a-7a42a21855f6 targetSessionId=cdbefea6-f898-9b31-344a-7a42a21855f6 payloadLen=63
+2026-07-30 14:11:55.175 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session cdbefea6-f898-9b31-344a-7a42a21855f6 (payloadLen=63)
+2026-07-30 14:11:55.176 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.0a4cb455-54c7-e8ab-ba20-41fc45d41832 targetSessionId=0a4cb455-54c7-e8ab-ba20-41fc45d41832 payloadLen=63
+2026-07-30 14:11:55.177 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Match found! Room: match_385e727d against a
+2026-07-30 14:11:55.178 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 0a4cb455-54c7-e8ab-ba20-41fc45d41832 (payloadLen=63)
+2026-07-30 14:11:55.180 [HttpClient-1-Worker-1] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Match found! Room: match_385e727d against z
+2026-07-30 14:11:55.183 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Match found! Closing lobby...
+2026-07-30 14:11:55.202 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Match found! Closing lobby...
+2026-07-30 14:11:55.386 [db-worker] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 1 (White) joined room [match_385e727d]: z
+2026-07-30 14:11:55.390 [db-worker] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 2 (Black) joined room [match_385e727d]: a
+2026-07-30 14:11:55.392 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1202) joined Room match_385e727d as WHITE
+2026-07-30 14:11:55.397 [db-worker] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [match_385e727d] Game Loop Started!
+2026-07-30 14:11:55.398 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.cdbefea6-f898-9b31-344a-7a42a21855f6 targetSessionId=cdbefea6-f898-9b31-344a-7a42a21855f6 payloadLen=65
+2026-07-30 14:11:55.398 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session cdbefea6-f898-9b31-344a-7a42a21855f6 (payloadLen=65)
+2026-07-30 14:11:55.399 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.match_385e727d for room match_385e727d. Payload length=40
+2026-07-30 14:11:55.400 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User a (1246) joined Room match_385e727d as BLACK
+2026-07-30 14:11:55.400 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [z, W, 1202]
+2026-07-30 14:11:55.401 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-30 14:11:55.401 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.cdbefea6-f898-9b31-344a-7a42a21855f6 targetSessionId=cdbefea6-f898-9b31-344a-7a42a21855f6 payloadLen=40
+2026-07-30 14:11:55.402 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session cdbefea6-f898-9b31-344a-7a42a21855f6 (payloadLen=40)
+2026-07-30 14:11:55.403 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.0a4cb455-54c7-e8ab-ba20-41fc45d41832 targetSessionId=0a4cb455-54c7-e8ab-ba20-41fc45d41832 payloadLen=40
+2026-07-30 14:11:55.403 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 0a4cb455-54c7-e8ab-ba20-41fc45d41832 (payloadLen=40)
+2026-07-30 14:11:55.404 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.0a4cb455-54c7-e8ab-ba20-41fc45d41832 targetSessionId=0a4cb455-54c7-e8ab-ba20-41fc45d41832 payloadLen=65
+2026-07-30 14:11:55.404 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 0a4cb455-54c7-e8ab-ba20-41fc45d41832 (payloadLen=65)
+2026-07-30 14:11:55.420 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.match_385e727d for room match_385e727d. Payload length=3832
+2026-07-30 14:11:55.424 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.cdbefea6-f898-9b31-344a-7a42a21855f6 targetSessionId=cdbefea6-f898-9b31-344a-7a42a21855f6 payloadLen=3832
+2026-07-30 14:11:55.426 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session cdbefea6-f898-9b31-344a-7a42a21855f6 (payloadLen=3832)
+2026-07-30 14:11:55.426 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.0a4cb455-54c7-e8ab-ba20-41fc45d41832 targetSessionId=0a4cb455-54c7-e8ab-ba20-41fc45d41832 payloadLen=3832
+2026-07-30 14:11:55.427 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 0a4cb455-54c7-e8ab-ba20-41fc45d41832 (payloadLen=3832)
+2026-07-30 14:11:55.594 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: a
+2026-07-30 14:11:55.596 [HttpClient-1-Worker-1] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: a
+2026-07-30 14:11:55.598 [HttpClient-1-Worker-1] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [a, B, 1246]
+2026-07-30 14:11:55.684 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-30 14:11:58.927 [http-nio-8080-exec-5] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: cdbefea6-f898-9b31-344a-7a42a21855f6
+2026-07-30 14:11:58.948 [nats:7] INFO  o.e.network.server.room.GameRoom - [GAME ROOM] Player [z] disconnected from room [match_385e727d]. Starting disconnect timer.
+2026-07-30 14:11:58.968 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.match_385e727d for room match_385e727d. Payload length=66
+2026-07-30 14:11:59.105 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.cdbefea6-f898-9b31-344a-7a42a21855f6 targetSessionId=cdbefea6-f898-9b31-344a-7a42a21855f6 payloadLen=66
+2026-07-30 14:11:59.106 [nats:4] WARN  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] No local session for id cdbefea6-f898-9b31-344a-7a42a21855f6. Dropping payloadLen=66
+2026-07-30 14:11:59.106 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.0a4cb455-54c7-e8ab-ba20-41fc45d41832 targetSessionId=0a4cb455-54c7-e8ab-ba20-41fc45d41832 payloadLen=66
+2026-07-30 14:11:59.108 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 0a4cb455-54c7-e8ab-ba20-41fc45d41832 (payloadLen=66)
+2026-07-30 14:11:59.108 [HttpClient-1-Worker-1] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Received DISCONNECT_COUNTDOWN from server: 20s
+2026-07-30 14:12:03.568 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.match_385e727d for room match_385e727d. Payload length=3834
+2026-07-30 14:12:03.574 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.cdbefea6-f898-9b31-344a-7a42a21855f6 targetSessionId=cdbefea6-f898-9b31-344a-7a42a21855f6 payloadLen=3834
+2026-07-30 14:12:03.574 [nats:4] WARN  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] No local session for id cdbefea6-f898-9b31-344a-7a42a21855f6. Dropping payloadLen=3834
+2026-07-30 14:12:03.575 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.0a4cb455-54c7-e8ab-ba20-41fc45d41832 targetSessionId=0a4cb455-54c7-e8ab-ba20-41fc45d41832 payloadLen=3834
+2026-07-30 14:12:03.576 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 0a4cb455-54c7-e8ab-ba20-41fc45d41832 (payloadLen=3834)
+2026-07-30 14:12:04.588 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.match_385e727d for room match_385e727d. Payload length=51
+2026-07-30 14:12:04.590 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.match_385e727d for room match_385e727d. Payload length=3837
+2026-07-30 14:12:04.594 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.cdbefea6-f898-9b31-344a-7a42a21855f6 targetSessionId=cdbefea6-f898-9b31-344a-7a42a21855f6 payloadLen=51
+2026-07-30 14:12:04.595 [nats:4] WARN  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] No local session for id cdbefea6-f898-9b31-344a-7a42a21855f6. Dropping payloadLen=51
+2026-07-30 14:12:04.596 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.0a4cb455-54c7-e8ab-ba20-41fc45d41832 targetSessionId=0a4cb455-54c7-e8ab-ba20-41fc45d41832 payloadLen=51
+2026-07-30 14:12:04.596 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 0a4cb455-54c7-e8ab-ba20-41fc45d41832 (payloadLen=51)
+2026-07-30 14:12:04.598 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.cdbefea6-f898-9b31-344a-7a42a21855f6 targetSessionId=cdbefea6-f898-9b31-344a-7a42a21855f6 payloadLen=3837
+2026-07-30 14:12:04.598 [nats:4] WARN  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] No local session for id cdbefea6-f898-9b31-344a-7a42a21855f6. Dropping payloadLen=3837
+2026-07-30 14:12:04.598 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.0a4cb455-54c7-e8ab-ba20-41fc45d41832 targetSessionId=0a4cb455-54c7-e8ab-ba20-41fc45d41832 payloadLen=3837
+2026-07-30 14:12:04.600 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 0a4cb455-54c7-e8ab-ba20-41fc45d41832 (payloadLen=3837)
+2026-07-30 14:12:08.578 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.match_385e727d for room match_385e727d. Payload length=3832
+2026-07-30 14:12:08.586 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.cdbefea6-f898-9b31-344a-7a42a21855f6 targetSessionId=cdbefea6-f898-9b31-344a-7a42a21855f6 payloadLen=3832
+2026-07-30 14:12:08.586 [nats:4] WARN  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] No local session for id cdbefea6-f898-9b31-344a-7a42a21855f6. Dropping payloadLen=3832
+2026-07-30 14:12:08.586 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.0a4cb455-54c7-e8ab-ba20-41fc45d41832 targetSessionId=0a4cb455-54c7-e8ab-ba20-41fc45d41832 payloadLen=3832
+2026-07-30 14:12:08.601 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 0a4cb455-54c7-e8ab-ba20-41fc45d41832 (payloadLen=3832)
+2026-07-30 14:12:18.967 [pool-4-thread-1] INFO  o.e.n.s.g.DisconnectCountdownManager - [SERVER OUT] Player timed out. Winner: a
+2026-07-30 14:12:18.983 [pool-4-thread-1] INFO  o.e.network.server.room.GameRoom - [SERVER OUT] GAME OVER in room [match_385e727d]. Winner: a (RESIGN_DISCONNECT)
+2026-07-30 14:12:19.032 [pool-4-thread-1] INFO  o.e.n.server.room.RoomMessenger - [SERVER OUT] Publishing GAME_OVER to room [match_385e727d]: {"type":"GAME_OVER","winner":"a","reason":"RESIGN_DISCONNECT"}
+2026-07-30 14:12:19.035 [ForkJoinPool.commonPool-worker-1] INFO  org.example.database.RatingService - [SERVER OUT] ELO Updated Async: z (1202) -> 1188) | a (1246 -> 1260)
+2026-07-30 14:12:19.045 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.match_385e727d for room match_385e727d. Payload length=62
+2026-07-30 14:12:19.052 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.cdbefea6-f898-9b31-344a-7a42a21855f6 targetSessionId=cdbefea6-f898-9b31-344a-7a42a21855f6 payloadLen=62
+2026-07-30 14:12:19.053 [nats:4] WARN  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] No local session for id cdbefea6-f898-9b31-344a-7a42a21855f6. Dropping payloadLen=62
+2026-07-30 14:12:19.053 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.0a4cb455-54c7-e8ab-ba20-41fc45d41832 targetSessionId=0a4cb455-54c7-e8ab-ba20-41fc45d41832 payloadLen=62
+2026-07-30 14:12:19.056 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 0a4cb455-54c7-e8ab-ba20-41fc45d41832 (payloadLen=62)
+2026-07-30 14:12:19.057 [HttpClient-1-Worker-1] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Game Over received. Winner: a
+2026-07-30 14:12:19.543 [pool-4-thread-1] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [match_385e727d] Game Loop Ended!
+2026-07-30 14:15:25.144 [http-nio-8080-exec-1] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: 0a4cb455-54c7-e8ab-ba20-41fc45d41832
+2026-07-30 14:15:40.624 [http-nio-8080-exec-2] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: 6a883f18-bdc2-95c2-c789-c1292a6d3242
+2026-07-30 14:15:40.654 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 14:15:40.837 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User z (1188) logged in successfully
+2026-07-30 14:15:40.853 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=53
+2026-07-30 14:15:40.853 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=53)
+2026-07-30 14:15:40.941 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as z with color W and rating 1188
+2026-07-30 14:15:40.946 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: z
+2026-07-30 14:15:43.945 [nats:6] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 1 (White) joined room [1]: z
+2026-07-30 14:15:43.967 [nats:6] INFO  o.e.n.server.connection.RoomHandler - [SERVER OUT] Room created successfully: [1] by user: z
+2026-07-30 14:15:43.987 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=100
+2026-07-30 14:15:43.989 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=100)
+2026-07-30 14:15:54.251 [http-nio-8080-exec-7] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client connected: f3127193-868f-3bc3-d99a-f8c84fd2f1f8
+2026-07-30 14:15:54.289 [ForkJoinPool.commonPool-worker-1] INFO  o.e.n.client.ChessWebSocketClient - [CLIENT OUT] Connected to chess server.
+2026-07-30 14:15:54.402 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User c (1216) logged in successfully
+2026-07-30 14:15:54.407 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=53
+2026-07-30 14:15:54.408 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=53)
+2026-07-30 14:15:54.464 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Logged in successfully as c with color W and rating 1216
+2026-07-30 14:15:54.466 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] LOGIN_SUCCESS received. Updated current user: c
+2026-07-30 14:15:56.814 [db-worker] INFO  o.e.network.server.room.RoomPlayers - [SERVER OUT] Player 2 (Black) joined room [1]: c
+2026-07-30 14:15:56.818 [db-worker] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [1] Game Loop Started!
+2026-07-30 14:15:56.823 [db-worker] INFO  o.e.n.server.connection.AuthHandler - [SERVER OUT] User c (1216) joined Room 1 as BLACK
+2026-07-30 14:15:56.824 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=40
+2026-07-30 14:15:56.829 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=40
+2026-07-30 14:15:56.831 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=40)
+2026-07-30 14:15:56.832 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=65
+2026-07-30 14:15:56.833 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=65)
+2026-07-30 14:15:56.834 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=40
+2026-07-30 14:15:56.835 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=40)
+2026-07-30 14:15:56.834 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] JOIN_ACCEPTED received from server: [c, B, 1216]
+2026-07-30 14:15:56.836 [AWT-EventQueue-0] INFO  org.example.view.LobbyWindow - [CLIENT OUT] Join room accepted! Closing launcher.
+2026-07-30 14:15:56.875 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3842
+2026-07-30 14:15:56.884 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=3842
+2026-07-30 14:15:56.885 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=3842)
+2026-07-30 14:15:56.886 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=3842
+2026-07-30 14:15:56.890 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=3842)
+2026-07-30 14:15:57.103 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: c
+2026-07-30 14:15:57.255 [HttpClient-1-Worker-0] INFO  o.example.app.GameLifecycleManager - [CLIENT OUT] GAME_STARTED received. White: z | Black: c
+2026-07-30 14:16:01.454 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3844
+2026-07-30 14:16:01.458 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=3844
+2026-07-30 14:16:01.460 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=3844)
+2026-07-30 14:16:01.460 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=3844
+2026-07-30 14:16:01.461 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=3844)
+2026-07-30 14:16:02.440 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=51
+2026-07-30 14:16:02.440 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3847
+2026-07-30 14:16:02.443 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=51
+2026-07-30 14:16:02.444 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=51)
+2026-07-30 14:16:02.445 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=51
+2026-07-30 14:16:02.446 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=51)
+2026-07-30 14:16:02.446 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=3847
+2026-07-30 14:16:02.448 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=3847)
+2026-07-30 14:16:02.448 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=3847
+2026-07-30 14:16:02.449 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=3847)
+2026-07-30 14:16:06.465 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3842
+2026-07-30 14:16:06.473 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=3842
+2026-07-30 14:16:06.476 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=3842)
+2026-07-30 14:16:06.477 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=3842
+2026-07-30 14:16:06.479 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=3842)
+2026-07-30 14:16:07.243 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3844
+2026-07-30 14:16:07.250 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=3844
+2026-07-30 14:16:07.252 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=3844)
+2026-07-30 14:16:07.252 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=3844
+2026-07-30 14:16:07.254 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=3844)
+2026-07-30 14:16:09.221 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=51
+2026-07-30 14:16:09.222 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3847
+2026-07-30 14:16:09.232 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=51
+2026-07-30 14:16:09.234 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=51)
+2026-07-30 14:16:09.236 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=51
+2026-07-30 14:16:09.237 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=51)
+2026-07-30 14:16:09.238 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=3847
+2026-07-30 14:16:09.240 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=3847)
+2026-07-30 14:16:09.241 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=3847
+2026-07-30 14:16:09.243 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=3847)
+2026-07-30 14:16:11.710 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3849
+2026-07-30 14:16:11.720 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=3849
+2026-07-30 14:16:11.722 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=3849)
+2026-07-30 14:16:11.723 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=3849
+2026-07-30 14:16:11.723 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=3849)
+2026-07-30 14:16:13.256 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3844
+2026-07-30 14:16:13.280 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=3844
+2026-07-30 14:16:13.282 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=3844)
+2026-07-30 14:16:13.282 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=3844
+2026-07-30 14:16:13.283 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=3844)
+2026-07-30 14:16:15.712 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=52
+2026-07-30 14:16:15.713 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3847
+2026-07-30 14:16:15.721 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=52
+2026-07-30 14:16:15.722 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=52)
+2026-07-30 14:16:15.740 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=52
+2026-07-30 14:16:15.742 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=52)
+2026-07-30 14:16:15.743 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=3847
+2026-07-30 14:16:15.744 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=3847)
+2026-07-30 14:16:15.745 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=3847
+2026-07-30 14:16:15.747 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=3847)
+2026-07-30 14:16:19.715 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3842
+2026-07-30 14:16:19.722 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=3842
+2026-07-30 14:16:19.723 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=3842)
+2026-07-30 14:16:19.724 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=3842
+2026-07-30 14:16:19.724 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=3842)
+2026-07-30 14:16:20.747 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3845
+2026-07-30 14:16:20.753 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=3845
+2026-07-30 14:16:20.755 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=3845)
+2026-07-30 14:16:20.756 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=3845
+2026-07-30 14:16:20.758 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=3845)
+2026-07-30 14:16:21.725 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3848
+2026-07-30 14:16:21.729 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=3848
+2026-07-30 14:16:21.730 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=3848)
+2026-07-30 14:16:21.730 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=3848
+2026-07-30 14:16:21.730 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=3848)
+2026-07-30 14:16:22.751 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3842
+2026-07-30 14:16:22.764 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=3842
+2026-07-30 14:16:22.765 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=3842)
+2026-07-30 14:16:22.766 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=3842
+2026-07-30 14:16:22.766 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=3842)
+2026-07-30 14:16:25.906 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3845
+2026-07-30 14:16:25.913 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=3845
+2026-07-30 14:16:25.913 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=3845)
+2026-07-30 14:16:25.914 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=3845
+2026-07-30 14:16:25.915 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=3845)
+2026-07-30 14:16:26.887 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3848
+2026-07-30 14:16:26.893 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=3848
+2026-07-30 14:16:26.895 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=3848)
+2026-07-30 14:16:26.895 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=3848
+2026-07-30 14:16:26.896 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=3848)
+2026-07-30 14:16:27.908 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3842
+2026-07-30 14:16:27.916 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=3842
+2026-07-30 14:16:27.918 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=3842)
+2026-07-30 14:16:27.919 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=3842
+2026-07-30 14:16:27.920 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=3842)
+2026-07-30 14:16:37.992 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3844
+2026-07-30 14:16:38.000 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=3844
+2026-07-30 14:16:38.001 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=3844)
+2026-07-30 14:16:38.003 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=3844
+2026-07-30 14:16:38.004 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=3844)
+2026-07-30 14:16:40.960 [pool-5-thread-1] INFO  o.e.network.server.room.GameRoom - [SERVER OUT] GAME OVER in room [1]. Winner: z (CHECKMATE)
+2026-07-30 14:16:40.966 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=42
+2026-07-30 14:16:40.968 [pool-5-thread-1] INFO  o.e.n.server.room.RoomMessenger - [SERVER OUT] Publishing GAME_OVER to room [1]: {"type":"GAME_OVER","winner":"z","reason":"CHECKMATE"}
+2026-07-30 14:16:40.977 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=42
+2026-07-30 14:16:40.978 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=54
+2026-07-30 14:16:40.979 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=42)
+2026-07-30 14:16:40.979 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=52
+2026-07-30 14:16:40.980 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=42
+2026-07-30 14:16:40.980 [nats:9] INFO  o.e.n.s.g.GameUpdatesNatsSubscriber - [GAME UPDATES] NATS message received on subject game.updates.1 for room 1. Payload length=3728
+2026-07-30 14:16:40.980 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=42)
+2026-07-30 14:16:40.985 [ForkJoinPool.commonPool-worker-2] INFO  org.example.database.RatingService - [SERVER OUT] ELO Updated Async: z (1188) -> 1205) | c (1216 -> 1199)
+2026-07-30 14:16:40.990 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=54
+2026-07-30 14:16:40.991 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=54)
+2026-07-30 14:16:40.992 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=54
+2026-07-30 14:16:40.993 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=54)
+2026-07-30 14:16:40.994 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=52
+2026-07-30 14:16:40.993 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Game Over received. Winner: z
+2026-07-30 14:16:40.995 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=52)
+2026-07-30 14:16:40.995 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=52
+2026-07-30 14:16:40.995 [HttpClient-1-Worker-0] INFO  o.e.n.client.ServerMessageDispatcher - [CLIENT OUT] Game Over received. Winner: z
+2026-07-30 14:16:40.997 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=52)
+2026-07-30 14:16:40.998 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.6a883f18-bdc2-95c2-c789-c1292a6d3242 targetSessionId=6a883f18-bdc2-95c2-c789-c1292a6d3242 payloadLen=3728
+2026-07-30 14:16:40.999 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session 6a883f18-bdc2-95c2-c789-c1292a6d3242 (payloadLen=3728)
+2026-07-30 14:16:41.000 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY NATS] Received subject=gateway.outbound.f3127193-868f-3bc3-d99a-f8c84fd2f1f8 targetSessionId=f3127193-868f-3bc3-d99a-f8c84fd2f1f8 payloadLen=3728
+2026-07-30 14:16:41.002 [nats:4] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Forwarded message to local session f3127193-868f-3bc3-d99a-f8c84fd2f1f8 (payloadLen=3728)
+2026-07-30 14:16:41.473 [pool-5-thread-1] INFO  o.e.n.server.game.GameLoopRunner - [SERVER OUT] Room [1] Game Loop Ended!
+2026-07-30 14:16:48.453 [http-nio-8080-exec-10] INFO  o.e.n.s.c.ChessWebSocketHandler - [WS GATEWAY] Client disconnected: 6a883f18-bdc2-95c2-c789-c1292a6d3242

@@ -57,7 +57,13 @@ public class RoomMessenger {
     }
 
     public void broadcastGameOver(String winner, String reason) {
-        sendToAll(new GameOverResponse(winner == null ? "" : winner, reason));
+        try {
+            String json = objectMapper.writeValueAsString(new GameOverResponse(winner == null ? "" : winner, reason));
+            log.info("[SERVER OUT] Publishing GAME_OVER to room [{}]: {}", roomId, json);
+            broadcastRaw(json);
+        } catch (Exception e) {
+            log.error("[SERVER ERROR] Error broadcasting GAME_OVER: {}", e.getMessage());
+        }
     }
 
     public void broadcastDisconnectCountdown(int seconds, String winnerIfTimeout) {

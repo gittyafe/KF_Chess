@@ -14,6 +14,7 @@ import org.springframework.web.socket.WebSocketSession;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -156,8 +157,33 @@ public class GameRoom {
      * regardless of whether the trigger was checkmate or a disconnect
      * timeout.
      */
+//    public void endGame(String winner, String loser, String reason) {
+//        if (!gameEnded.compareAndSet(false, true)) return; // already ended
+//
+//        log.info("[SERVER OUT] GAME OVER in room [{}]. Winner: {} ({})", roomId, winner, reason);
+//
+//        if (winner != null && loser != null) {
+//            ratingService.applyGameResultAsync(players.getWhiteUsername(), players.getBlackUsername(),
+//                    winner.equals(players.getWhiteUsername()) ? 1.0 : 0.0);
+//        }
+//
+//        messenger.broadcastGameOver(winner, reason);
+//
+//        // The game is genuinely finished now -- no more reconnecting into
+//        // it, so fully tear the room down (unlike a plain disconnect, where
+//        // we deliberately keep the loop/scheduler alive for a reconnect).
+//        shutdown();
+//
+//        if (onEndedCallback != null) {
+//            try {
+//                onEndedCallback.run();
+//            } catch (Exception e) {
+//                log.error("[SERVER ERROR] Error in room onEnded callback: {}", e.getMessage());
+//            }
+//        }
+//    }
     public void endGame(String winner, String loser, String reason) {
-        if (!gameEnded.compareAndSet(false, true)) return; // already ended
+        if (!gameEnded.compareAndSet(false, true)) return;
 
         log.info("[SERVER OUT] GAME OVER in room [{}]. Winner: {} ({})", roomId, winner, reason);
 
@@ -168,20 +194,16 @@ public class GameRoom {
 
         messenger.broadcastGameOver(winner, reason);
 
-        // The game is genuinely finished now -- no more reconnecting into
-        // it, so fully tear the room down (unlike a plain disconnect, where
-        // we deliberately keep the loop/scheduler alive for a reconnect).
-        shutdown();
-
-        if (onEndedCallback != null) {
-            try {
-                onEndedCallback.run();
-            } catch (Exception e) {
-                log.error("[SERVER ERROR] Error in room onEnded callback: {}", e.getMessage());
+        // Give GameUpdatesNatsSubscriber a chance to look up this room and
+        // fan the GAME_OVER message out before we remove it from the registry.
+        scheduler.schedule(() -> {
+            shutdown();
+            if (onEndedCallback != null) {
+                try { onEndedCallback.run(); }
+                catch (Exception e) { log.error("[SERVER ERROR] Error in room onEnded callback: {}", e.getMessage()); }
             }
-        }
+        }, 500, TimeUnit.MILLISECONDS);
     }
-
     public void sendGameStateToAll() { messenger.broadcastGameState(); }
 
     public void broadcastEvent(String type, List<Object> data) { messenger.broadcastEvent(type, data); }

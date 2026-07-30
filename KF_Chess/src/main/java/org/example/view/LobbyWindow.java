@@ -14,7 +14,6 @@ public class LobbyWindow {
     private final CardLayout cardLayout;
     private final JPanel mainPanel;
 
-    // 🟢 הפניה לדיאלוג החדר הפעיל כדי לנהל אותו באופן מרכזי ולמנוע הודעות כפולות
     private RoomDialog activeRoomDialog = null;
 
     public enum LobbyState { LOGIN, LOBBY, SEARCHING }
@@ -209,7 +208,6 @@ public class LobbyWindow {
     }
 
     private void registerEventBusListeners() {
-        // אימות הצליח -> מעבר למסך הלובי
         GameEventBus.getInstance().subscribe("LOGIN_SUCCESS", data -> {
             switchState(LobbyState.LOBBY);
         });
@@ -221,7 +219,6 @@ public class LobbyWindow {
             );
         });
 
-        // 🟢 הצטרפות לחדר אושרה -> סוגרים את דיאלוג החדר וסוגרים את ה-Launcher
         GameEventBus.getInstance().subscribe("JOIN_ACCEPTED", data -> SwingUtilities.invokeLater(() -> {
             log.info("[CLIENT OUT] Join room accepted! Closing launcher.");
             if (activeRoomDialog != null) {
@@ -231,7 +228,6 @@ public class LobbyWindow {
             close();
         }));
 
-        // 🟢 הצטרפות לחדר נדחתה -> מציגים הודעה יחידה בדיאלוג הקיים ומנקים את התיבה
         GameEventBus.getInstance().subscribe("JOIN_REJECTED", data -> SwingUtilities.invokeLater(() -> {
             if (activeRoomDialog != null && activeRoomDialog.isShowing()) {
                 String reason = data != null ? data.toString() : "Failed to join: Room does not exist";
@@ -239,7 +235,6 @@ public class LobbyWindow {
             }
         }));
 
-        // 🟢 החדר נוצר בהצלחה -> השרת אישר שהשם פנוי!
         GameEventBus.getInstance().subscribe("CREATE_ACCEPTED", data -> SwingUtilities.invokeLater(() -> {
             if (activeRoomDialog != null && activeRoomDialog.isShowing()) {
                 String roomId = data != null ? data.toString() : "";
@@ -247,7 +242,6 @@ public class LobbyWindow {
             }
         }));
 
-// 🔴 יצירת החדר נדחתה -> השם כבר תפוס בשרת!
         GameEventBus.getInstance().subscribe("CREATE_REJECTED", data -> SwingUtilities.invokeLater(() -> {
             if (activeRoomDialog != null && activeRoomDialog.isShowing()) {
                 String reason = data != null ? data.toString() : "Room ID already exists";
@@ -255,7 +249,6 @@ public class LobbyWindow {
             }
         }));
 
-// ⚔️ היריב נכנס והמשחק מתחיל -> רק עכשיו סוגרים את ה-Launcher וממשיכים למסך המשחק!
         GameEventBus.getInstance().subscribe("GAME_STARTED", data -> SwingUtilities.invokeLater(() -> {
             if (activeRoomDialog != null) {
                 activeRoomDialog.close();

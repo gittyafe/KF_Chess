@@ -42,6 +42,7 @@ public class GameUpdatesNatsSubscriber {
 
         NatsBridge.subscribe("game.updates.*", (subject, payload) -> {
             String roomId = extractRoomId(subject);
+            log.info("[GAME UPDATES] NATS message received on subject {} for room {}. Payload length={}", subject, roomId, payload == null ? 0 : payload.length());
             handleUpdate(roomId, payload);
         });
     }

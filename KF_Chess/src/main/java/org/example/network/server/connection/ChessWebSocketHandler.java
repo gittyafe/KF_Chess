@@ -24,6 +24,7 @@ public class ChessWebSocketHandler extends TextWebSocketHandler {
         // מקשיב לתשובות שחוזרות מכל ה-Services ב-NATS ומיועדות לשרת ה-WS הזה
         NatsBridge.subscribe("gateway.outbound.*", (subject, rawJson) -> {
             String targetSessionId = extractSessionIdFromSubject(subject);
+            log.info("[WS GATEWAY NATS] Received subject={} targetSessionId={} payloadLen={}", subject, targetSessionId, rawJson == null ? 0 : rawJson.length());
             sendToLocalSession(targetSessionId, rawJson);
         });
     }
@@ -74,8 +75,15 @@ public class ChessWebSocketHandler extends TextWebSocketHandler {
         if (session != null && session.isOpen()) {
             try {
                 session.sendMessage(new TextMessage(rawJson));
+                log.info("[WS GATEWAY] Forwarded message to local session {} (payloadLen={})", sessionId, rawJson == null ? 0 : rawJson.length());
             } catch (Exception e) {
                 log.error("[WS GATEWAY] Failed to send to session {}: {}", sessionId, e.getMessage());
+            }
+        } else {
+            if (session == null) {
+                log.warn("[WS GATEWAY] No local session for id {}. Dropping payloadLen={}", sessionId, rawJson == null ? 0 : rawJson.length());
+            } else {
+                log.warn("[WS GATEWAY] Local session {} not open (isOpen=false). Dropping payloadLen={}", sessionId, rawJson == null ? 0 : rawJson.length());
             }
         }
     }

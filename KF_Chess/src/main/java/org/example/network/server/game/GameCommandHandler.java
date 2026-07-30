@@ -17,7 +17,22 @@ import org.example.network.server.room.PlayerInfo;
 @Slf4j
 public class GameCommandHandler {
 
+    /**
+     * Fixed bug: an empty (or null) command used to reach {@code
+     * command.charAt(0)} below with no guard -- a {@code
+     * StringIndexOutOfBoundsException} (or NPE) thrown there is *outside*
+     * every one of {@code handleMove}/{@code handleJump}'s own try/catch
+     * blocks, so it propagated straight out of {@code handle()}
+     * uncaught. Depending on the caller, that could crash message
+     * handling for the whole session rather than just being ignored as a
+     * malformed command like every other invalid input here already is.
+     */
     public void handle(GameRoom room, PlayerInfo player, String command) {
+        if (command == null || command.isEmpty()) {
+            log.warn("[SERVER WARN] Ignored empty/null game command from player {}", player.username());
+            return;
+        }
+
         char firstChar = Character.toUpperCase(command.charAt(0));
         if (firstChar == 'J') {
             handleJump(room, player, command);

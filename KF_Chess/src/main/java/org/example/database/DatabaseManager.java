@@ -10,13 +10,34 @@ import java.sql.Statement;
 
 /**
  * Manages PostgreSQL connection pool (HikariCP) and schema initialization.
+ *
+ * <p>What changed and why:
+ * <ul>
+ *   <li>URL/user/password were hardcoded, forcing every environment (dev,
+ *       staging, prod, every developer's laptop) to share the same
+ *       database and credentials, and making it impossible to point at a
+ *       different host in Docker/K8s without a code change and rebuild.
+ *       Now read from env vars the same way {@code NatsBridge} already
+ *       does it, with the old literal values kept only as local-dev
+ *       fallbacks.</li>
+ *   <li>{@code initDatabase()} used to catch the schema-creation
+ *       {@code SQLException}, log it, and otherwise continue as if
+ *       nothing happened -- the process would come up "successfully" with
+ *       an unknown/missing schema, and the first real query later would
+ *       fail with a confusing, disconnected-looking error. It now rethrows
+ *       as an unchecked exception, so a bad DB/schema is a clear, loud
+ *       startup failure instead of a delayed mystery.</li>
+ * </ul>
  */
 @Slf4j
 public class DatabaseManager {
-    // פרטי ההתחברות ל-PostgreSQL שהרמנו ב-docker-compose
-    private static final String DB_URL = "jdbc:postgresql://localhost:5432/kfchess";
-    private static final String DB_USER = "postgres";
-    private static final String DB_PASSWORD = "password";
+
+    private static final String DB_URL =
+            System.getenv().getOrDefault("DB_URL", "jdbc:postgresql://localhost:5432/kfchess");
+    private static final String DB_USER =
+            System.getenv().getOrDefault("DB_USER", "postgres");
+    private static final String DB_PASSWORD =
+            System.getenv().getOrDefault("DB_PASSWORD", "password");
 
     private static final HikariDataSource dataSource;
 
@@ -26,7 +47,6 @@ public class DatabaseManager {
         config.setUsername(DB_USER);
         config.setPassword(DB_PASSWORD);
 
-        // הגדרות Connection Pool מותאמות עומס
         config.setMaximumPoolSize(20);
         config.setMinimumIdle(5);
         config.setIdleTimeout(30000);
@@ -43,7 +63,6 @@ public class DatabaseManager {
     }
 
     public static void initDatabase() {
-        // תחביר תואם PostgreSQL
         String createTableSQL = "CREATE TABLE IF NOT EXISTS users ("
                 + "username VARCHAR(50) PRIMARY KEY, "
                 + "password VARCHAR(255) NOT NULL, "
@@ -55,7 +74,9 @@ public class DatabaseManager {
             stmt.execute(createTableSQL);
             log.info("[PostgreSQL] DB initialized successfully.");
         } catch (SQLException e) {
-            log.error("[PostgreSQL ERROR] Database init error: {}", e.getMessage());
+            throw new IllegalStateException(
+                    "Failed to initialize PostgreSQL schema at " + DB_URL +
+                            " -- refusing to start with an unknown schema state.", e);
         }
     }
 }

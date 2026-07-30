@@ -3,6 +3,7 @@ package org.example.network.server.room;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.example.engines.GameEngine;
+import org.example.network.nats.NatsBridge;
 import org.example.network.protocol.NetworkDTOs.*;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -12,18 +13,20 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Owns all outbound communication for a room: JSON serialization and
- * sending/broadcasting to sessions. GameRoom and its other collaborators
- * describe *what* happened; this is the only place that knows *how* that
- * becomes a WebSocket message.
+ * sending/broadcasting to sessions/NATS. GameRoom and its other
+ * collaborators describe *what* happened; this is the only place that
+ * knows *how* that becomes a WebSocket message.
  */
 @Slf4j
 public class RoomMessenger {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final String roomId;
     private final RoomPlayers players;
     private final GameEngine gameEngine;
 
-    public RoomMessenger(RoomPlayers players, GameEngine gameEngine) {
+    public RoomMessenger(String roomId, RoomPlayers players, GameEngine gameEngine) {
+        this.roomId = roomId;
         this.players = players;
         this.gameEngine = gameEngine;
     }
@@ -67,11 +70,10 @@ public class RoomMessenger {
 
     /** Escape hatch for callers that still build their own JSON (kept so GameRoom's public API doesn't change). */
     public void broadcastRaw(String json) {
-        TextMessage msg = new TextMessage(json);
-        for (WebSocketSession session : players.getSessions()) {
-            try {
-                if (session.isOpen()) session.sendMessage(msg);
-            } catch (Exception ignored) {}
+        if (this.roomId != null) {
+            NatsBridge.publish("game.updates." + this.roomId, json);
+        } else {
+            log.warn("[ROOM MESSENGER WARN] roomId is null, cannot publish to NATS");
         }
     }
 
@@ -83,9 +85,39 @@ public class RoomMessenger {
         }
     }
 
+    /**
+     * Sends to exactly one session -- never to the whole room.
+     *
+     * <p><b>This used to be a real bug:</b> the old version fell back to
+     * {@code broadcastRaw(json)} -- i.e. the whole room's NATS channel --
+     * whenever the session wasn't open *locally*. In the distributed
+     * setup that's the *normal* case (a reconnecting/joining player's
+     * socket lives on a WS Gateway process, this code runs on a Game
+     * Shard process), so every reconnect or spectator join was blasting
+     * that person's private "game started" + full board snapshot to
+     * their opponent and every spectator in the room too, repeatedly.
+     *
+     * <p>The fix: if we don't have a live local socket for this session
+     * (including the normal in-process case, and the
+     * {@code NatsWebSocketSessionAdapter} case -- its {@code isOpen()} is
+     * always {@code true} and its {@code sendMessage()} already publishes
+     * correctly), publish to that session's own inbox,
+     * {@code "gateway.outbound.<sessionId>"} -- the exact channel
+     * {@code ChessWebSocketHandler} already listens on to deliver to one
+     * specific client, regardless of which shard produced the message.
+     */
     private void sendTo(WebSocketSession session, Object dto) throws Exception {
+        String json = objectMapper.writeValueAsString(dto);
+
+        if (session == null) {
+            log.warn("[ROOM MESSENGER WARN] sendTo() called with a null session; message dropped.");
+            return;
+        }
+
         if (session.isOpen()) {
-            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(dto)));
+            session.sendMessage(new TextMessage(json));
+        } else {
+            NatsBridge.publish("gateway.outbound." + session.getId(), json);
         }
     }
 }

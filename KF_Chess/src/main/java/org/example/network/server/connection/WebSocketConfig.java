@@ -1,6 +1,5 @@
 package org.example.network.server.connection;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
@@ -12,13 +11,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     private final ChessWebSocketHandler chessHandler;
 
-    public WebSocketConfig() {
-        this.chessHandler = new ChessWebSocketHandler();
-    }
-
-    @Bean
-    public ChessWebSocketHandler chessWebSocketHandler() {
-        return this.chessHandler;
+    public WebSocketConfig(ChessWebSocketHandler chessHandler) {
+        this.chessHandler = chessHandler;
     }
 
     @Override

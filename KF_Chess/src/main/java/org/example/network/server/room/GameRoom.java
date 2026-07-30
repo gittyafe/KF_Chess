@@ -5,6 +5,7 @@ import org.example.database.RatingService;
 import org.example.engines.BoardLoader;
 import org.example.engines.GameEngine;
 import org.example.models.Board;
+import org.example.models.Position;
 import org.example.network.server.game.DisconnectCountdownManager;
 import org.example.network.server.game.GameLoopRunner;
 import org.example.realtime.RealTimeArbiter;
@@ -83,7 +84,7 @@ public class GameRoom {
         BoardLoader.loadFromClasspath(board, PATH_BOARD_STARTING_POSITION);
         this.gameEngine = new GameEngine(board, new RealTimeArbiter());
 
-        this.messenger = new RoomMessenger(players, gameEngine);
+        this.messenger = new RoomMessenger(roomId, players, gameEngine);
         this.loopRunner = new GameLoopRunner(scheduler, this::tick);
         this.disconnectManager = new DisconnectCountdownManager(scheduler, messenger,
                 (winner, loser) -> endGame(winner, loser, "RESIGN_DISCONNECT"));
@@ -195,6 +196,26 @@ public class GameRoom {
         disconnectManager.startCountdown(winner, loser);
     }
 
+    /**
+     * טיפול בניתוק שחקן המגיע מ-NATS לפי שם משתמש (ללא תלות ב-WebSocketSession מקומי)
+     */
+    public synchronized void handleUserDisconnected(String username) {
+        if (!players.isStarted() || gameEnded.get()) return;
+
+        // בודקים אם המשתמש הוא אחד השחקנים (ולא צופה!)
+        boolean isWhite = username.equals(players.getWhiteUsername());
+        boolean isBlack = username.equals(players.getBlackUsername());
+
+        if (isWhite || isBlack) {
+            String winner = isWhite ? players.getBlackUsername() : players.getWhiteUsername();
+            String loser = username;
+            log.info("[GAME ROOM] Player [{}] disconnected from room [{}]. Starting disconnect timer.", username, roomId);
+            disconnectManager.startCountdown(winner, loser);
+        } else {
+            log.info("[GAME ROOM] Spectator [{}] disconnected from room [{}]. Ignored.", username, roomId);
+        }
+    }
+
     /** Called once a disconnected player's session is rebound, to stop the pending resign-timeout. */
     public void cancelDisconnectTimer() { disconnectManager.cancel(); }
 
@@ -217,6 +238,47 @@ public class GameRoom {
 
     public boolean isSpectator(WebSocketSession session) {
         return players.isSpectator(session);
+    }
+
+    public void handleIncomingPayload(String rawJson) {
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            com.fasterxml.jackson.databind.JsonNode node = mapper.readTree(rawJson);
+
+            String type = node.has("type") ? node.get("type").asText() : "";
+
+            switch (type) {
+                case "MOVE_REQUEST" -> {
+                    int fromRow = node.get("fromRow").asInt();
+                    int fromCol = node.get("fromCol").asInt();
+                    int toRow = node.get("toRow").asInt();
+                    int toCol = node.get("toCol").asInt();
+
+                    Position from = new Position(fromRow, fromCol);
+                    Position to = new Position(toRow, toCol);
+
+                    this.gameEngine.requestMove(from, to);
+                }
+                case "JUMP_REQUEST" -> {
+                    int row = node.get("row").asInt();
+                    int col = node.get("col").asInt();
+
+                    Position destination = new Position(row, col);
+
+                    this.gameEngine.jumpRequest(destination);
+                }
+                case "PLAYER_DISCONNECT" -> {
+                    if (node.has("username")) {
+                        String username = node.get("username").asText();
+                        // טיפול בניתוק המשתמש
+                        handleUserDisconnected(username);
+                    }
+                }
+                default -> log.debug("[GAME ROOM] Received unhandled event type: {}", type);
+            }
+        } catch (Exception e) {
+            log.error("[GAME ROOM ERROR] Error parsing NATS payload in room [{}]: {}", roomId, e.getMessage());
+        }
     }
 
     public char getColorForUsername(String username) { return players.getColorForUsername(username); }

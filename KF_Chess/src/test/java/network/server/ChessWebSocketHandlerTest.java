@@ -67,7 +67,7 @@ class ChessWebSocketHandlerTest {
     }
 
     @Test
-    void afterConnectionClosed_noRoomForSession_onlyClearsMatchmakingQueue() {
+    void afterConnectionClosed_noRoomForSession_onlyClearsMatchmakingQueue() throws Exception {
         when(registry.dropSession(session)).thenReturn(null);
 
         handler.afterConnectionClosed(session, CloseStatus.NORMAL);
@@ -76,7 +76,7 @@ class ChessWebSocketHandlerTest {
     }
 
     @Test
-    void afterConnectionClosed_spectatorLeaves_roomNotTouchedFurther() {
+    void afterConnectionClosed_spectatorLeaves_roomNotTouchedFurther() throws Exception {
         GameRoom room = mock(GameRoom.class);
         when(registry.dropSession(session)).thenReturn(room);
         when(room.isSpectator(session)).thenReturn(true);

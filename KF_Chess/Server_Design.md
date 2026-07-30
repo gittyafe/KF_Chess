@@ -104,5 +104,4 @@
    * יצירת `docker-compose.yml` המרים: `API Gateway`, `WS Gateway`, `Game Server`, `Redis`, `PostgreSQL`, ו-`NATS`.
 2. **התאמת קוד ה-Java הקיים:**
    * הפיכת `DatabaseManager` לאסינכרוני.
-   * שינוי מנגנון השידור ב-`GameLoopRunner` ל-Event-based בלבד.
    * הוצאת ה-Maps המקומיים ב-`RoomRegistry` והחלפתם ב-Redis Client / NATS Events.

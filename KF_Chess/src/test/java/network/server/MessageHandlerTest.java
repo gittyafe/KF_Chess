@@ -12,6 +12,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -141,7 +142,7 @@ class MessageHandlerTest {
     @Test
     void findMatch_loggedInPlayer_addsToQueue() {
         registry.registerPlayerInfo(session, "alice", 'W');
-        when(userRepository.getRating("alice")).thenReturn(1400);
+        when(userRepository.getRatingAsync("alice")).thenReturn(CompletableFuture.completedFuture(1400));
         String payload = "{\"type\":\"FIND_MATCH\"}";
 
         messageHandler.processMessage(session, payload, registry);

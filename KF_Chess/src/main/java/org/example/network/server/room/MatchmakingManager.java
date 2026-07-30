@@ -3,6 +3,8 @@ package org.example.network.server.room;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.example.database.RedisManager;
+import org.example.network.server.connection.NatsWebSocketSessionAdapter;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import redis.clients.jedis.Jedis;
@@ -12,11 +14,19 @@ import java.util.*;
 import java.util.concurrent.*;
 
 @Slf4j
+@Component
 public class MatchmakingManager {
 
     private final int RANGE_ELO = 100;
     private final long MINUTE = 60 * 1000;
     private static final String QUEUE_KEY = "matchmaking:queue";
+
+    // username -> "sessionId|joinTimeMs". Lets ANY instance's processQueue
+    // tick reconstruct a QueueEntry for a player who joined the queue on a
+    // different instance -- without this, localEntries (in-process only)
+    // meant a player added on shard A was invisible to shard B's tick,
+    // so it could never match them (or evict them on timeout).
+    private static final String QUEUE_META_KEY = "matchmaking:queue:meta";
 
     private static class QueueEntry {
         final WebSocketSession session;
@@ -24,11 +34,11 @@ public class MatchmakingManager {
         final int rating;
         final long joinTimeMs;
 
-        QueueEntry(WebSocketSession session, String username, int rating) {
+        QueueEntry(WebSocketSession session, String username, int rating, long joinTimeMs) {
             this.session = session;
             this.username = username;
             this.rating = rating;
-            this.joinTimeMs = System.currentTimeMillis();
+            this.joinTimeMs = joinTimeMs;
         }
     }
 
@@ -44,11 +54,13 @@ public class MatchmakingManager {
     public synchronized void addToQueue(WebSocketSession session, String username, int rating) {
         removeFromQueue(session);
 
-        QueueEntry entry = new QueueEntry(session, username, rating);
+        long joinTimeMs = System.currentTimeMillis();
+        QueueEntry entry = new QueueEntry(session, username, rating, joinTimeMs);
         localEntries.put(username, entry);
 
         try (Jedis jedis = RedisManager.getResource()) {
             jedis.zadd(QUEUE_KEY, rating, username);
+            jedis.hset(QUEUE_META_KEY, username, session.getId() + "|" + joinTimeMs);
             log.info("[SERVER OUT] User {} ({} ELO) entered matchmaking queue.", username, rating);
         } catch (Exception e) {
             log.error("[SERVER ERROR] Failed to add user {} to Redis matchmaking queue: {}", username, e.getMessage());
@@ -60,21 +72,48 @@ public class MatchmakingManager {
     public synchronized void removeFromQueue(WebSocketSession session) {
         String usernameToRemove = null;
         for (Map.Entry<String, QueueEntry> entry : localEntries.entrySet()) {
-            if (entry.getValue().session.equals(session)) {
+            // Compare by id, not object identity: virtual (NATS-backed)
+            // sessions are re-created per request, so a CANCEL_MATCHMAKING
+            // request builds a *different* adapter instance than the one
+            // stored during FIND_MATCH, even though it's the same client.
+            if (entry.getValue().session.getId().equals(session.getId())) {
                 usernameToRemove = entry.getKey();
                 break;
             }
+        }
+
+        // Fall back to Redis meta in case this instance never held the
+        // entry locally (e.g. CANCEL arrives on a different instance than
+        // the FIND_MATCH that queued it).
+        if (usernameToRemove == null) {
+            usernameToRemove = findUsernameBySessionIdInRedis(session.getId());
         }
 
         if (usernameToRemove != null) {
             localEntries.remove(usernameToRemove);
             try (Jedis jedis = RedisManager.getResource()) {
                 jedis.zrem(QUEUE_KEY, usernameToRemove);
+                jedis.hdel(QUEUE_META_KEY, usernameToRemove);
                 log.info("[SERVER OUT] User {} removed from matchmaking queue.", usernameToRemove);
             } catch (Exception e) {
                 log.error("[SERVER ERROR] Failed to remove user {} from Redis matchmaking queue: {}", usernameToRemove, e.getMessage());
             }
         }
+    }
+
+    private String findUsernameBySessionIdInRedis(String sessionId) {
+        try (Jedis jedis = RedisManager.getResource()) {
+            Map<String, String> meta = jedis.hgetAll(QUEUE_META_KEY);
+            for (Map.Entry<String, String> e : meta.entrySet()) {
+                String[] parts = e.getValue().split("\\|", 2);
+                if (parts.length == 2 && parts[0].equals(sessionId)) {
+                    return e.getKey();
+                }
+            }
+        } catch (Exception e) {
+            log.error("[SERVER ERROR] Failed to look up session {} in matchmaking meta: {}", sessionId, e.getMessage());
+        }
+        return null;
     }
 
     private synchronized void processQueue() {
@@ -88,9 +127,9 @@ public class MatchmakingManager {
             List<QueueEntry> queue = new ArrayList<>();
             for (Tuple tuple : redisEntries) {
                 String username = tuple.getElement();
-                QueueEntry localEntry = localEntries.get(username);
-                if (localEntry != null) {
-                    queue.add(localEntry);
+                QueueEntry entry = resolveEntry(jedis, username, (int) tuple.getScore());
+                if (entry != null) {
+                    queue.add(entry);
                 }
             }
 
@@ -125,6 +164,7 @@ public class MatchmakingManager {
 
             if (!toRemoveFromRedis.isEmpty()) {
                 jedis.zrem(QUEUE_KEY, toRemoveFromRedis.toArray(new String[0]));
+                jedis.hdel(QUEUE_META_KEY, toRemoveFromRedis.toArray(new String[0]));
             }
 
         } catch (Exception e) {
@@ -132,9 +172,31 @@ public class MatchmakingManager {
         }
     }
 
+    /** Local cache first; reconstructs from the Redis meta hash for entries this instance never saw. */
+    private QueueEntry resolveEntry(Jedis jedis, String username, int rating) {
+        QueueEntry local = localEntries.get(username);
+        if (local != null) return local;
+
+        String meta = jedis.hget(QUEUE_META_KEY, username);
+        if (meta == null) return null; // orphaned zset entry with no meta -- nothing safe to do with it
+
+        String[] parts = meta.split("\\|", 2);
+        if (parts.length != 2) return null;
+
+        String sessionId = parts[0];
+        long joinTimeMs;
+        try {
+            joinTimeMs = Long.parseLong(parts[1]);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+
+        return new QueueEntry(new NatsWebSocketSessionAdapter(sessionId), username, rating, joinTimeMs);
+    }
+
     private void createMatch(QueueEntry p1, QueueEntry p2) {
         String matchRoomId = "match_" + UUID.randomUUID().toString().substring(0, 8);
-        System.out.println("Match found! Room: " + matchRoomId + " | " + p1.username + " vs " + p2.username);
+        log.info("[SERVER OUT] Match found! Room: {} | {} vs {}", matchRoomId, p1.username, p2.username);
 
         sendMessage(p1.session, String.format("{\"type\":\"MATCH_FOUND\",\"roomId\":\"%s\",\"opponent\":\"%s\"}", matchRoomId, p2.username));
         sendMessage(p2.session, String.format("{\"type\":\"MATCH_FOUND\",\"roomId\":\"%s\",\"opponent\":\"%s\"}", matchRoomId, p1.username));

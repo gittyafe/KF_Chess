@@ -7,6 +7,7 @@ import org.example.network.server.room.GameRoom;
 import org.example.network.server.room.GameRoom.JoinResult;
 import org.example.network.protocol.NetworkDTOs.*;
 import org.example.network.server.room.RoomRegistry;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -14,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 @Slf4j
+@Component
 public class AuthHandler {
 
     private final ObjectMapper objectMapper;

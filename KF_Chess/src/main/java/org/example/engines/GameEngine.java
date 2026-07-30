@@ -3,6 +3,8 @@ package org.example.engines;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.Gson;
+import lombok.Getter;
 import org.example.models.Board;
 import org.example.models.MoveRequest;
 import org.example.models.MoveStatus;
@@ -17,6 +19,7 @@ import org.example.realtime.RealTimeArbiter;
  * Main game engine that orchestrates board state and game flow
  */
 public class GameEngine {
+    @Getter
     private Board board;
     private boolean isGameOver = false;
     private RealTimeArbiter rta;
@@ -261,4 +264,5 @@ public class GameEngine {
             listener.onPieceCaptured(capturedType, capturingColor);
         }
     }
+
 }

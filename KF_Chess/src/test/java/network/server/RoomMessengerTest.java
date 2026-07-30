@@ -32,7 +32,7 @@ class RoomMessengerTest {
     void setUp() {
         players = new RoomPlayers();
         engine = mock(GameEngine.class);
-        messenger = new RoomMessenger(players, engine);
+        messenger = new RoomMessenger("room1", players, engine);
 
         white = mock(WebSocketSession.class);
         black = mock(WebSocketSession.class);

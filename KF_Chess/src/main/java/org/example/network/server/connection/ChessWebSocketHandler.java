@@ -1,77 +1,86 @@
 package org.example.network.server.connection;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.example.database.UserRepository;
-import org.example.network.redis.RedisSubscriber;
-import org.example.network.server.room.GameRoom;
-import org.example.network.server.room.MatchmakingManager;
-import org.example.network.server.room.RoomRegistry;
+import org.example.network.nats.NatsBridge;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 @Slf4j
+@Component
 public class ChessWebSocketHandler extends TextWebSocketHandler {
 
-    private final RoomRegistry registry = new RoomRegistry();
-    private final MatchmakingManager matchmakingManager;
-    private final MessageHandler messageHandler;
-    private final RedisSubscriber redisSubscriber;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final Map<String, WebSocketSession> localSessions = new ConcurrentHashMap<>();
 
     public ChessWebSocketHandler() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        UserRepository userRepository = new UserRepository();
-        AuthHandler authHandler = new AuthHandler(objectMapper, userRepository);
-        this.matchmakingManager = new MatchmakingManager(objectMapper);
-        this.messageHandler = new MessageHandler(objectMapper, authHandler, matchmakingManager, userRepository);
-
-        this.redisSubscriber = new RedisSubscriber(objectMapper, (roomId, rawJson) -> {
-            GameRoom localRoom = registry.getRoom(roomId);
-            if (localRoom != null) {
-                localRoom.broadcast(rawJson);
-            }
+        // מקשיב לתשובות שחוזרות מכל ה-Services ב-NATS ומיועדות לשרת ה-WS הזה
+        NatsBridge.subscribe("gateway.outbound.*", (subject, rawJson) -> {
+            String targetSessionId = extractSessionIdFromSubject(subject);
+            sendToLocalSession(targetSessionId, rawJson);
         });
-        this.redisSubscriber.startListening();
+    }
+
+    @Override
+    public void afterConnectionEstablished(WebSocketSession session) {
+        localSessions.put(session.getId(), session);
+        log.info("[WS GATEWAY] Client connected: {}", session.getId());
     }
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
         String payload = message.getPayload();
-        if (payload == null || payload.isBlank()) return;
 
-        messageHandler.processMessage(session, payload, registry);
+        try {
+            if (payload.trim().startsWith("{")) {
+                JsonNode root = objectMapper.readTree(payload);
+                String type = root.has("type") ? root.get("type").asText() : "";
+
+                // מנתב את ההודעות לערוצי ה-NATS המתאימים לפי סוג ההודעה
+                switch (type) {
+                    case "LOGIN", "RECONNECT", "JOIN_ROOM", "JOIN_MATCH" ->
+                            NatsBridge.publish("auth.requests." + session.getId(), payload);
+                    case "CREATE_ROOM" ->
+                            NatsBridge.publish("room.requests." + session.getId(), payload);
+                    case "FIND_MATCH", "CANCEL_MATCHMAKING" ->
+                            NatsBridge.publish("matchmaking.requests." + session.getId(), payload);
+                    default ->
+                            NatsBridge.publish("game.commands." + session.getId(), payload);
+                }
+            } else {
+                NatsBridge.publish("game.commands." + session.getId(), payload);
+            }
+        } catch (Exception e) {
+            log.error("[WS GATEWAY] Error routing message: {}", e.getMessage());
+        }
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        matchmakingManager.removeFromQueue(session);
-        GameRoom room = registry.dropSession(session);
+        localSessions.remove(session.getId());
+        NatsBridge.publish("gateway.session.closed", session.getId());
+        log.info("[WS GATEWAY] Client disconnected: {}", session.getId());
+    }
 
-        if (room == null) return;
-
-        room.removeSession(session);
-
-        if (room.isSpectator(session)){
-            log.info("[SERVER OUT] Spectator disconnected from room " + room.getRoomId());
-            return;
+    private void sendToLocalSession(String sessionId, String rawJson) {
+        WebSocketSession session = localSessions.get(sessionId);
+        if (session != null && session.isOpen()) {
+            try {
+                session.sendMessage(new TextMessage(rawJson));
+            } catch (Exception e) {
+                log.error("[WS GATEWAY] Failed to send to session {}: {}", sessionId, e.getMessage());
+            }
         }
+    }
 
-        if (room.isStarted() && !room.isEnded()) {
-            // Deliberately do NOT remove the room here. GameRoom keeps its
-            // loop/scheduler alive for a grace period so the player can
-            // reconnect (see RECONNECT/LOGIN handling in AuthHandler).
-            // Cleanup of the registry happens automatically via GameRoom's
-            // onEnded callback once endGame() fires.
-            log.info("[SERVER OUT] Player disconnected! Starting resign countdown...");
-            room.handlePlayerDisconnect(session);
-        } else if (!room.isStarted() && room.getSessions().isEmpty()) {
-            // Nobody ever showed up to play against them -- no game to
-            // reconnect into, safe to tear down immediately.
-            log.info("[SERVER OUT] Room {} is abandoned and will be removed.", room.getRoomId());
-            registry.unregisterRoomIfAbandoned(room);
-            room.shutdown();
-        }
+    private String extractSessionIdFromSubject(String subject) {
+        return subject.substring(subject.lastIndexOf('.') + 1);
     }
 }

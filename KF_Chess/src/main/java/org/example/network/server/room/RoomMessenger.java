@@ -120,4 +120,33 @@ public class RoomMessenger {
             NatsBridge.publish("gateway.outbound." + session.getId(), json);
         }
     }
+
+    private volatile String lastBroadcastedStateJson;
+
+    public void broadcastGameStateIfChanged() {
+        try {
+            String json = objectMapper.writeValueAsString(new BoardUpdateResponse(gameEngine.getSnapshot()));
+            if (json.equals(lastBroadcastedStateJson)) {
+                return; // nothing changed since the last tick -- skip the network round-trip entirely
+            }
+            lastBroadcastedStateJson = json;
+            broadcastRaw(json);
+        } catch (Exception e) {
+            log.error("[SERVER ERROR] Error broadcasting game state: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Lightweight heartbeat for client-side idle animations (piece
+     * breathing, cooldown countdown visuals, etc.) that need a periodic
+     * clock signal even when nothing in the actual game state has changed.
+     * Deliberately NOT a full board snapshot -- just a server timestamp --
+     * so it stays cheap even sent frequently. Complements, not replaces,
+     * broadcastGameStateIfChanged(): that one is event-driven per
+     * Server_Design.md and skips idle ticks entirely; this one exists
+     * specifically to cover the gap that leaves for animation timing.
+     */
+    public void broadcastHeartbeat() {
+        sendToAll(new SimpleEventResponse("HEARTBEAT", List.of(System.currentTimeMillis())));
+    }
 }

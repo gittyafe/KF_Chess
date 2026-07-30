@@ -134,7 +134,7 @@ public class GameRoom {
             return; // endGame()/disconnect path is responsible for stopping the loop
         }
         gameEngine.wait_((int) GameLoopRunner.TICK_MS);
-        messenger.broadcastGameState();
+        messenger.broadcastGameStateIfChanged();
     }
 
     public void startLoop() { loopRunner.start(roomId); }

@@ -46,13 +46,19 @@ public class GameLifecycleManager {
     public void registerEventListeners() {
         GameEventBus eventBus = GameEventBus.getInstance();
 
-        // 🔊 Sound effects. Kept separate from the window/rendering
-        // subscriptions below so audio logic doesn't get tangled up with UI
-        // logic -- if you want to mute, add a volume slider, etc., this is
-        // the only place to touch.
         eventBus.subscribe("GAME_STARTED", data -> SoundManager.play(SoundManager.Sound.GAME_START));
         eventBus.subscribe("PIECE_CAPTURED", data -> SoundManager.play(SoundManager.Sound.PIECE_CAPTURED));
         eventBus.subscribe("GAME_OVER", data -> SoundManager.play(SoundManager.Sound.GAME_OVER));
+
+        // Releases the stale window reference once a game genuinely ends, so
+        // the next GAME_STARTED's "if (activeWindow != null) return;" guard
+        // (which exists to stop a duplicate window for the *same* game) stops
+        // also blocking window creation for every *subsequent* game in this
+        // session. Without this, frame.dispose() (in GameWindow.handleGameOver)
+        // releases the native window but never clears this field -- so the
+        // very next match found after any game ends silently produces no
+        // window at all.
+        eventBus.subscribe("GAME_OVER", data -> SwingUtilities.invokeLater(() -> activeWindow = null));
 
         eventBus.subscribe("JOIN_ACCEPTED", data ->
                 log.info("[CLIENT OUT] JOIN_ACCEPTED received from server: {}", data)
@@ -88,7 +94,7 @@ public class GameLifecycleManager {
                                 window.getWidth(),
                                 window.getHeight()
                         );
-                        eventBus.publish("BOARD_UPDATE", payload);
+                        eventBus.publish(org.example.bus.GameServerEvents.BOARD_UPDATE, payload);
                     } finally {
                         isRendering.set(false);
                     }

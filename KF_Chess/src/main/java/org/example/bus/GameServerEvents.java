@@ -16,6 +16,7 @@ package org.example.bus;
  */
 public final class GameServerEvents {
 
+
     private GameServerEvents() {}
 
     // Gameplay
@@ -24,6 +25,7 @@ public final class GameServerEvents {
     public static final String PIECE_CAPTURED = "PIECE_CAPTURED";
     public static final String GAME_STARTED = "GAME_STARTED";
     public static final String GAME_OVER = "GAME_OVER";
+    public static final String BOARD_UPDATE = "BOARD_UPDATE";
 
     // Login / connection lifecycle
     public static final String LOGIN_SUCCESS = "LOGIN_SUCCESS";
